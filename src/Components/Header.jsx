@@ -11,7 +11,7 @@ const Header = () => {
   ];
 
   return (
-    <div className="header w-[960px] h-[64px] justify-self-center flex items-center justify-between text-white sticky z-10  top-0  backdrop-blur-sm">
+    <div className="header w-[960px] h-[64px] justify-self-center flex items-center justify-between text-white ">
       <Link to="/">
         <motion.div
           className="logo_name w-[110px] h-[16px] text-center font-[100] font-growmajour text-[22px] flex cursor-pointer"

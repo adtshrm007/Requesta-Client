@@ -1,46 +1,35 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion"; // Correct import from 'framer-motion'
-
+import { motion } from "motion/react";
 const TagLine = () => {
   const tagline1 = "Leave & Certificate Portal.";
   const tagline2 = "Apply smart. Track fast.";
 
   return (
     <motion.div
-      className="tagline w-full max-w-[960px] h-[500px] mx-auto flex flex-col justify-center text-center px-4"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="tagline w-[960px] h-[500px]  justify-self-center flex flex-col justify-center text-center"
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
       transition={{
         type: "spring",
         stiffness: 100,
-        duration: 1.5,
+        duration: 5,
         ease: "easeInOut",
       }}
     >
-      <div className="text-white text-[32px] sm:text-[40px] font-growmajour mb-2">
+      <div className="tagline_1 h-[40px] text-white text-[40px] font-growmajour">
         {tagline1}
       </div>
-      <div className="text-[#777777] text-[28px] sm:text-[36px] font-radon">
+      <div className="tagline_1 h-[40px] text-[#777777] text-[40px] font-radon">
         {tagline2}
       </div>
-
-      <div className="mt-10 flex flex-wrap justify-center items-center gap-5 font-mooxy">
+      <div className="tagline_1 h-[40px] mt-10 flex justify-center items-center gap-5 font-mooxy">
         <Link to="/adminlogin">
-          <motion.button
-            className="bg-white w-[140px] h-[40px] rounded-full text-[14px] font-semibold text-black shadow-md transition-all"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.button className="admin_login bg-white w-[120px] h-[30px] rounded-[100px] text-[14px] text-center cursor-pointer" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             Login as Admin
           </motion.button>
         </Link>
-
         <Link to="/studentlogin">
-          <motion.button
-            className="bg-[#191919] w-[140px] h-[40px] rounded-full text-[14px] font-semibold text-white shadow-md transition-all"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.button className="student_login bg-[#191919] w-[120px] h-[30px] rounded-[100px] text-[14px] text-center text-white cursor-pointer" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             Login as Student
           </motion.button>
         </Link>
