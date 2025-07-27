@@ -7,10 +7,6 @@ const App = () => {
   return (
     <>
     <Header/>
-    <TagLine/>
-    <MainSection/>
-    <StartSection/>
-    <Footer/>
     </>
   )
 };

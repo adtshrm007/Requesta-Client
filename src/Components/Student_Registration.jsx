@@ -36,7 +36,7 @@ export default function StudentRegister() {
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
-              type="date"
+              type="text"
               placeholder="Batch Year"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
