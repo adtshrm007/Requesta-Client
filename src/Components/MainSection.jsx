@@ -20,7 +20,7 @@ const sections = [
 
 const MainSection = () => {
   return (
-    <div className="main_section w-full max-w-screen-lg mx-auto flex flex-col items-center gap-12 font-[Aboreto] px-4 py-8">
+    <div className="main_section w-full max-w-screen-lg mx-auto flex flex-col items-center gap-12 font-radonregular px-4 py-8 " id="about">
       {sections.map((sec, index) => (
         <motion.div
           key={index}
