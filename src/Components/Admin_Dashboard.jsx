@@ -19,7 +19,7 @@ export default function AdminDashboard() {
           <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
             Notifications
           </p>
-          <Link to="/studentprofile">
+          <Link to="/adminprofile">
             <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
               Profile
             </p>
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
           <Link to="/students"><p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
             Students
           </p></Link>
-          <Link to="/studentprofile">
+          <Link to="/addadmin">
             <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
               Add an admin
             </p>

@@ -1,7 +1,6 @@
-import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
-
-export default function StudentRegister() {
+import logo from "../assets/logo.svg.png"
+const AddAdmin = () => {
   return (
     <>
       <div className="w-full h-screen flex flex-col items-center justify-center bg-black px-4">
@@ -12,7 +11,7 @@ export default function StudentRegister() {
             Requesta
           </h2>
           <h3 className="text-[#777777] font-growmajour text-[32px] mt-2">
-            Student Login
+            Add Admin
           </h3>
         </div>
 
@@ -21,10 +20,9 @@ export default function StudentRegister() {
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"
-              placeholder="Registration Number"
+              placeholder="Admin Id"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
-             
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
@@ -32,37 +30,30 @@ export default function StudentRegister() {
               placeholder="Name"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
-             
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
-              type="Number"
+              type="text"
               placeholder="Mobile No."
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
-             
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"
-              placeholder="Branch"
+              placeholder="Department"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
-             
           </div>
-          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
-            <input
-              type="text"
-              placeholder="Batch Year"
-              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
-            />
-             
-          </div>
-          <Link to='/studentlogin'><button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer">
-            Register as Student
-          </button></Link>
+          <Link to="/studentlogin">
+            <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer">
+              Submit Changes
+            </button>
+          </Link>
         </div>
       </div>
     </>
   );
-}
+};
+
+export default AddAdmin;

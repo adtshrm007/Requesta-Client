@@ -8,6 +8,8 @@ import StudentDashboard from './Components/Student_Dashboard';
 import AdminDashboard from './Components/Admin_Dashboard';
 import StudentProfile from './Components/Student_Profile';
 import Students from './Components/Students';
+import AdminProfile from './Components/Admin_Profile';
+import AddAdmin from './Components/AddAdmin';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 const root = document.getElementById('root');
@@ -24,6 +26,8 @@ app.render(
       <Route path="/studentdashboard" element={<StudentDashboard/>}/>
       <Route path="/admindashboard" element={<AdminDashboard/>}/>
       <Route path="/studentprofile" element={<StudentProfile/>}/>
+      <Route path="/adminprofile" element={<AdminProfile/>}/>
+      <Route path="/addadmin" element={<AddAdmin/>}/>
     </Routes>
   </BrowserRouter>
 );

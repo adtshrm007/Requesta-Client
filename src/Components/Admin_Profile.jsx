@@ -1,7 +1,7 @@
-import logo from "../assets/logo.svg.png";
-import { Link } from "react-router-dom";
 import { useState } from "react";
-const StudentProfile = () => {
+import logo from "../assets/logo.svg.png"
+import { Link } from "react-router-dom";
+const AdminProfile = () => {
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
 
@@ -9,8 +9,6 @@ const StudentProfile = () => {
     setHome(!home);
     setEditProfile(!editProfile);
   }
-
-  console.log(editProfile);
 
   return (
     <>
@@ -25,7 +23,7 @@ const StudentProfile = () => {
 
         {/* Nav Links */}
         <div className="flex items-center gap-4 text-[#777777] font-mooxy text-[15px]">
-          <Link to="/studentdashboard">
+          <Link to="/admindashboard">
             <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
               Dashboard
             </p>
@@ -60,16 +58,10 @@ const StudentProfile = () => {
                 123456789
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
-                Branch
+                Department
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
                 CST
-              </p>
-              <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
-                Year
-              </p>
-              <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                2024
               </p>
             </div>
             <div className="w-[960px] h-[225px] justify-self-center mt-20">
@@ -108,7 +100,7 @@ const StudentProfile = () => {
               <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
                 <input
                   type="text"
-                  placeholder="Registration Number"
+                  placeholder="Admin Id"
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -129,14 +121,7 @@ const StudentProfile = () => {
               <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
                 <input
                   type="text"
-                  placeholder="Branch"
-                  className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
-                />
-              </div>
-              <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="Batch Year"
+                  placeholder="Department"
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -153,4 +138,4 @@ const StudentProfile = () => {
   );
 };
 
-export default StudentProfile;
+export default AdminProfile;

@@ -2,20 +2,24 @@ import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import { useState } from "react";
-import { motion } from "motion/react"
+import { motion } from "motion/react";
 const StudentDashboard = () => {
-  const [MyRequests, setMyRequests] = useState(false);
+  const [home, setHome] = useState(true);
+  const [createRequests, setCreateRequest] = useState(false);
   // Logic to handle click on "My Requests"
-  function handleClickOnMyRequests() {
-    setMyRequests(!MyRequests);
+  function handleClickOnCreateRequest() {
+    setHome(!home);
+    setCreateRequest(!createRequests)
   }
   return (
     <>
       <div className="w-full max-w-[960px] h-[64px] mx-auto flex items-center justify-between px-4 text-white">
         {/* Logo & Title */}
         <Link to="/">
-          <motion.div className="flex items-center font-growmajour text-[22px] cursor-pointer" initial={{ x:-100}}
-            animate={{ x:0}}
+          <motion.div
+            className="flex items-center font-growmajour text-[22px] cursor-pointer"
+            initial={{ x: -100 }}
+            animate={{ x: 0 }}
             transition={{
               repeat: Infinity,
               repeatType: "reverse",
@@ -23,9 +27,9 @@ const StudentDashboard = () => {
               stiffness: 100,
               duration: 5,
               ease: "easeInOut",
-            }}>
-            <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" 
-            />
+            }}
+          >
+            <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" />
             <p>REQUESTA</p>
           </motion.div>
         </Link>
@@ -41,26 +45,30 @@ const StudentDashboard = () => {
             </p>
           </Link>
           <p
-            onClick={handleClickOnMyRequests}
+            onClick={handleClickOnCreateRequest}
             className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer"
           >
             Create Request
           </p>
         </div>
       </div>
-      <div className="w-[960px] h-[40px] mt-10 justify-self-center">
-        <h1 className="text-white font-radonregular text-[40px]">
-          Welcome,Aditya
-        </h1>
-      </div>
-      <div className="w-[960px] h-[40px] justify-self-center">
-        <h2 className="text-[#777777] font-growmajour text-[40px]">
-          STUDENT DASHBOARD
-        </h2>
-      </div>
-      <div className="w-[960px] h-[583px] bg-slate-700 justify-self-center mt-7 mb-10"></div>
+      {home && (
+        <>
+          <div className="w-[960px] h-[40px] mt-10 justify-self-center">
+            <h1 className="text-white font-radonregular text-[40px]">
+              Welcome,Aditya
+            </h1>
+          </div>
+          <div className="w-[960px] h-[40px] justify-self-center">
+            <h2 className="text-[#777777] font-growmajour text-[40px]">
+              STUDENT DASHBOARD
+            </h2>
+          </div>
+          <div className="w-[960px] h-[583px] bg-slate-700 justify-self-center mt-7 mb-10"></div>
+        </>
+      )}
 
-      {MyRequests && (
+      {createRequests && (
         <>
           <div className="min-h-screen bg-[#0D0D0D] text-white px-6 py-12 flex flex-col gap-12 items-center font-sans">
             {/* Leave Application Form */}

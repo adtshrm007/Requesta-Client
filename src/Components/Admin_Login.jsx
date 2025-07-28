@@ -21,7 +21,7 @@ export default function AdminLogin() {
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"
-              placeholder="Registration Number"
+              placeholder="Admin Id"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
           </div>
