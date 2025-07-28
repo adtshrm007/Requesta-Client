@@ -31,9 +31,6 @@ export default function AdminLogin() {
             </button>
           </Link>
         </div>
-        <Link to='/adminregister'><button className="w-[320px] h-[45px] rounded-[20px] bg-[#0D0D0D] text-[#777777] border-[1px] border-white font-mooxy mt-10 cursor-pointer">
-          Don't have an account? Register
-        </button></Link>
       </div>
     </>
   );

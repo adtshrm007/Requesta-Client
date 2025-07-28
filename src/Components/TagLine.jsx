@@ -15,6 +15,7 @@ const TagLine = () => {
         duration: 5,
         ease: "easeInOut",
       }}
+      id="start"
     >
       <div className="tagline_1 h-[40px] text-white text-[40px] font-growmajour">
         {tagline1}
