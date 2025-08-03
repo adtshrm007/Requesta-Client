@@ -2,17 +2,23 @@ import logo from "../assets/logo.svg.png";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { fetchStudentData } from "../utils/GETstudentData";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { ToastContainer,toast } from "react-toastify";
 
 export default function StudentLoginRegister() {
+  const navigate = useNavigate();
   const [RegistrationNumber, setRegistrationNumber] = useState("");
   async function handleLogin() {
-  if (!RegistrationNumber.trim()) {
-    alert("Please enter registration number");
-    return;
+    if (!RegistrationNumber.trim()) {
+      toast.error("Please enter registration number");
+      return;
+    }
+    const res = await fetchStudentData(RegistrationNumber);
+    if (res) {
+      navigate("/studentdashboard");
+    }
   }
-  await fetchStudentData(RegistrationNumber);
-}
 
   return (
     <>
@@ -30,6 +36,7 @@ export default function StudentLoginRegister() {
 
         {/* Login Form */}
         <div className="flex flex-col gap-5 w-full max-w-[320px]">
+          <ToastContainer position="top-right" autoClose={3000} />
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"
