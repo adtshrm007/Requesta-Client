@@ -10,7 +10,7 @@ const Header = () => {
     { id: 3, name: "Help" },
     { id: 4, name: "Contact" },
   ];
-
+  
   return (
     <div className="header w-[960px] h-[64px] justify-self-center flex items-center justify-between text-white ">
       <Link to="/">
