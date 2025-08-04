@@ -1,18 +1,21 @@
 import axios from "axios";
-import { toast } from 'react-toastify'; 
+import { toast } from "react-toastify";
 
 export const fetchStudentData = async (regnNo) => {
   try {
     const response = await axios.get(
-      "http://localhost:3000/api/studentregister/", {
-        params: { registrationNumber: regnNo }
+      "http://localhost:3000/api/studentregister/",
+      {
+        params: { registrationNumber: regnNo },
       }
     );
 
     if (response.data) {
       toast.success("Logged In Successfully");
       console.log("Student Found:", response.data);
-      return response.data; 
+      localStorage.setItem("accessToken", response.data.accessToken);
+
+      return response.data;
     }
   } catch (error) {
     if (error.response && error.response.status === 404) {

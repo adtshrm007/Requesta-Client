@@ -1,16 +1,40 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { motion } from "motion/react";
+import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 const StudentDashboard = () => {
   const [home, setHome] = useState(true);
   const [createRequests, setCreateRequest] = useState(false);
+  const [name,setName]=useState("")
+  const [regnNo,setregNo]=useState("");
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
     setHome(!home);
-    setCreateRequest(!createRequests)
+    setCreateRequest(!createRequests);
   }
+  const getStudent = async () => {
+    const currentLoggedIn = await fetchCurrentStudent();
+    return currentLoggedIn;
+  };
+
+   useEffect(() => {
+    const fetchData = async () => {
+      const student = await getStudent();
+      if (student && student.name) {
+        setName(student.name); // setName with actual value
+      }
+      if (student && student.registrationNumber) {
+        setregNo(student.registrationNumber); // setName with actual value
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
   return (
     <>
       <div className="w-full max-w-[960px] h-[64px] mx-auto flex items-center justify-between px-4 text-white">
@@ -54,9 +78,12 @@ const StudentDashboard = () => {
       </div>
       {home && (
         <>
-          <div className="w-[960px] h-[40px] mt-10 justify-self-center">
+          <div className="w-[960px] h-[120px] mt-10 justify-self-center">
             <h1 className="text-white font-radonregular text-[40px]">
-              Welcome,Aditya
+              Welcome {name}
+            </h1>
+            <h1 className="text-white font-radonregular text-[40px]">
+              Registration No.=={regnNo}
             </h1>
           </div>
           <div className="w-[960px] h-[40px] justify-self-center">
