@@ -1,9 +1,35 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useEffect } from "react";
+import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 const StudentProfile = () => {
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
+  const [name,setName]=useState("");
+  const [regnNo,setregnNo]=useState("");
+  const [branch,setBranch]=useState("");
+  const [year,setYear]=useState("");
+  const [mobileNumber,setmobileNumber]=useState("");
+
+  useEffect(()=>{
+    const getProfile=async()=>{
+      const student=await fetchCurrentStudent();
+      if(student){
+        setName(student.name);
+        setBranch(student.branch);
+        setregnNo(student.registrationNumber);
+        setmobileNumber(student.mobileNumber);
+        setYear(student.year)
+      }
+
+
+    }
+    getProfile();
+
+  },[])
+
+  
 
   function handleClickOnEditProfile() {
     setHome(!home);
@@ -42,7 +68,7 @@ const StudentProfile = () => {
         <>
           <div className="w-[960px] h-[48px] justify-self-center mt-10">
             <h1 className="text-white text-[24px] gap-none font-radonregular">
-              Aditya Sharma
+              {name}
             </h1>
             <h2 className="text-[#777777] text-[24px] font-growmajour">
               Student
@@ -57,19 +83,19 @@ const StudentProfile = () => {
                 Registration Number
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                123456789
+                {regnNo}
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
                 Branch
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                CST
+                {branch}
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
                 Year
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                2024
+                {year}
               </p>
             </div>
             <div className="w-[960px] h-[225px] justify-self-center mt-20">
@@ -77,13 +103,13 @@ const StudentProfile = () => {
                 Name
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                Aditya Sharma
+                {name}
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
                 Phone Number
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                6206563442
+                {mobileNumber}
               </p>
             </div>
           </div>
@@ -109,6 +135,7 @@ const StudentProfile = () => {
                 <input
                   type="text"
                   placeholder="Registration Number"
+                  defaultValue={regnNo}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -116,6 +143,7 @@ const StudentProfile = () => {
                 <input
                   type="text"
                   placeholder="Name"
+                  defaultValue={name}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -123,6 +151,7 @@ const StudentProfile = () => {
                 <input
                   type="text"
                   placeholder="Mobile No."
+                  defaultValue={mobileNumber}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -130,6 +159,7 @@ const StudentProfile = () => {
                 <input
                   type="text"
                   placeholder="Branch"
+                  defaultValue={branch}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -137,6 +167,7 @@ const StudentProfile = () => {
                 <input
                   type="text"
                   placeholder="Batch Year"
+                  defaultValue={year}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
