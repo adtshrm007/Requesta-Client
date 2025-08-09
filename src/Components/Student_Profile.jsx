@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
+import { updateStudent } from "../utils/UPDATEstudents";
+import { useNavigate } from "react-router-dom";
 const StudentProfile = () => {
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
@@ -12,6 +14,7 @@ const StudentProfile = () => {
   const [year,setYear]=useState("");
   const [mobileNumber,setmobileNumber]=useState("");
 
+  const navigate=useNavigate();
   useEffect(()=>{
     const getProfile=async()=>{
       const student=await fetchCurrentStudent();
@@ -29,14 +32,33 @@ const StudentProfile = () => {
 
   },[])
 
+  const EditProfile = async () => {
+  const updatedStudent = {
+    registrationNumber: regnNo,
+    name,
+    mobileNumber,
+    branch,
+    year,
+  };
+  const postEditedData = await updateStudent(updatedStudent);
+  return postEditedData;
+};
+
+
+
+    
+
   
 
   function handleClickOnEditProfile() {
     setHome(!home);
     setEditProfile(!editProfile);
   }
-
-  console.log(editProfile);
+  function handleEditProfile(){
+    console.log(name,regnNo,branch,mobileNumber,year)
+    EditProfile();
+    navigate("/studentdahboard")
+  }
 
   return (
     <>
@@ -136,6 +158,7 @@ const StudentProfile = () => {
                   type="text"
                   placeholder="Registration Number"
                   defaultValue={regnNo}
+                  onChange={(e)=>setregnNo(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -144,6 +167,7 @@ const StudentProfile = () => {
                   type="text"
                   placeholder="Name"
                   defaultValue={name}
+                  onChange={(e)=>setName(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -152,6 +176,7 @@ const StudentProfile = () => {
                   type="text"
                   placeholder="Mobile No."
                   defaultValue={mobileNumber}
+                  onChange={(e)=>setmobileNumber(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -160,6 +185,7 @@ const StudentProfile = () => {
                   type="text"
                   placeholder="Branch"
                   defaultValue={branch}
+                  onChange={(e)=>setBranch(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -168,14 +194,13 @@ const StudentProfile = () => {
                   type="text"
                   placeholder="Batch Year"
                   defaultValue={year}
+                  onChange={(e)=>setYear(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
-              <Link to="/studentlogin">
-                <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer">
+                <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer" onClick={handleEditProfile}>
                   Submit Changes
                 </button>
-              </Link>
             </div>
           </div>
         </>
