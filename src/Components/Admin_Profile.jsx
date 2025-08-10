@@ -1,13 +1,53 @@
-import { useState } from "react";
-import logo from "../assets/logo.svg.png"
+import { useEffect, useState } from "react";
+import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
+import { getAdminDashboard } from "../utils/GETAdminDashBoard";
+import { updateAdmin } from "../utils/UPDATEAdmin";
+import { useNavigate } from "react-router-dom";
 const AdminProfile = () => {
+  const navigate = useNavigate();
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
+  const [adminName, setAdminName] = useState("");
+  const [adminMobileNumber, setAdminMobileNumber] = useState("");
+  const [adminDepartment, setAdminDepartment] = useState("");
+  const [adminID, setAdminID] = useState("");
 
   function handleClickOnEditProfile() {
     setHome(!home);
     setEditProfile(!editProfile);
+  }
+  const getAdminDetails = async () => {
+    const admin = getAdminDashboard();
+    return admin;
+  };
+  useEffect(() => {
+    const fetchDetails = async () => {
+      const res = await getAdminDetails();
+      if (res) {
+        setAdminDepartment(res.department);
+        setAdminID(res.adminID);
+        setAdminName(res.name);
+        setAdminMobileNumber(res.mobileNumber);
+      }
+    };
+    fetchDetails();
+  }, []);
+
+  const EditAdminProfile = async () => {
+    const newUpdatedAdmin = {
+      adminID: adminID,
+      department: adminDepartment,
+      mobileNumber: adminMobileNumber,
+      name: adminName,
+    };
+    const newAdmin = await updateAdmin(newUpdatedAdmin);
+    return newAdmin;
+  };
+
+  function handleAdminEdit() {
+    EditAdminProfile();
+    navigate("/admindashboard");
   }
 
   return (
@@ -40,10 +80,10 @@ const AdminProfile = () => {
         <>
           <div className="w-[960px] h-[48px] justify-self-center mt-10">
             <h1 className="text-white text-[24px] gap-none font-radonregular">
-              Aditya Sharma
+              {adminName}
             </h1>
             <h2 className="text-[#777777] text-[24px] font-growmajour">
-              Student
+              Admin
             </h2>
           </div>
           <div className="flex w-[950px] h-auto ng-slate-700  justify-self-center">
@@ -52,16 +92,16 @@ const AdminProfile = () => {
                 Profile Info
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
-                Registration Number
+                AdminID
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                123456789
+                {adminID}
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
                 Department
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                CST
+                {adminDepartment}
               </p>
             </div>
             <div className="w-[960px] h-[225px] justify-self-center mt-20">
@@ -69,13 +109,13 @@ const AdminProfile = () => {
                 Name
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                Aditya Sharma
+                {adminName}
               </p>
               <p className="text-[16px] font-[500] font-radonregular mt-10 text-white">
                 Phone Number
               </p>
               <p className="text-[16px] font-[500] font-mooxy text-[#777777]">
-                6206563442
+                {adminMobileNumber}
               </p>
             </div>
           </div>
@@ -101,6 +141,8 @@ const AdminProfile = () => {
                 <input
                   type="text"
                   placeholder="Admin Id"
+                  defaultValue={adminID}
+                  onChange={(e) => setAdminID(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -108,6 +150,8 @@ const AdminProfile = () => {
                 <input
                   type="text"
                   placeholder="Name"
+                  defaultValue={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -115,6 +159,8 @@ const AdminProfile = () => {
                 <input
                   type="text"
                   placeholder="Mobile No."
+                  defaultValue={adminMobileNumber}
+                  onChange={(e) => setAdminMobileNumber(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
@@ -122,14 +168,18 @@ const AdminProfile = () => {
                 <input
                   type="text"
                   placeholder="Department"
+                  defaultValue={adminDepartment}
+                  onChange={(e) => setAdminDepartment(e.target.value)}
                   className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
                 />
               </div>
-              <Link to="/studentlogin">
-                <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer">
-                  Submit Changes
-                </button>
-              </Link>
+
+              <button
+                className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
+                onClick={handleAdminEdit}
+              >
+                Submit Changes
+              </button>
             </div>
           </div>
         </>

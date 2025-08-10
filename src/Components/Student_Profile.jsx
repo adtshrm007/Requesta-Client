@@ -57,7 +57,7 @@ const StudentProfile = () => {
   function handleEditProfile(){
     console.log(name,regnNo,branch,mobileNumber,year)
     EditProfile();
-    navigate("/studentdahboard")
+    navigate("/studentdashboard")
   }
 
   return (

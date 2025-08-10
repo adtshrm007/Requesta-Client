@@ -1,6 +1,29 @@
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.svg.png"
+import { postAdminData } from "../utils/POSTAdminData";
+import logo from "../assets/logo.svg.png";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 const AddAdmin = () => {
+  const navigate=useNavigate();
+  const [adminName, setAdminName] = useState("");
+  const [adminMobileNumber, setAdminMobileNumber] = useState("");
+  const [adminDepartment, setAdminDepartment] = useState("");
+  const [adminID, setAdminID] = useState("");
+
+  async function handleRegister() {
+    const newAdmin = {
+      adminID: adminID,
+      name: adminName,
+      mobileNumber: adminMobileNumber,
+      department: adminDepartment,
+    };
+
+    const result = await postAdminData(newAdmin);
+
+    if (result) {
+      navigate("/adminlogin");
+    }
+  }
   return (
     <>
       <div className="w-full h-screen flex flex-col items-center justify-center bg-black px-4">
@@ -21,6 +44,7 @@ const AddAdmin = () => {
             <input
               type="text"
               placeholder="Admin Id"
+              onChange={(e)=>setAdminID(e.target.value)}
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
           </div>
@@ -28,6 +52,7 @@ const AddAdmin = () => {
             <input
               type="text"
               placeholder="Name"
+              onChange={(e)=>setAdminName(e.target.value)}
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
           </div>
@@ -35,6 +60,7 @@ const AddAdmin = () => {
             <input
               type="text"
               placeholder="Mobile No."
+              onChange={(e)=>setAdminMobileNumber(e.target.value)}
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
           </div>
@@ -42,14 +68,13 @@ const AddAdmin = () => {
             <input
               type="text"
               placeholder="Department"
+              onChange={(e)=>setAdminDepartment(e.target.value)}
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
             />
           </div>
-          <Link to="/studentlogin">
-            <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer">
+            <button className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer" onClick={handleRegister}>
               Submit Changes
             </button>
-          </Link>
         </div>
       </div>
     </>

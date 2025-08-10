@@ -1,7 +1,27 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
+import { getAdminDashboard } from "../utils/GETAdminDashBoard";
+
+import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
+  const [adminName,setAdminName]=useState("");
+  const getAdminData=async()=>{
+    const currentAdmin=await getAdminDashboard();
+    return currentAdmin;
+
+  }
+  useEffect(()=>{
+    const fetchData=async()=>{
+      const admin=await getAdminData();
+      if(admin&&admin.name){
+        setAdminName(admin.name)
+      }
+    }
+    fetchData();
+
+  },[adminName])
+
   return (
     <>
       {/* Header */}
@@ -38,7 +58,7 @@ export default function AdminDashboard() {
       {/* Tagline */}
       <div className="w-full max-w-[960px] mx-auto px-4 flex flex-col items-center justify-center text-center py-10">
         <div className="text-white text-3xl sm:text-4xl md:text-5xl font-growmajour mb-2">
-          Welcome, Aditya
+          Welcome, {adminName}
         </div>
         <div className="text-[#777777] text-2xl sm:text-3xl md:text-4xl font-radonregular mb-5">
           Manage Leaves & Requests
