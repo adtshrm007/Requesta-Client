@@ -1,26 +1,25 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import { getAdminDashboard } from "../utils/GETAdminDashBoard";
-
 import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
-  const [adminName,setAdminName]=useState("");
-  const getAdminData=async()=>{
-    const currentAdmin=await getAdminDashboard();
+  const [adminName, setAdminName] = useState("");
+  const getAdminData = async () => {
+    const currentAdmin = await getAdminDashboard();
     return currentAdmin;
-
-  }
-  useEffect(()=>{
-    const fetchData=async()=>{
-      const admin=await getAdminData();
-      if(admin&&admin.name){
-        setAdminName(admin.name)
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const admin = await getAdminData();
+      if (admin && admin.name) {
+        setAdminName(admin.name);
       }
-    }
+    };
     fetchData();
+  }, [adminName]);
 
-  },[adminName])
+  
 
   return (
     <>
@@ -44,9 +43,11 @@ export default function AdminDashboard() {
               Profile
             </p>
           </Link>
-          <Link to="/students"><p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-            Students
-          </p></Link>
+          <Link to="/students">
+            <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
+              Students
+            </p>
+          </Link>
           <Link to="/addadmin">
             <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
               Add an admin
@@ -75,11 +76,15 @@ export default function AdminDashboard() {
       {/* Stats Section */}
       <div className="max-w-[960px] w-full mx-auto px-4 flex flex-col sm:flex-row items-center justify-around gap-8 sm:gap-6 pb-8 font-mooxy text-center mt-17">
         <div>
-          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">1250</h3>
+          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">
+            1250
+          </h3>
           <p className="text-lg md:text-xl text-gray-400">Total Students</p>
         </div>
         <div>
-          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">36</h3>
+          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">
+            36
+          </h3>
           <p className="text-lg md:text-xl text-gray-400">Total Requests</p>
         </div>
       </div>

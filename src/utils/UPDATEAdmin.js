@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const updateAdmin = async (adminData) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
       "http://localhost:3000/api/adminregister/update",
       adminData,

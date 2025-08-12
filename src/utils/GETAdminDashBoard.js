@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const getAdminDashboard = async () => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
       "http://localhost:3000/api/adminregister/dashboard",
       {
@@ -11,7 +11,6 @@ export const getAdminDashboard = async () => {
         },
       }
     );
-    console.log("Current Logged In Admin:", response.data.data);
     return response.data.data;
   } catch (err) {
     return err;

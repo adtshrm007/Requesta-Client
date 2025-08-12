@@ -1,15 +1,11 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { getStudents } from "../utils/GETAllStudents";
 
 const Students = () => {
-  const initialStudents = [
-    { id: 1, registrationNumber: 121, name: "Aditya Sharma" },
-    { id: 2, registrationNumber: 122, name: "Riya Sen" },
-    { id: 3, registrationNumber: 123, name: "Kunal Mehta" },
-    { id: 4, registrationNumber: 124, name: "Priya Kapoor" },
-    { id: 5, registrationNumber: 125, name: "Aditya Sharma" },
-  ];
+  const initialStudents = [];
+  let i = 1;
 
   const [home, setHome] = useState(true);
   const [addStudent, setAddStudent] = useState(false);
@@ -17,6 +13,7 @@ const Students = () => {
   const [search, setSearch] = useState("");
   const [studentsList, setStudentsList] = useState(initialStudents);
   const [filteredStudents, setFilteredStudents] = useState(initialStudents);
+  const [applyFilters, setApplyFilters] = useState(false);
 
   const [mainStudent, setMainStudent] = useState({
     registrationNumber: "",
@@ -42,15 +39,21 @@ const Students = () => {
   }, [search, studentsList, searchStudent]);
 
   const handleClickOnAddStudent = () => {
-    setHome(false);
-    setAddStudent(true);
+    setHome(!home);
+    setAddStudent(!addStudent);
     setSearchStudent(false);
   };
 
   const handleClickOnSearchStudent = () => {
     setHome(true);
     setAddStudent(false);
-    setSearchStudent(true);
+    setSearchStudent(!searchStudent);
+  };
+  const handleClickOnApplyFilters = () => {
+    setHome(true);
+    setAddStudent(false);
+    setSearchStudent(false);
+    setApplyFilters(!applyFilters);
   };
 
   const handleClickOnAddMoreStudents = () => {
@@ -94,10 +97,18 @@ const Students = () => {
     setSearchStudent(false);
   };
 
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const res = await getStudents();
+      setStudentsList(res);
+    };
+    fetchStudents();
+  }, []);
+
   return (
     <>
       {/* Header */}
-      <div className="w-full max-w-[960px] mx-auto flex flex-col sm:flex-row items-center justify-between px-4 py-4 text-white">
+      <div className="w-full max-w-[960px] mx-auto  items-center justify-between px-4 py-4 text-white">
         <Link to="/">
           <div className="flex items-center font-growmajour text-[22px] cursor-pointer mb-2 sm:mb-0">
             <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" />
@@ -111,13 +122,23 @@ const Students = () => {
           >
             Add Student(s)
           </p>
+
           <p
             className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer"
             onClick={handleClickOnSearchStudent}
           >
             Search Student
           </p>
+          <p
+            className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer"
+            onClick={handleClickOnApplyFilters}
+          >
+            Apply Filter(s)
+          </p>
         </div>
+        {applyFilters && (
+          <div className="bg-slate-500 w-[200px] h-[200px] justify-self-end mt-5 ml-20"></div>
+        )}
       </div>
 
       {/* Search Box */}
@@ -138,13 +159,13 @@ const Students = () => {
         <ol className="flex flex-col items-center">
           {filteredStudents.map((stu) => (
             <li
-              key={stu.id}
+              key={stu._id}
               className="w-[960px] h-[40px] justify-self-center mt-4 flex items-center justify-between text-white px-4 rounded bg-[#111]"
             >
-              <div className="w-[200px] text-center font-mooxy">
+              <div className="w-[200px] text-left font-mooxy">
                 <span className="font-radonregular">Name:</span> {stu.name}
               </div>
-              <div className="w-[300px] text-center">
+              <div className="w-[300px] text-left">
                 <span className="font-radonregular">Registration Number:</span>{" "}
                 {stu.registrationNumber}
               </div>
@@ -168,14 +189,27 @@ const Students = () => {
               className="flex flex-col gap-4 font-mooxy"
             >
               {/* Main Student Inputs */}
-              {["name", "registrationNumber", "mobile_no", "branch", "batch"].map((field) => (
+              {[
+                "name",
+                "registrationNumber",
+                "mobile_no",
+                "branch",
+                "batch",
+              ].map((field) => (
                 <label key={field}>
-                  {field.split("_").join(" ").replace(/^\w/, (c) => c.toUpperCase())}:
+                  {field
+                    .split("_")
+                    .join(" ")
+                    .replace(/^\w/, (c) => c.toUpperCase())}
+                  :
                   <input
                     className="mt-1 p-3 w-full h-[35px] rounded-lg bg-[#2A2A2A]"
                     value={mainStudent[field]}
                     onChange={(e) =>
-                      setMainStudent({ ...mainStudent, [field]: e.target.value })
+                      setMainStudent({
+                        ...mainStudent,
+                        [field]: e.target.value,
+                      })
                     }
                     required={field !== "mobile_no" && field !== "batch"}
                   />
@@ -185,9 +219,19 @@ const Students = () => {
               {/* Extra Students */}
               {extraStudents.map((student, index) => (
                 <div key={index} className="mt-6 border-t border-gray-600 pt-4">
-                  {["name", "registrationNumber", "mobile_no", "branch", "batch"].map((field) => (
+                  {[
+                    "name",
+                    "registrationNumber",
+                    "mobile_no",
+                    "branch",
+                    "batch",
+                  ].map((field) => (
                     <label key={field}>
-                      {field.split("_").join(" ").replace(/^\w/, (c) => c.toUpperCase())}:
+                      {field
+                        .split("_")
+                        .join(" ")
+                        .replace(/^\w/, (c) => c.toUpperCase())}
+                      :
                       <input
                         className="mt-1 p-3 w-full h-[35px] rounded-lg bg-[#2A2A2A]"
                         value={student[field]}
