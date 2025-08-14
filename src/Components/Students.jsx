@@ -5,7 +5,6 @@ import { getStudents } from "../utils/GETAllStudents";
 
 const Students = () => {
   const initialStudents = [];
-  let i = 1;
 
   const [home, setHome] = useState(true);
   const [addStudent, setAddStudent] = useState(false);

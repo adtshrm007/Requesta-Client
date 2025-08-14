@@ -1,27 +1,41 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
+import { submitLeaves } from "../utils/POSTLeaveApplication";
+import { useNavigate } from "react-router-dom";
+import { getLeaves } from "../utils/GETLeavesForAStudent";
 const StudentDashboard = () => {
+  const navigate = useNavigate();
+  const [text, setText] = useState("Show More");
   const [home, setHome] = useState(true);
   const [createRequests, setCreateRequest] = useState(false);
-  const [name,setName]=useState("")
-  const [regnNo,setregNo]=useState("");
+  const [id, setID] = useState("");
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState("");
+  const [regnNo, setregNo] = useState("");
+  const [reason, setReason] = useState("");
+  const [leave, setLeave] = useState([]);
+  const [expandedLeave, setExpandedLeave] = useState(null);
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
     setHome(!home);
     setCreateRequest(!createRequests);
   }
+
   const getStudent = async () => {
     const currentLoggedIn = await fetchCurrentStudent();
     return currentLoggedIn;
   };
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       const student = await getStudent();
+      if (student && student._id) {
+        setID(student._id);
+      }
       if (student && student.name) {
         setName(student.name); // setName with actual value
       }
@@ -32,9 +46,31 @@ const StudentDashboard = () => {
 
     fetchData();
   }, [name]);
+  async function handleClickOnLeaveSubmit() {
+    const leaveData = {
+      subject: subject,
+      Reason: reason,
+    };
 
-
-
+    const res = await submitLeaves(leaveData);
+    console.log("Leave submitted:", res);
+    navigate("/studentdashboard");
+  }
+  useEffect(() => {
+    const showLeaves = async () => {
+      try {
+        const res = await getLeaves();
+        console.log("Fetched Leaves:", res);
+        if (res) {
+          setLeave(res);
+        }
+        console.log(leave);
+      } catch (err) {
+        console.error("Error fetching leaves:", err);
+      }
+    };
+    showLeaves();
+  }, []);
   return (
     <>
       <div className="w-full max-w-[960px] h-[64px] mx-auto flex items-center justify-between px-4 text-white">
@@ -91,7 +127,62 @@ const StudentDashboard = () => {
               STUDENT DASHBOARD
             </h2>
           </div>
-          <div className="w-[960px] h-[583px] bg-slate-700 justify-self-center mt-7 mb-10"></div>
+          <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+            <h2 className="text-white font-growmajour text-[28px] mb-4">
+              My Leave Requests
+            </h2>
+
+            {leave.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {leave.map((l) => (
+                  <div
+                    key={l._id}
+                    className="bg-slate-700 p-4 rounded-lg shadow-md flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="text-white font-bold">
+                        Subject: {l.subject}
+                      </p>
+                      <p className="text-gray-300 text-sm">
+                        Status:
+                        <span
+                          className={`ml-1 ${
+                            l.status === "approved"
+                              ? "text-green-400"
+                              : l.status === "rejected"
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
+                        >
+                          {l.status}
+                        </span>
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                      </p>
+                      {expandedLeave === l._id && (
+                        <p className="text-white font-bold">
+                          Reason: {l.Reason}
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className="w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                      onClick={() =>
+                        setExpandedLeave(expandedLeave === l._id ? null : l._id)
+                      }
+                    >
+                      <p className="text-center">
+                        {expandedLeave === l._id ? "Show Less" : "Show More"}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No leave applications found.</p>
+            )}
+          </div>
         </>
       )}
 
@@ -103,12 +194,25 @@ const StudentDashboard = () => {
               <h2 className="text-2xl font-bold mb-6 text-center font-radonregular">
                 Leave Application
               </h2>
-              <form className="flex flex-col gap-4 font-mooxy">
+              <form
+                className="flex flex-col gap-4 font-mooxy"
+                onSubmit={handleClickOnLeaveSubmit}
+              >
+                <label className="text-sm font-medium ">
+                  Subject:
+                  <input
+                    className="mt-1 p-3 w-full h-8 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
+                    placeholder="Give the leave days"
+                    onChange={(e) => setSubject(e.target.value)}
+                    required
+                  />
+                </label>
                 <label className="text-sm font-medium ">
                   Reason for Leave:
                   <textarea
                     className="mt-1 p-3 w-full h-28 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
                     placeholder="Explain your reason for leave..."
+                    onChange={(e) => setReason(e.target.value)}
                     required
                   />
                 </label>
@@ -118,7 +222,6 @@ const StudentDashboard = () => {
                   <input
                     type="file"
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
-                    required
                   />
                 </label>
 
