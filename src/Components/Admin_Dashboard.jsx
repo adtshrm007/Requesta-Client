@@ -3,12 +3,22 @@ import { Link } from "react-router-dom";
 import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { getStudents } from "../utils/GETAllStudents";
+import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { set } from "mongoose";
 
 export default function AdminDashboard() {
   const [adminName, setAdminName] = useState("");
   const [totalLeaves, setTotalLeaves] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [totalCertificates, setTotalCertificates] = useState(0);
+  const [totalPendingLeaves, setTotalPendingLeaves] = useState(0);
+  const [totalApprovedLeaves, setTotalApprovedLeaves] = useState(0);
+  const [totalRejectedLeaves, setTotalRejectedLeaves] = useState(0);
+  const [totalPendingCertificates, setTotalPendingCertificates] = useState(0);
+  const [totalApprovedCertificates, setTotalApprovedCertificates] = useState(0);
+  const [totalRejectedCertificates, setTotalRejectedCertificates] = useState(0);
   const getAdminData = async () => {
     const currentAdmin = await getAdminDashboard();
     return currentAdmin;
@@ -24,23 +34,37 @@ export default function AdminDashboard() {
   }, [adminName]);
 
   const fetchTotalLeaves = async () => {
-    const leaves = await getAllLeaves();  
+    const leaves = await getAllLeaves();
+    const certificates = await getAllCertificatesRequests();
+    const pendingLeaves = leaves.filter((l) => l.status === "pending").length;  
+    const approvedLeaves = leaves.filter((l) => l.status === "approved").length;
+    const rejectedLeaves = leaves.filter((l) => l.status === "rejected").length;
+    const pendingCertificates = certificates.filter((c) => c.status === "pending").length;
+    const approvedCertificates = certificates.filter((c) => c.status === "approved").length;
+    const rejectedCertificates = certificates.filter((c) => c.status === "rejected").length;
+    setTotalPendingLeaves(pendingLeaves);
+    setTotalApprovedLeaves(approvedLeaves);
+    setTotalRejectedLeaves(rejectedLeaves);
+    setTotalLeaves(leaves.length);
+    setTotalCertificates(certificates.length);
+    setTotalPendingCertificates(pendingCertificates);
+    setTotalApprovedCertificates(approvedCertificates);
+    setTotalRejectedCertificates(rejectedCertificates);
+    
     if (leaves && Array.isArray(leaves)) {
       setTotalLeaves(leaves.length);
     }
-  }
+  };
   const fetchTotalStudents = async () => {
     const students = await getStudents();
     if (students && Array.isArray(students)) {
       setTotalStudents(students.length);
     }
-  }
+  };
   useEffect(() => {
     fetchTotalLeaves();
     fetchTotalStudents();
   }, []);
-
-  
 
   return (
     <>
@@ -95,19 +119,34 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Section */}
-      <div className="max-w-[960px] w-full mx-auto px-4 flex flex-col sm:flex-row items-center justify-around gap-8 sm:gap-6 pb-8 font-mooxy text-center mt-17">
-        <div>
-          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">
-            {totalStudents}
-          </h3>
-          <p className="text-lg md:text-xl text-gray-400">Total Students</p>
-        </div>
-        <div>
-          <h3 className="text-4xl sm:text-5xl md:text-6xl font-radonregular text-white">
-            {totalLeaves}
-          </h3>
-          <p className="text-lg md:text-xl text-gray-400">Total Requests</p>
-        </div>
+      <div className="max-w-[1200px] w-full mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 py-10 font-mooxy">
+        {[
+          { value: totalStudents, label: "Total Students" },
+          { value: totalLeaves, label: "Total Leave Requests" },
+          { value: totalPendingLeaves, label: "Total Pending Requests" },
+          { value: totalApprovedLeaves, label: "Total Accepted Requests" },
+          { value: totalRejectedLeaves, label: "Total Rejected Requests" },
+          { value: totalCertificates, label: "Total Certificate Requests" },
+          { value: totalPendingCertificates, label: "Pending Certificates" },
+          { value: totalApprovedCertificates, label: "Approved Certificates" },
+          { value: totalRejectedCertificates, label: "Rejected Certificates" },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            whileHover={{ scale: 1.07 }}
+            whil={{ scale: 0.95 }}
+            className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
+                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+          >
+            <h3 className="text-5xl font-bold text-white tracking-tight">
+              {stat.value}
+            </h3>
+            <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
+            <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
+              {stat.label}
+            </p>
+          </motion.div>
+        ))}
       </div>
     </>
   );

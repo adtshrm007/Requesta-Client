@@ -66,18 +66,7 @@ const Students = () => {
           >
             Search Student
           </p>
-          <p
-            className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer"
-            onClick={() =>
-              setActiveTab(activeTab === "filters" ? "home" : "filters")
-            }
-          >
-            Apply Filter(s)
-          </p>
         </div>
-        {activeTab === "filters" && (
-          <div className="bg-slate-500 w-[200px] h-[200px] mt-5 ml-20"></div>
-        )}
       </div>
 
       {/* Search Box */}

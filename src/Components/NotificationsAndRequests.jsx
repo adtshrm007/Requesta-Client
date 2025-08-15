@@ -6,42 +6,67 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { updateLeaveStatus } from "../utils/UpdateLeaveStatus";
+import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
+import { updateCertificateStatus } from "../utils/UPDATECertificateStatus";
 
+import { use } from "react";
 export const NotificationsAndRequest = () => {
   const navigate = useNavigate();
   const [pendingleaves, setPendingLeaves] = useState([]);
-  const [acceptedLeaves,setAcceptedLeaves] = useState([]);
-  const [rejectedLeaves,setRejectedLeaves] = useState([]);
+  const [acceptedLeaves, setAcceptedLeaves] = useState([]);
+  const [rejectedLeaves, setRejectedLeaves] = useState([]);
+  const [pendingCertificates, setPendingCertificates] = useState([]);
+  const [acceptedCertificates, setAcceptedCertificates] = useState([]);
+  const [rejectedCertificates, setRejectedCertificates] = useState([]);
 
   // Fetch all leaves once on mount
   useEffect(() => {
     const fetchLeaves = async () => {
       const res = await getAllLeaves();
       if (res) {
-        setPendingLeaves(res.filter(leave => leave.status === "pending"));
-        setAcceptedLeaves(res.filter(leave => leave.status === "approved"));
-        setRejectedLeaves(res.filter(leave => leave.status === "rejected"));
+        setPendingLeaves(res.filter((leave) => leave.status === "pending"));
+        setAcceptedLeaves(res.filter((leave) => leave.status === "approved"));
+        setRejectedLeaves(res.filter((leave) => leave.status === "rejected"));
       }
     };
     fetchLeaves();
+  }, []);
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const res = await getAllCertificatesRequests();
+        console.log("Certificates:", res);
+        if (res) {
+          setPendingCertificates(
+            res.filter((cert) => cert.status === "pending")
+          );
+          setAcceptedCertificates(
+            res.filter((cert) => cert.status === "approved")
+          );
+          setRejectedCertificates(
+            res.filter((cert) => cert.status === "rejected")
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching certificates:", err);
+      }
+    };
+
+    fetchCertificates();
   }, []);
 
   // Optimistic Accept
   const handleClickOnAccept = (leaveId) => {
     // Update UI instantly
     setPendingLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId ? { ...l, status: "approved" } : l
-      )
+      prev.map((l) => (l._id === leaveId ? { ...l, status: "approved" } : l))
     );
 
     // Update backend
     updateLeaveStatus(leaveId, "approved").catch(() => {
       // rollback if API fails
       setPendingLeaves((prev) =>
-        prev.map((l) =>
-          l._id === leaveId ? { ...l, status: "pending" } : l
-        )
+        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
       );
     });
   };
@@ -49,16 +74,40 @@ export const NotificationsAndRequest = () => {
   // Optimistic Reject
   const handleClickOnReject = (leaveId) => {
     setPendingLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId ? { ...l, status: "rejected" } : l
-      )
+      prev.map((l) => (l._id === leaveId ? { ...l, status: "rejected" } : l))
     );
 
     updateLeaveStatus(leaveId, "rejected").catch(() => {
       setPendingLeaves((prev) =>
-        prev.map((l) =>
-          l._id === leaveId ? { ...l, status: "pending" } : l
-        )
+        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
+      );
+    });
+  };
+  const handleClickOnAcceptCertificate = (certId) => {
+    // Update UI instantly
+    setPendingCertificates((prev) =>
+      prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c))
+    );
+
+    // Update backend
+    updateCertificateStatus(certId, "approved").catch(() => {
+      // rollback if API fails
+      setPendingCertificates((prev) =>
+        prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
+      );
+    });
+  };
+  const handleClickOnRejectCertificate = (certId) => {
+    // Update UI instantly
+    setPendingCertificates((prev) =>
+      prev.map((c) => (c._id === certId ? { ...c, status: "rejected" } : c))
+    );
+
+    // Update backend
+    updateCertificateStatus(certId, "rejected").catch(() => {
+      // rollback if API fails
+      setPendingCertificates((prev) =>
+        prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
       );
     });
   };
@@ -96,212 +145,389 @@ export const NotificationsAndRequest = () => {
       </div>
 
       {/* Leaves Section */}
-      <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-        <h2 className="text-white font-growmajour text-[28px] mb-4">
-          Pending Leave Requests
+      <div>
+        <h2 className="text-[#999999] font-radon text-[28px] mb-4 text-center">
+          All Leave Requests
         </h2>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Pending Leave Requests
+          </h2>
 
-        {pendingleaves.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {pendingleaves.map((l) => (
-              <div
-                key={l._id || l.studentId._id}
-                className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
-              >
-                <div>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Registration Number:</span>{" "}
-                    {l.studentId?.registrationNumber || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Name:</span>{" "}
-                    {l.studentId?.name || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Subject:</span> {l.subject}
-                  </p>
-                  <p className="text-gray-300 font-bold w-[750px] text-justify">
-                    <span className="text-gray-200">Reason:</span> {l.Reason}
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    Status:{" "}
-                    <span
-                      className={`ml-1 ${
-                        l.status === "approved"
-                          ? "text-green-400"
-                          : l.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-400"
-                      }`}
+          {pendingleaves.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {pendingleaves.map((l) => (
+                <div
+                  key={l._id || l.studentId._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.studentId?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.studentId?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Subject:</span>{" "}
+                      {l.subject}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* Accept / Reject Buttons */}
+                  <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
+                    <div
+                      className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
+                      onClick={() => handleClickOnAccept(l._id)}
                     >
-                      {l.status}
-                    </span>
-                  </p>
-                  <p className="text-gray-400 text-xs">
-                    Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                  </p>
+                      <p className="text-center text-white font-mooxy mt-1">
+                        Accept
+                      </p>
+                    </div>
+                    <div
+                      className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
+                      onClick={() => handleClickOnReject(l._id)}
+                    >
+                      <p className="text-center text-white font-mooxy mt-1">
+                        Reject
+                      </p>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Accepted Leave Requests
+          </h2>
 
-                {/* Accept / Reject Buttons */}
-                <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
-                  <div
-                    className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnAccept(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Accept</p>
-                  </div>
-                  <div
-                    className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnReject(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Reject</p>
+          {acceptedLeaves.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {acceptedLeaves.map((l) => (
+                <div
+                  key={l._id || l.studentId._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.studentId?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.studentId?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Subject:</span>{" "}
+                      {l.subject}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400">No leave applications found.</p>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Rejected Leave Requests
+          </h2>
+
+          {rejectedLeaves.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {rejectedLeaves.map((l) => (
+                <div
+                  key={l._id || l.studentId._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.studentId?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.studentId?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Subject:</span>{" "}
+                      {l.subject}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
       </div>
-      <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-        <h2 className="text-white font-growmajour text-[28px] mb-4">
-          Accepted Leave Requests
+      <div>
+        <h2 className="text-[#999999] font-radon text-[28px] mb-4 text-center">
+          All Certificate Requests
         </h2>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Pending Certificate Requests
+          </h2>
 
-        {acceptedLeaves.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {acceptedLeaves.map((l) => (
-              <div
-                key={l._id || l.studentId._id}
-                className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
-              >
-                <div>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Registration Number:</span>{" "}
-                    {l.studentId?.registrationNumber || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Name:</span>{" "}
-                    {l.studentId?.name || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Subject:</span> {l.subject}
-                  </p>
-                  <p className="text-gray-300 font-bold w-[750px] text-justify">
-                    <span className="text-gray-200">Reason:</span> {l.Reason}
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    Status:{" "}
-                    <span
-                      className={`ml-1 ${
-                        l.status === "approved"
-                          ? "text-green-400"
-                          : l.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-400"
-                      }`}
+          {pendingCertificates.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {pendingCertificates.map((l) => (
+                <div
+                  key={l._id || l.student._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.student?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.student?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Purpose:</span>{" "}
+                      {l.purpose}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                      {l.CertificateType}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* Accept / Reject Buttons */}
+                  <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
+                    <div
+                      className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
+                      onClick={() => handleClickOnAcceptCertificate(l._id)}
                     >
-                      {l.status}
-                    </span>
-                  </p>
-                  <p className="text-gray-400 text-xs">
-                    Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                {/* Accept / Reject Buttons */}
-                <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
-                  <div
-                    className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnAccept(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Accept</p>
-                  </div>
-                  <div
-                    className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnReject(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Reject</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400">No leave applications found.</p>
-        )}
-      </div>
-      <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-        <h2 className="text-white font-growmajour text-[28px] mb-4">
-          Rejected Leave Requests
-        </h2>
-
-        {rejectedLeaves.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {rejectedLeaves.map((l) => (
-              <div
-                key={l._id || l.studentId._id}
-                className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
-              >
-                <div>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Registration Number:</span>{" "}
-                    {l.studentId?.registrationNumber || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Name:</span>{" "}
-                    {l.studentId?.name || "N/A"}
-                  </p>
-                  <p className="text-gray-300 font-bold">
-                    <span className="text-gray-200">Subject:</span> {l.subject}
-                  </p>
-                  <p className="text-gray-300 font-bold w-[750px] text-justify">
-                    <span className="text-gray-200">Reason:</span> {l.Reason}
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    Status:{" "}
-                    <span
-                      className={`ml-1 ${
-                        l.status === "approved"
-                          ? "text-green-400"
-                          : l.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-400"
-                      }`}
+                      <p className="text-center text-white font-mooxy mt-1">
+                        Accept
+                      </p>
+                    </div>
+                    <div
+                      className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
+                      onClick={() => handleClickOnRejectCertificate(l._id)}
                     >
-                      {l.status}
-                    </span>
-                  </p>
-                  <p className="text-gray-400 text-xs">
-                    Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                  </p>
+                      <p className="text-center text-white font-mooxy mt-1">
+                        Reject
+                      </p>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Accepted Certificate Requests
+          </h2>
 
-                {/* Accept / Reject Buttons */}
-                <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
-                  <div
-                    className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnAccept(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Accept</p>
-                  </div>
-                  <div
-                    className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
-                    onClick={() => handleClickOnReject(l._id)}
-                  >
-                    <p className="text-center text-white font-mooxy mt-1">Reject</p>
+          {acceptedCertificates.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {acceptedCertificates.map((l) => (
+                <div
+                  key={l._id || l.student._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.student?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.student?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Purpose:</span>{" "}
+                      {l.purpose}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                      {l.CertificateType}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400">No leave applications found.</p>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
+        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
+            Rejected Certificate Requests
+          </h2>
+
+          {rejectedCertificates.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {rejectedCertificates.map((l) => (
+                <div
+                  key={l._id || l.student._id}
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                >
+                  <div>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">
+                        Registration Number:
+                      </span>{" "}
+                      {l.student?.registrationNumber || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Name:</span>{" "}
+                      {l.student?.name || "N/A"}
+                    </p>
+                    <p className="text-gray-300 font-bold">
+                      <span className="text-gray-200">Purpose:</span>{" "}
+                      {l.purpose}
+                    </p>
+                    <p className="text-gray-300 font-bold w-[750px] text-justify">
+                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                      {l.CertificateType}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      Status:{" "}
+                      <span
+                        className={`ml-1 ${
+                          l.status === "approved"
+                            ? "text-green-400"
+                            : l.status === "rejected"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {l.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No leave applications found.</p>
+          )}
+        </div>
       </div>
-
-
 
       <Footer />
     </>

@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 import { submitLeaves } from "../utils/POSTLeaveApplication";
+import { submitCertificate } from "../utils/POSTCertificateApplication";
 import { useNavigate } from "react-router-dom";
 import { getLeaves } from "../utils/GETLeavesForAStudent";
+import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [text, setText] = useState("Show More");
@@ -18,6 +20,9 @@ const StudentDashboard = () => {
   const [regnNo, setregNo] = useState("");
   const [reason, setReason] = useState("");
   const [leave, setLeave] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [purpose, setPurpose] = useState("");
+  const [certificateType, setCertificateType] = useState("");
   const [expandedLeave, setExpandedLeave] = useState(null);
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
@@ -56,6 +61,14 @@ const StudentDashboard = () => {
     console.log("Leave submitted:", res);
     navigate("/studentdashboard");
   }
+  async function handleClickOnCertificateSubmit() {
+    const certificateData = {
+      purpose: purpose,
+      CertificateType: certificateType,
+    };
+    const res = await submitCertificate(certificateData);
+    console.log("Certificate submitted:", res);
+  }
   useEffect(() => {
     const showLeaves = async () => {
       try {
@@ -70,6 +83,21 @@ const StudentDashboard = () => {
       }
     };
     showLeaves();
+  }, []);
+  useEffect(() => {
+    const showCertificates = async () => {
+      try {
+        const res = await showAllCertificates();
+        console.log("Fetched Certificates:", res);
+        if (res) {
+          setCertificates(res);
+        }
+        console.log(certificates);
+      } catch (err) {
+        console.error("Error fetching certificates:", err);
+      }
+    };
+    showCertificates();
   }, []);
   return (
     <>
@@ -141,7 +169,10 @@ const StudentDashboard = () => {
                   >
                     <div>
                       <p className="text-white font-bold">
-                        Subject: <span className="text-black font-radonregular">{l.subject}</span>
+                        Subject:{" "}
+                        <span className="text-black font-radonregular">
+                          {l.subject}
+                        </span>
                       </p>
                       <p className="text-gray-300 text-sm">
                         Status:
@@ -162,7 +193,8 @@ const StudentDashboard = () => {
                       </p>
                       {expandedLeave === l._id && (
                         <p className="text-white font-ssold w-[750px] text-justify">
-                          <span>Reason:</span> <br/><span className="text-[#0F0F0F]">{l.Reason}</span>
+                          <span>Reason:</span> <br />
+                          <span className="text-[#0F0F0F]">{l.Reason}</span>
                         </p>
                       )}
                     </div>
@@ -174,6 +206,66 @@ const StudentDashboard = () => {
                     >
                       <p className="text-center">
                         {expandedLeave === l._id ? "Show Less" : "Show More"}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No leave applications found.</p>
+            )}
+          </div>
+          <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+            <h2 className="text-white font-growmajour text-[28px] mb-4">
+              My Certificate Requests
+            </h2>
+
+            {certificates.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {certificates.map((c) => (
+                  <div
+                    key={c._id}
+                    className="bg-slate-700 p-4 rounded-lg shadow-md flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="text-white font-bold">
+                        Purpose:{" "}
+                        <span className="text-black font-radonregular">
+                          {c.purpose}
+                        </span>
+                      </p>
+                      <p className="text-gray-300 text-sm">
+                        Status:
+                        <span
+                          className={`ml-1 ${
+                            c.status === "approved"
+                              ? "text-green-400"
+                              : c.status === "rejected"
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
+                        >
+                          {c.status}
+                        </span>
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        Applied On: {new Date(c.createdAt).toLocaleDateString()}
+                      </p>
+                      {expandedLeave === c._id && (
+                        <p className="text-white font-ssold w-[750px] text-justify">
+                          <span>Reason:</span> <br />
+                          <span className="text-[#0F0F0F]">{c.CertificateType}</span>
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className="w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                      onClick={() =>
+                        setExpandedLeave(expandedLeave === c._id ? null : c._id)
+                      }
+                    >
+                      <p className="text-center">
+                        {expandedLeave === c._id ? "Show Less" : "Show More"}
                       </p>
                     </div>
                   </div>
@@ -239,7 +331,10 @@ const StudentDashboard = () => {
               <h2 className="text-2xl font-bold mb-6 text-center font-radonregular">
                 Certificate Application Portal
               </h2>
-              <form className="flex flex-col gap-4 font-mooxy">
+              <form
+                className="flex flex-col gap-4 font-mooxy"
+                onSubmit={handleClickOnCertificateSubmit}
+              >
                 <label className="text-sm font-medium">
                   Purpose:
                   <input
@@ -247,6 +342,7 @@ const StudentDashboard = () => {
                     className="mt-1 p-3 w-full rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
                     placeholder="Purpose of applying for the certificate..."
                     required
+                    onChange={(e) => setPurpose(e.target.value)}
                   />
                 </label>
 
@@ -255,6 +351,7 @@ const StudentDashboard = () => {
                   <select
                     className="mt-1 p-3 w-full rounded-lg bg-[#2A2A2A] text-white"
                     required
+                    onChange={(e) => setCertificateType(e.target.value)}
                   >
                     <option value="">-- Select Document Type --</option>
                     <option value="Bonafide">Bonafide</option>
@@ -269,7 +366,6 @@ const StudentDashboard = () => {
                   <input
                     type="file"
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
-                    required
                   />
                 </label>
 
