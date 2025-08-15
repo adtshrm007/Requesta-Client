@@ -10,7 +10,7 @@ export default function StudentRegister() {
   const [branch, setBranch] = useState("");
   const [mobileNo, setMobileNo] = useState("");
   const [batchYear, setbatchYear] = useState("");
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   async function handleRegister() {
     const newStudent = {
       registrationNumber: regNo,
@@ -23,8 +23,8 @@ export default function StudentRegister() {
     const result = await postStudentData(newStudent);
 
     if (result) {
-      navigate("/studentlogin")
-    } 
+      navigate("/studentlogin");
+    }
   }
   return (
     <>
@@ -67,14 +67,28 @@ export default function StudentRegister() {
               onChange={(e) => setMobileNo(e.target.value)}
             />
           </div>
-          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
-            <input
-              type="text"
-              placeholder="Branch"
-              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+          <div className="bg-gradient-to-r from-[#1a1a1a] via-[#0D0D0D] to-[#1a1a1a] rounded-[12px] overflow-hidden border border-white/10">
+            <label
+              htmlFor="branch"
+              className="block px-4 pt-2 text-sm text-gray-300 font-mooxy"
+            >
+              Branch:
+            </label>
+
+            <select
+              id="branch"
+              name="branch"
+              className="w-full h-[45px] px-4 outline-none font-mooxy appearance-none cursor-pointer hover:bg-white/5 focus:bg-white/10 transition-all duration-200"
+              value={branch}
               onChange={(e) => setBranch(e.target.value)}
-            />
+            >
+              <option value="">--Select Branch--</option>
+              <option value="Computer Science And Engineering">Computer Science</option>
+              <option value="Electronics And Communication">Electronics</option>
+              <option value="Mechanical">Mechanical</option>
+            </select>
           </div>
+
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"

@@ -141,7 +141,7 @@ const StudentDashboard = () => {
                   >
                     <div>
                       <p className="text-white font-bold">
-                        Subject: {l.subject}
+                        Subject: <span className="text-black font-radonregular">{l.subject}</span>
                       </p>
                       <p className="text-gray-300 text-sm">
                         Status:
@@ -161,8 +161,8 @@ const StudentDashboard = () => {
                         Applied On: {new Date(l.createdAt).toLocaleDateString()}
                       </p>
                       {expandedLeave === l._id && (
-                        <p className="text-white font-bold">
-                          Reason: {l.Reason}
+                        <p className="text-white font-ssold w-[750px] text-justify">
+                          <span>Reason:</span> <br/><span className="text-[#0F0F0F]">{l.Reason}</span>
                         </p>
                       )}
                     </div>
