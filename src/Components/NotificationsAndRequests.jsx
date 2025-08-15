@@ -1,5 +1,6 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Footer from "./Footer";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
@@ -11,6 +12,29 @@ import { updateCertificateStatus } from "../utils/UPDATECertificateStatus";
 
 import { use } from "react";
 export const NotificationsAndRequest = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.target) {
+      const scrollToSection = () => {
+        const target = document.getElementById(location.state.target);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth" });
+          return true;
+        }
+        return false;
+      };
+
+      // Try immediately
+      if (!scrollToSection()) {
+        // Retry until found (e.g., data fetched and section appears)
+        const interval = setInterval(() => {
+          if (scrollToSection()) clearInterval(interval);
+        }, 100);
+        setTimeout(() => clearInterval(interval), 3000); // stop after 3s
+      }
+    }
+  }, [location]);
   const navigate = useNavigate();
   const [pendingleaves, setPendingLeaves] = useState([]);
   const [acceptedLeaves, setAcceptedLeaves] = useState([]);
@@ -155,7 +179,7 @@ export const NotificationsAndRequest = () => {
           </h2>
 
           {pendingleaves.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="pending-leaves">
               {pendingleaves.map((l) => (
                 <div
                   key={l._id || l.studentId._id}
@@ -230,7 +254,7 @@ export const NotificationsAndRequest = () => {
           </h2>
 
           {acceptedLeaves.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="accepted-leaves">
               {acceptedLeaves.map((l) => (
                 <div
                   key={l._id || l.studentId._id}
@@ -285,7 +309,7 @@ export const NotificationsAndRequest = () => {
           </h2>
 
           {rejectedLeaves.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="rejected-leaves">
               {rejectedLeaves.map((l) => (
                 <div
                   key={l._id || l.studentId._id}
@@ -335,17 +359,17 @@ export const NotificationsAndRequest = () => {
           )}
         </div>
       </div>
-      <div>
+      <div id="certificates-section">
         <h2 className="text-[#999999] font-radon text-[28px] mb-4 text-center">
           All Certificate Requests
         </h2>
         <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-          <h2 className="text-white font-growmajour text-[28px] mb-4">
+          <h2 className="text-white font-growmajour text-[28px] mb-4" >
             Pending Certificate Requests
           </h2>
 
           {pendingCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="pending-certificates">
               {pendingCertificates.map((l) => (
                 <div
                   key={l._id || l.student._id}
@@ -421,7 +445,7 @@ export const NotificationsAndRequest = () => {
           </h2>
 
           {acceptedCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="approved-certificates">
               {acceptedCertificates.map((l) => (
                 <div
                   key={l._id || l.student._id}
@@ -477,7 +501,7 @@ export const NotificationsAndRequest = () => {
           </h2>
 
           {rejectedCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" id="rejected-certificates">
               {rejectedCertificates.map((l) => (
                 <div
                   key={l._id || l.student._id}

@@ -6,9 +6,10 @@ import { getStudents } from "../utils/GETAllStudents";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { set } from "mongoose";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
   const [totalLeaves, setTotalLeaves] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
@@ -36,12 +37,18 @@ export default function AdminDashboard() {
   const fetchTotalLeaves = async () => {
     const leaves = await getAllLeaves();
     const certificates = await getAllCertificatesRequests();
-    const pendingLeaves = leaves.filter((l) => l.status === "pending").length;  
+    const pendingLeaves = leaves.filter((l) => l.status === "pending").length;
     const approvedLeaves = leaves.filter((l) => l.status === "approved").length;
     const rejectedLeaves = leaves.filter((l) => l.status === "rejected").length;
-    const pendingCertificates = certificates.filter((c) => c.status === "pending").length;
-    const approvedCertificates = certificates.filter((c) => c.status === "approved").length;
-    const rejectedCertificates = certificates.filter((c) => c.status === "rejected").length;
+    const pendingCertificates = certificates.filter(
+      (c) => c.status === "pending"
+    ).length;
+    const approvedCertificates = certificates.filter(
+      (c) => c.status === "approved"
+    ).length;
+    const rejectedCertificates = certificates.filter(
+      (c) => c.status === "rejected"
+    ).length;
     setTotalPendingLeaves(pendingLeaves);
     setTotalApprovedLeaves(approvedLeaves);
     setTotalRejectedLeaves(rejectedLeaves);
@@ -50,7 +57,7 @@ export default function AdminDashboard() {
     setTotalPendingCertificates(pendingCertificates);
     setTotalApprovedCertificates(approvedCertificates);
     setTotalRejectedCertificates(rejectedCertificates);
-    
+
     if (leaves && Array.isArray(leaves)) {
       setTotalLeaves(leaves.length);
     }
@@ -121,18 +128,64 @@ export default function AdminDashboard() {
       {/* Stats Section */}
       <div className="max-w-[1200px] w-full mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 py-10 font-mooxy">
         {[
-          { value: totalStudents, label: "Total Students" },
-          { value: totalLeaves, label: "Total Leave Requests" },
-          { value: totalPendingLeaves, label: "Total Pending Requests" },
-          { value: totalApprovedLeaves, label: "Total Accepted Requests" },
-          { value: totalRejectedLeaves, label: "Total Rejected Requests" },
-          { value: totalCertificates, label: "Total Certificate Requests" },
-          { value: totalPendingCertificates, label: "Pending Certificates" },
-          { value: totalApprovedCertificates, label: "Approved Certificates" },
-          { value: totalRejectedCertificates, label: "Rejected Certificates" },
+          {
+            value: totalStudents,
+            label: "Total Students",
+            link: "/students",
+            to: "",
+          },
+          {
+            value: totalLeaves,
+            label: "Total Leave Requests",
+            link: "/notificationsAndrequests",
+            to: "",
+          },
+          {
+            value: totalPendingLeaves,
+            label: "Pending Leave Requests",
+            link: "/notificationsAndrequests",
+            to: "pending-leaves",
+          },
+          {
+            value: totalApprovedLeaves,
+            label: "Accepted Leave Requests",
+            link: "/notificationsAndrequests",
+            to: "accepted-leaves",
+          },
+          {
+            value: totalRejectedLeaves,
+            label: "Rejected Leave Requests",
+            link: "/notificationsAndrequests",
+            to: "rejected-leaves",
+          },
+          {
+            value: totalCertificates,
+            label: "Total Certificate Requests",
+            link: "/notificationsAndrequests",
+            to: "pending-certificates",
+          },
+          {
+            value: totalPendingCertificates,
+            label: "Pending Certificates Requests",
+            link: "/notificationsAndrequests",
+            to: "pending-certificates",
+          },
+          {
+            value: totalApprovedCertificates,
+            label: "Approved Certificates Requests",
+            link: "/notificationsAndrequests",
+            to: "approved-certificates",
+          },
+          {
+            value: totalRejectedCertificates,
+            label: "Rejected Certificates Requests",
+            link: "/notificationsAndrequests",
+            to: "rejected-certificates",
+          },
         ].map((stat, i) => (
           <motion.div
             key={i}
+            onClick={() => navigate(stat.link, { state: { target: stat.to } })}
             whileHover={{ scale: 1.07 }}
             whil={{ scale: 0.95 }}
             className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
