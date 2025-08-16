@@ -9,8 +9,6 @@ import { getAllLeaves } from "../utils/GETAllLeaves";
 import { updateLeaveStatus } from "../utils/UpdateLeaveStatus";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { updateCertificateStatus } from "../utils/UPDATECertificateStatus";
-
-import { use } from "react";
 export const NotificationsAndRequest = () => {
   const location = useLocation();
 
@@ -59,7 +57,6 @@ export const NotificationsAndRequest = () => {
     const fetchCertificates = async () => {
       try {
         const res = await getAllCertificatesRequests();
-        console.log("Certificates:", res);
         if (res) {
           setPendingCertificates(
             res.filter((cert) => cert.status === "pending")
@@ -139,7 +136,7 @@ export const NotificationsAndRequest = () => {
   return (
     <>
       {/* Header */}
-      <div className="w-full max-w-[960px] h-[64px] mx-auto flex items-center justify-between px-4 text-white">
+      <div className="max-w-[100%]  h-[64px] mx-4 sticky top-0 z-10 flex items-center justify-between px-4 text-white backdrop-blur-xl">
         <Link to="/">
           <motion.div
             className="flex items-center font-growmajour text-[22px] cursor-pointer"
@@ -170,10 +167,10 @@ export const NotificationsAndRequest = () => {
 
       {/* Leaves Section */}
       <div>
-        <h2 className="text-[#999999] font-radon text-[28px] mb-4 text-center">
+        <h2 className="text-[#999999] font-radonregular underline text-[42px] mt-10 mb-4 text-left mx-5">
           All Leave Requests
         </h2>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+        <div className="max-w-[960px] min-w-[95%] h-auto mt-7 mb-10 mx-5">
           <h2 className="text-white font-growmajour text-[28px] mb-4">
             Pending Leave Requests
           </h2>
@@ -186,22 +183,31 @@ export const NotificationsAndRequest = () => {
                   className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
                         Registration Number:
                       </span>{" "}
                       {l.studentId?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Name:
+                      </span>{" "}
                       {l.studentId?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Subject:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Subject:
+                      </span>{" "}
                       {l.subject}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    <p className="text-gray-300 text-justify">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Reason:
+                      </span>{" "}
+                      <span className="font-regular text-[#999999] font-mooxy">
+                        {l.Reason}
+                      </span>
                     </p>
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
@@ -248,7 +254,7 @@ export const NotificationsAndRequest = () => {
             <p className="text-gray-400">No leave applications found.</p>
           )}
         </div>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+        <div className="max-w-[960px] min-w-[95%] h-auto  mt-7 mb-10 mx-5">
           <h2 className="text-white font-growmajour text-[28px] mb-4">
             Accepted Leave Requests
           </h2>
@@ -258,25 +264,32 @@ export const NotificationsAndRequest = () => {
               {acceptedLeaves.map((l) => (
                 <div
                   key={l._id || l.studentId._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                  className="bg-gray-800 p-4 rounded-lg shadow-md  justify-between items-center transition-colors duration-300 "
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
                         Registration Number:
                       </span>{" "}
                       {l.studentId?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Name:
+                      </span>{" "}
                       {l.studentId?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Subject:</span>{" "}
+                    <p className="text-gray-300 font-radonregular">
+                      <span className="text-gray-200 font-bold">Subject:</span>{" "}
                       {l.subject}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    <p className="text-gray-30 text-justify">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Reason:
+                      </span>{" "}
+                      <span className="text-[#999999] font-mooxy font-light">
+                        {l.Reason}
+                      </span>
                     </p>
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
@@ -303,7 +316,7 @@ export const NotificationsAndRequest = () => {
             <p className="text-gray-400">No leave applications found.</p>
           )}
         </div>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+        <div className="max-w-[960px] min-w-[95%] h-auto mt-7 mb-10 mx-5">
           <h2 className="text-white font-growmajour text-[28px] mb-4">
             Rejected Leave Requests
           </h2>
@@ -316,22 +329,31 @@ export const NotificationsAndRequest = () => {
                   className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
                         Registration Number:
                       </span>{" "}
                       {l.studentId?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Name:
+                      </span>{" "}
                       {l.studentId?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Subject:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Subject:
+                      </span>{" "}
                       {l.subject}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Reason:</span> {l.Reason}
+                    <p className="text-gray-300 text-justify">
+                      <span className="text-gray-200 font-radonregular font-bold">
+                        Reason:
+                      </span>{" "}
+                      <span className="font-mooxy font-regular">
+                        {l.Reason}
+                      </span>
                     </p>
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
@@ -360,11 +382,11 @@ export const NotificationsAndRequest = () => {
         </div>
       </div>
       <div id="certificates-section">
-        <h2 className="text-[#999999] font-radon text-[28px] mb-4 text-center">
+        <h2 className="text-[#999999] text-[42px] font-radonregular underline text-[28px] mt-50 mb-4 text-left mx-5">
           All Certificate Requests
         </h2>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-          <h2 className="text-white font-growmajour text-[28px] mb-4" >
+        <div className="max-w-[960px] min-w-[95%] h-auto mt-7 mb-10 mx-5">
+          <h2 className="text-white font-growmajour text-[28px] mb-4">
             Pending Certificate Requests
           </h2>
 
@@ -376,22 +398,28 @@ export const NotificationsAndRequest = () => {
                   className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
                         Registration Number:
                       </span>{" "}
                       {l.student?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Name:
+                      </span>{" "}
                       {l.student?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Purpose:</span>{" "}
+                    <p className="text-gray-300 ">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Purpose:
+                      </span>{" "}
                       {l.purpose}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                    <p className="text-gray-300 text-justify">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Certificate Type:
+                      </span>{" "}
                       {l.CertificateType}
                     </p>
                     <p className="text-gray-300 text-sm">
@@ -439,7 +467,7 @@ export const NotificationsAndRequest = () => {
             <p className="text-gray-400">No leave applications found.</p>
           )}
         </div>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+        <div className="max-w-[960px] min-w-[95%] h-auto  mt-7 mb-10 mx-5">
           <h2 className="text-white font-growmajour text-[28px] mb-4">
             Accepted Certificate Requests
           </h2>
@@ -452,22 +480,28 @@ export const NotificationsAndRequest = () => {
                   className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
                         Registration Number:
                       </span>{" "}
                       {l.student?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Name:
+                      </span>{" "}
                       {l.student?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Purpose:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Purpose:
+                      </span>{" "}
                       {l.purpose}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                    <p className="text-gray-300 text-justify">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Certificate Type:
+                      </span>{" "}
                       {l.CertificateType}
                     </p>
                     <p className="text-gray-300 text-sm">
@@ -495,7 +529,7 @@ export const NotificationsAndRequest = () => {
             <p className="text-gray-400">No leave applications found.</p>
           )}
         </div>
-        <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
+        <div className="max-w-[960px] min-w-[95%] h-auto mt-7 mb-10 mx-5">
           <h2 className="text-white font-growmajour text-[28px] mb-4">
             Rejected Certificate Requests
           </h2>
@@ -508,22 +542,28 @@ export const NotificationsAndRequest = () => {
                   className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
                 >
                   <div>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
                         Registration Number:
                       </span>{" "}
                       {l.student?.registrationNumber || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Name:</span>{" "}
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Name:
+                      </span>{" "}
                       {l.student?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 font-bold">
-                      <span className="text-gray-200">Purpose:</span>{" "}
+                    <p className="text-gray-300 ">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Purpose:
+                      </span>{" "}
                       {l.purpose}
                     </p>
-                    <p className="text-gray-300 font-bold w-[750px] text-justify">
-                      <span className="text-gray-200">Certificate Type:</span>{" "}
+                    <p className="text-gray-300 text-justify">
+                      <span className="text-gray-200 font-bold font-radonregular">
+                        Certificate Type:
+                      </span>{" "}
                       {l.CertificateType}
                     </p>
                     <p className="text-gray-300 text-sm">

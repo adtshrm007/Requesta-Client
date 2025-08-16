@@ -56,7 +56,7 @@ export default function StudentLoginRegister() {
         </div>
         <Link to="/studentregister">
           <motion.button
-            className="w-[320px] h-[45px] rounded-[20px] bg-[#0D0D0D] text-[#777777] border-[1px] border-white font-mooxy mt-10 cursor-pointer"
+            className="max-w-full h-[45px] min-w-[300px] rounded-[20px] bg-[#0D0D0D] text-[#777777] border-[1px] border-white font-mooxy mt-10 cursor-pointer"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >

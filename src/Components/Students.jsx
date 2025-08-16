@@ -44,8 +44,6 @@ const Students = () => {
     }
     setExpand(studentId);
 
-
-
     const leavesData = await getLeavesOfAStudentForAdmin(studentId);
     setLeaves(leavesData || []);
   };
@@ -60,20 +58,19 @@ const Students = () => {
     setCertificates(certificatesData || []);
   };
 
-
   return (
     <>
       {/* Header */}
-      <div className="w-full max-w-[960px] mx-auto items-center justify-between px-4 py-4 text-white flex">
+      <div className="w-full max-w-[1200px] mx-auto items-center justify-between px-4 py-4 text-white flex flex-wrap">
         <Link to="/">
-          <div className="flex items-center font-growmajour text-[22px] cursor-pointer mb-2 sm:mb-0">
-            <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" />
+          <div className="flex items-center font-growmajour text-lg sm:text-xl cursor-pointer mb-2 sm:mb-0">
+            <img src={logo} alt="logo" className="w-6 h-6 mr-2" />
             <p>REQUESTA</p>
           </div>
         </Link>
-        <div className="flex flex-wrap justify-center sm:justify-end gap-3 text-[#777777] font-mooxy text-[14px]">
+        <div className="flex flex-wrap justify-center sm:justify-end gap-3 text-[#777777] font-mooxy text-sm">
           <p
-            className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer"
+            className="bg-[#191919] text-white px-4 py-2 rounded-full cursor-pointer"
             onClick={() =>
               setActiveTab(activeTab === "search" ? "home" : "search")
             }
@@ -85,7 +82,7 @@ const Students = () => {
 
       {/* Search Box */}
       {activeTab === "search" && (
-        <div className="bg-[#0D0D0D] w-[800px] mx-auto mt-4 rounded-[20px] overflow-hidden">
+        <div className="bg-[#0D0D0D] w-full max-w-[800px] mx-auto mt-4 rounded-2xl overflow-hidden">
           <input
             type="text"
             placeholder="Search by Name or Reg No."
@@ -97,22 +94,27 @@ const Students = () => {
       )}
 
       {/* Student List */}
-      {activeTab === "home" || activeTab === "search" ? (
-        <ol className="flex flex-col items-center">
+      {(activeTab === "home" || activeTab === "search") && (
+        <ol className="flex flex-col items-center w-full px-2 sm:px-4">
           {filteredStudents.map((stu) => (
             <div key={stu._id} className="w-full flex flex-col items-center">
-              <li className="w-[960px] h-[40px] mt-4 flex items-center justify-between text-white px-4 rounded bg-[#111]">
-                <div className="w-[200px] text-left font-mooxy">
+              <li className="w-full max-w-[960px] min-h-[50px] mt-4 flex flex-col sm:flex-row sm:items-center justify-between text-white px-4 py-2 rounded bg-[#111] gap-2">
+                <div className="w-full sm:w-1/3 text-left font-mooxy text-sm sm:text-base">
                   <span className="font-radonregular">Name:</span> {stu.name}
                 </div>
-                <div className="w-[300px] text-left">
-                  <span className="font-radonregular">Registration Number:</span>{" "}
+                <div className="w-full sm:w-1/2 text-left text-sm sm:text-base">
+                  <span className="font-radonregular">
+                    Registration Number:
+                  </span>{" "}
                   {stu.registrationNumber}
                 </div>
-                <div className="bg-white text-black w-[200px] h-[30px] rounded text-center flex items-center justify-center">
+                <div className="bg-white text-black w-full sm:w-[200px] h-[35px] rounded text-center flex items-center justify-center">
                   <button
-                    className="font-mooxy"
-                    onClick={() => [handleViewRequests(stu._id), handleViewCertificates(stu._id)]}
+                    className="font-mooxy text-sm sm:text-base"
+                    onClick={() => [
+                      handleViewRequests(stu._id),
+                      handleViewCertificates(stu._id),
+                    ]}
                   >
                     {expand === stu._id ? "Hide Requests" : "View Requests"}
                   </button>
@@ -120,7 +122,7 @@ const Students = () => {
               </li>
 
               {expand === stu._id && (
-                <div className="w-[960px] bg-[#111] rounded-[10px] mt-3 p-3 text-white">
+                <div className="w-full max-w-[960px] bg-[#111] rounded-lg mt-3 p-3 text-white text-sm sm:text-base">
                   {leaves.length > 0 ? (
                     <ul>
                       {leaves.map((leave) => (
@@ -148,8 +150,7 @@ const Students = () => {
             </div>
           ))}
         </ol>
-      ) : null}
-
+      )}
     </>
   );
 };

@@ -98,207 +98,227 @@ const StudentDashboard = () => {
   }, []);
   return (
     <>
-      <div className="w-full max-w-[960px] h-[64px] mx-auto flex items-center justify-between px-4 text-white">
-        {/* Logo & Title */}
-        <Link to="/">
-          <motion.div
-            className="flex items-center font-growmajour text-[22px] cursor-pointer"
-            initial={{ x: -100 }}
-            animate={{ x: 0 }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "reverse",
-              type: "spring",
-              stiffness: 100,
-              duration: 5,
-              ease: "easeInOut",
-            }}
-          >
-            <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" />
-            <p>REQUESTA</p>
-          </motion.div>
-        </Link>
-
-        {/* Nav Links */}
-        <div className="flex items-center gap-4 text-[#777777] font-mooxy text-[15px]">
-          <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-            Notifications
-          </p>
-          <Link to="/studentprofile">
-            <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
-              Profile
-            </p>
+      <>
+        {/* Header */}
+        <div className="w-full max-w-[960px] h-auto min-h-[64px] mx-auto flex flex-wrap items-center justify-between px-4 text-white gap-4">
+          {/* Logo & Title */}
+          <Link to="/">
+            <motion.div
+              className="flex items-center font-growmajour text-lg sm:text-xl md:text-[22px] cursor-pointer"
+              initial={{ x: -100 }}
+              animate={{ x: 0 }}
+              transition={{
+                repeat: Infinity,
+                repeatType: "reverse",
+                type: "spring",
+                stiffness: 100,
+                duration: 5,
+                ease: "easeInOut",
+              }}
+            >
+              <img
+                src={logo}
+                alt="logo"
+                className="w-6 h-6 sm:w-[25px] sm:h-[25px] mr-2"
+              />
+              <p>REQUESTA</p>
+            </motion.div>
           </Link>
-          <p
-            onClick={handleClickOnCreateRequest}
-            className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer"
-          >
-            Create Request
-          </p>
+
+          {/* Nav Links */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
+            <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
+              Notifications
+            </p>
+            <Link to="/studentprofile">
+              <p className="bg-[#191919] text-white px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
+                Profile
+              </p>
+            </Link>
+            <p
+              onClick={handleClickOnCreateRequest}
+              className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer"
+            >
+              Create Request
+            </p>
+          </div>
         </div>
-      </div>
-      {home && (
-        <>
-          <div className="w-[960px] h-[120px] mt-10 justify-self-center">
-            <h1 className="text-white font-radonregular text-[40px]">
-              Welcome {name}
-            </h1>
-            <h1 className="text-white font-radonregular text-[40px]">
-              Registration No.=={regnNo}
-            </h1>
-          </div>
-          <div className="w-[960px] h-[40px] justify-self-center">
-            <h2 className="text-[#777777] font-growmajour text-[40px]">
-              STUDENT DASHBOARD
-            </h2>
-          </div>
-          <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-            <h2 className="text-white font-growmajour text-[28px] mb-4">
-              My Leave Requests
-            </h2>
 
-            {leave.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {leave.map((l) => (
-                  <div
-                    key={l._id}
-                    className="bg-slate-700 p-4 rounded-lg shadow-md flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="text-white font-bold">
-                        Subject:{" "}
-                        <span className="text-black font-radonregular">
-                          {l.subject}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:
-                        <span
-                          className={`ml-1 ${
-                            l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-                      {expandedLeave === l._id && (
-                        <p className="text-white font-ssold w-[750px] text-justify">
-                          <span>Reason:</span> <br />
-                          <span className="text-[#0F0F0F]">{l.Reason}</span>
-                        </p>
-                      )}
-                    </div>
+        {home && (
+          <>
+            <div className="w-full max-w-[960px] mx-auto mt-6 px-4">
+              <h1 className="text-white font-radonregular text-2xl sm:text-3xl md:text-4xl">
+                Welcome {name}
+              </h1>
+              <h1 className="text-white font-radonregular text-lg sm:text-2xl md:text-3xl">
+                Registration No. == {regnNo}
+              </h1>
+            </div>
+
+            <div className="w-full max-w-[960px] mx-auto px-4 mt-4">
+              <h2 className="text-[#777777] font-growmajour text-xl sm:text-2xl md:text-3xl lg:text-4xl">
+                STUDENT DASHBOARD
+              </h2>
+            </div>
+
+            {/* Leave Requests */}
+            <div className="w-full max-w-[960px] mx-auto px-4 mt-7 mb-10">
+              <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
+                My Leave Requests
+              </h2>
+
+              {leave.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {leave.map((l) => (
                     <div
-                      className="w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
-                      onClick={() =>
-                        setExpandedLeave(expandedLeave === l._id ? null : l._id)
-                      }
+                      key={l._id}
+                      className="bg-slate-700 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
                     >
-                      <p className="text-center">
-                        {expandedLeave === l._id ? "Show Less" : "Show More"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-          <div className="w-[960px] h-auto justify-self-center mt-7 mb-10">
-            <h2 className="text-white font-growmajour text-[28px] mb-4">
-              My Certificate Requests
-            </h2>
-
-            {certificates.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {certificates.map((c) => (
-                  <div
-                    key={c._id}
-                    className="bg-slate-700 p-4 rounded-lg shadow-md flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="text-white font-bold">
-                        Purpose:{" "}
-                        <span className="text-black font-radonregular">
-                          {c.purpose}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:
-                        <span
-                          className={`ml-1 ${
-                            c.status === "approved"
-                              ? "text-green-400"
-                              : c.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                        >
-                          {c.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(c.createdAt).toLocaleDateString()}
-                      </p>
-                      {expandedLeave === c._id && (
-                        <p className="text-white font-ssold w-[750px] text-justify">
-                          <span>Reason:</span> <br />
-                          <span className="text-[#0F0F0F]">
-                            {c.CertificateType}
+                      <div className="flex-1">
+                        <p className="text-white font-bold">
+                          Subject:{" "}
+                          <span className="text-black font-radonregular">
+                            {l.subject}
                           </span>
                         </p>
-                      )}
+                        <p className="text-gray-300 text-sm">
+                          Status:
+                          <span
+                            className={`ml-1 ${
+                              l.status === "approved"
+                                ? "text-green-400"
+                                : l.status === "rejected"
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
+                          >
+                            {l.status}
+                          </span>
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Applied On:{" "}
+                          {new Date(l.createdAt).toLocaleDateString()}
+                        </p>
+                        {expandedLeave === l._id && (
+                          <p className="text-white font-ssold w-full text-justify mt-2">
+                            <span>Reason:</span> <br />
+                            <span className="text-[#0F0F0F]">{l.Reason}</span>
+                          </p>
+                        )}
+                      </div>
+                      <div
+                        className="min-w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                        onClick={() =>
+                          setExpandedLeave(
+                            expandedLeave === l._id ? null : l._id
+                          )
+                        }
+                      >
+                        <p className="text-center">
+                          {expandedLeave === l._id ? "Show Less" : "Show More"}
+                        </p>
+                      </div>
                     </div>
-                    <div
-                      className="w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
-                      onClick={() =>
-                        setExpandedLeave(expandedLeave === c._id ? null : c._id)
-                      }
-                    >
-                      <p className="text-center">
-                        {expandedLeave === c._id ? "Show Less" : "Show More"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-        </>
-      )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">No leave applications found.</p>
+              )}
+            </div>
 
-      {createRequests && (
-        <>
-          <div className="min-h-screen bg-[#0D0D0D] text-white px-6 py-12 flex flex-col gap-12 items-center font-sans">
-            {/* Leave Application Form */}
-            <div className="bg-[#1A1A1A] p-8 rounded-2xl w-full max-w-xl shadow-xl">
-              <h2 className="text-2xl font-bold mb-6 text-center font-radonregular">
+            {/* Certificate Requests */}
+            <div className="w-full max-w-[960px] mx-auto px-4 mt-7 mb-10">
+              <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
+                My Certificate Requests
+              </h2>
+
+              {certificates.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {certificates.map((c) => (
+                    <div
+                      key={c._id}
+                      className="bg-slate-700 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                    >
+                      <div className="flex-1">
+                        <p className="text-white font-bold">
+                          Purpose:{" "}
+                          <span className="text-black font-radonregular">
+                            {c.purpose}
+                          </span>
+                        </p>
+                        <p className="text-gray-300 text-sm">
+                          Status:
+                          <span
+                            className={`ml-1 ${
+                              c.status === "approved"
+                                ? "text-green-400"
+                                : c.status === "rejected"
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
+                          >
+                            {c.status}
+                          </span>
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Applied On:{" "}
+                          {new Date(c.createdAt).toLocaleDateString()}
+                        </p>
+                        {expandedLeave === c._id && (
+                          <p className="text-white font-ssold w-full text-justify mt-2">
+                            <span>Reason:</span> <br />
+                            <span className="text-[#0F0F0F]">
+                              {c.CertificateType}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                      <div
+                        className="min-w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                        onClick={() =>
+                          setExpandedLeave(
+                            expandedLeave === c._id ? null : c._id
+                          )
+                        }
+                      >
+                        <p className="text-center">
+                          {expandedLeave === c._id ? "Show Less" : "Show More"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">
+                  No certificate applications found.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Create Request Forms */}
+        {createRequests && (
+          <div className="min-h-screen bg-[#0D0D0D] text-white px-4 sm:px-6 py-12 flex flex-col gap-12 items-center font-sans">
+            {/* Leave Form */}
+            <div className="bg-[#1A1A1A] p-6 sm:p-8 rounded-2xl w-full max-w-xl shadow-xl">
+              <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center font-radonregular">
                 Leave Application
               </h2>
               <form
                 className="flex flex-col gap-4 font-mooxy"
                 onSubmit={handleClickOnLeaveSubmit}
               >
-                <label className="text-sm font-medium ">
+                <label className="text-sm font-medium">
                   Subject:
                   <input
-                    className="mt-1 p-3 w-full h-8 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
+                    className="mt-1 p-3 w-full h-10 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
                     placeholder="Give the leave days"
                     onChange={(e) => setSubject(e.target.value)}
                     required
                   />
                 </label>
-                <label className="text-sm font-medium ">
+                <label className="text-sm font-medium">
                   Reason for Leave:
                   <textarea
                     className="mt-1 p-3 w-full h-28 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
@@ -307,7 +327,6 @@ const StudentDashboard = () => {
                     required
                   />
                 </label>
-
                 <label className="text-sm font-medium">
                   Upload Supporting Document:
                   <input
@@ -315,7 +334,6 @@ const StudentDashboard = () => {
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
                   />
                 </label>
-
                 <button
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 font-radonregular transition-all text-white font-semibold py-2 px-4 rounded-lg mt-4"
@@ -325,9 +343,9 @@ const StudentDashboard = () => {
               </form>
             </div>
 
-            {/* Certificate Application Form */}
-            <div className="bg-[#1A1A1A] p-8 rounded-2xl w-full max-w-xl shadow-xl">
-              <h2 className="text-2xl font-bold mb-6 text-center font-radonregular">
+            {/* Certificate Form */}
+            <div className="bg-[#1A1A1A] p-6 sm:p-8 rounded-2xl w-full max-w-xl shadow-xl">
+              <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center font-radonregular">
                 Certificate Application Portal
               </h2>
               <form
@@ -344,7 +362,6 @@ const StudentDashboard = () => {
                     onChange={(e) => setPurpose(e.target.value)}
                   />
                 </label>
-
                 <label className="text-sm font-medium">
                   Type of Document:
                   <select
@@ -359,7 +376,6 @@ const StudentDashboard = () => {
                     <option value="Custom">Custom Request</option>
                   </select>
                 </label>
-
                 <label className="text-sm font-medium">
                   Upload Required Document:
                   <input
@@ -367,7 +383,6 @@ const StudentDashboard = () => {
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
                   />
                 </label>
-
                 <button
                   type="submit"
                   className="bg-green-600 font-radonregular hover:bg-green-700 transition-all text-white font-semibold py-2 px-4 rounded-lg mt-4"
@@ -377,8 +392,9 @@ const StudentDashboard = () => {
               </form>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </>
+
       <Footer />
     </>
   );
