@@ -1,24 +1,25 @@
 import axios from "axios";
-
-export const getLeavesOfAStudentForAdmin = async (studentId) => {
+export const getCertificateOfAStudentForAdmin = async (student) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/studentRequests",{
-        params:{studentId},
+      "http://localhost:3000/api/adminregister/certificateRequests",
+      {
+        params: { student },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    if(response.status==200){
+    if (response.status === 200) {
       return response.data;
     }
+    return response.data;
   } catch (err) {
-    if(err.response&&err.response.status===404){
-      return { message: "No leaves found for this student" };
+    if (err.response && err.response.status === 404) {
+      return { message: "No certificates found for this student" };
     }
-    console.error("Error fetching leaves:", err);
+    console.error("Error fetching certificates:", err);
     if (err.response && err.response.data) {
       return { error: err.response.data.error || "An error occurred" };
     }

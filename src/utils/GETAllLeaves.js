@@ -9,12 +9,10 @@ export const getAllLeaves=async()=>{
                 }
             }
         )
-        console.log(response.data);
         return response.data;
 
     }
     catch(err){
-        console.log(err);
         return err;
     }
 }

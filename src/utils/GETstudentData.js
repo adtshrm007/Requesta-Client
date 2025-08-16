@@ -12,7 +12,6 @@ export const fetchStudentData = async (regnNo) => {
 
     if (response.data) {
       toast.success("Logged In Successfully");
-      console.log("Student Found:", response.data);
       localStorage.setItem("accessToken", response.data.accessToken);
 
       return response.data;

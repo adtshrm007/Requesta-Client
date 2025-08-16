@@ -10,7 +10,6 @@ export const fetchAdmin = async (adminID) => {
     );
 
     if (response.data && response.status === 200) {
-      console.log("Admin found:", response.data);
       localStorage.removeItem("accessToken");
       localStorage.setItem("adminaccessToken", response.data.accessToken);
       return response.data;

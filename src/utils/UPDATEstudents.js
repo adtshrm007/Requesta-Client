@@ -12,10 +12,8 @@ export const updateStudent = async (studentData) => {
         },
       }
     );
-    console.log("Logged-in student:", response.data.data);
     return response.data;
   } catch (err) {
-    console.error("Update failed:", err.response?.data || err.message);
-    return null;
+    return err.response?.data || err.message || "An error occurred while updating student data.";
   }
 };

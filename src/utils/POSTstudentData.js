@@ -13,7 +13,6 @@ export const postStudentData = async (studentData) => {
     if (err.response && err.response.status === 400) {
       toast.error(err.response.data.message || "Invalid input");
     } else {
-      console.error("Error registering student data:", err);
       toast.error("Server error while registering student.");
     }
     return null; // Important: return null on error so the calling function can handle it

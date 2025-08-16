@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg.png";
 import { getStudents } from "../utils/GETAllStudents";
 import { getLeavesOfAStudentForAdmin } from "../utils/GETLeavesOfAStudentForAdmin";
-
+import { getCertificateOfAStudentForAdmin } from "../utils/GETCertificateOfAStudentForAdmin";
 const Students = () => {
   const [activeTab, setActiveTab] = useState("home"); // home, search, filters, add
   const [search, setSearch] = useState("");
@@ -11,6 +11,7 @@ const Students = () => {
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [expand, setExpand] = useState(null);
   const [leaves, setLeaves] = useState([]);
+  const [certificates, setCertificates] = useState([]);
 
   // Fetch students on mount
   useEffect(() => {
@@ -43,9 +44,22 @@ const Students = () => {
     }
     setExpand(studentId);
 
+
+
     const leavesData = await getLeavesOfAStudentForAdmin(studentId);
     setLeaves(leavesData || []);
   };
+  const handleViewCertificates = async (student) => {
+    if (expand === student) {
+      setExpand(null); // collapse
+      return;
+    }
+    setExpand(student);
+    // Fetch certificates for the student
+    const certificatesData = await getCertificateOfAStudentForAdmin(student);
+    setCertificates(certificatesData || []);
+  };
+
 
   return (
     <>
@@ -98,7 +112,7 @@ const Students = () => {
                 <div className="bg-white text-black w-[200px] h-[30px] rounded text-center flex items-center justify-center">
                   <button
                     className="font-mooxy"
-                    onClick={() => handleViewRequests(stu._id)}
+                    onClick={() => [handleViewRequests(stu._id), handleViewCertificates(stu._id)]}
                   >
                     {expand === stu._id ? "Hide Requests" : "View Requests"}
                   </button>
@@ -117,6 +131,17 @@ const Students = () => {
                     </ul>
                   ) : (
                     <p>No leave requests found</p>
+                  )}
+                  {certificates.length > 0 ? (
+                    <ul>
+                      {certificates.map((leave) => (
+                        <li key={leave._id} className="mb-2">
+                          <strong>{leave.purpose}</strong> — {leave.status}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No Certificate requests found</p>
                   )}
                 </div>
               )}

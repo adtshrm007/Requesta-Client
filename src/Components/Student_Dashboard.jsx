@@ -73,11 +73,10 @@ const StudentDashboard = () => {
     const showLeaves = async () => {
       try {
         const res = await getLeaves();
-        console.log("Fetched Leaves:", res);
+
         if (res) {
           setLeave(res);
         }
-        console.log(leave);
       } catch (err) {
         console.error("Error fetching leaves:", err);
       }
@@ -88,11 +87,9 @@ const StudentDashboard = () => {
     const showCertificates = async () => {
       try {
         const res = await showAllCertificates();
-        console.log("Fetched Certificates:", res);
         if (res) {
           setCertificates(res);
         }
-        console.log(certificates);
       } catch (err) {
         console.error("Error fetching certificates:", err);
       }
@@ -254,7 +251,9 @@ const StudentDashboard = () => {
                       {expandedLeave === c._id && (
                         <p className="text-white font-ssold w-[750px] text-justify">
                           <span>Reason:</span> <br />
-                          <span className="text-[#0F0F0F]">{c.CertificateType}</span>
+                          <span className="text-[#0F0F0F]">
+                            {c.CertificateType}
+                          </span>
                         </p>
                       )}
                     </div>

@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { toast } from "react-toastify";
 export const updateAdmin = async (adminData) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
@@ -12,7 +12,7 @@ export const updateAdmin = async (adminData) => {
         },
       }
     );
-    console.log("Admin Updated successfully:",response.data.data);
+    toast.success("Admin data updated successfully!");
     return response.data.data
   } catch (err) {
     return err;

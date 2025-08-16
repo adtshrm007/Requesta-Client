@@ -11,7 +11,7 @@ export const updateLeaveStatus = async (leaveId,status) => {
         },
       }
     );
-    console.log("Leave status updated:", response.data);
+    
     return response.data;
   } catch (err) {
     console.error("Error updating leave status:", err.response?.data || err.message);

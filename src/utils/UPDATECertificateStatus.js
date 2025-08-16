@@ -11,7 +11,7 @@ export const updateCertificateStatus = async (certId,status) => {
         },
       }
     );
-    console.log("Certificate status updated:", response.data);
+
     return response.data;
   } catch (err) {
     console.error("Error updating leave status:", err.response?.data || err.message);

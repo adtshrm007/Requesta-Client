@@ -14,7 +14,7 @@ export const getLeaves = async () => {
     );
     return showLeaves.data
   } catch (err) {
-    console.log(err);
+    
     return err;
   }
 };
