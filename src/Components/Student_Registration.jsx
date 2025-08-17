@@ -10,12 +10,14 @@ export default function StudentRegister() {
   const [branch, setBranch] = useState("");
   const [mobileNo, setMobileNo] = useState("");
   const [batchYear, setbatchYear] = useState("");
+  const [password,setPassword]=useState("");
   const navigate = useNavigate();
   async function handleRegister() {
     const newStudent = {
       registrationNumber: regNo,
       name: name,
       mobileNumber: mobileNo,
+      password:password,
       branch: branch,
       year: batchYear,
     };
@@ -68,6 +70,14 @@ export default function StudentRegister() {
               placeholder="Mobile No."
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
               onChange={(e) => setMobileNo(e.target.value)}
+            />
+          </div>
+          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
+            <input
+              type="text"
+              placeholder="Password"
+              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
