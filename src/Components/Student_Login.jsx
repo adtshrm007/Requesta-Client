@@ -4,20 +4,30 @@ import { Link } from "react-router-dom";
 import { fetchStudentData } from "../utils/GETstudentData";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ToastContainer,toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function StudentLoginRegister() {
   const navigate = useNavigate();
   const [RegistrationNumber, setRegistrationNumber] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
   async function handleLogin() {
     if (!RegistrationNumber.trim()) {
       toast.error("Please enter registration number");
       return;
     }
-    const res = await fetchStudentData(RegistrationNumber);
+    if (!password.trim()) {
+      toast.error("Please enter password");
+      return;
+    }
+    console.log(RegistrationNumber, password);
+    const res = await fetchStudentData(RegistrationNumber, password);
     if (res) {
       navigate("/studentdashboard");
     }
+  }
+  function handleShowPassword() {
+    setShowPassword(!showPassword);
   }
 
   return (
@@ -44,6 +54,24 @@ export default function StudentLoginRegister() {
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
               onChange={(e) => setRegistrationNumber(e.target.value)}
             />
+          </div>
+          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div
+              className="w-[20px] h-[20px] text-white cursor-pointer mr-2 flex"
+              onClick={handleShowPassword}
+            >
+              {showPassword ? (
+                <i className="fa-solid fa-eye-slash text-white w-[20px] h-[20px]"></i>
+              ) : (
+                <i className="fa-solid fa-eye text-white w-[20px] h-[20px]"></i>
+              )}
+            </div>
           </div>
           <motion.button
             className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const AddAdmin = () => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
+  const [password,setPassword]=useState("");
   const [adminMobileNumber, setAdminMobileNumber] = useState("");
   const [adminDepartment, setAdminDepartment] = useState("");
   const [adminID, setAdminID] = useState("");
@@ -13,6 +14,7 @@ const AddAdmin = () => {
   async function handleRegister() {
     const newAdmin = {
       adminID: adminID,
+      password:password,
       name: adminName,
       mobileNumber: adminMobileNumber,
       department: adminDepartment,
@@ -45,6 +47,14 @@ const AddAdmin = () => {
           type="text"
           placeholder="Admin Id"
           onChange={(e) => setAdminID(e.target.value)}
+          className="w-full h-[45px] sm:h-[50px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
+        />
+      </div>
+      <div className="bg-[#0D0D0D] rounded-[16px] sm:rounded-[20px] overflow-hidden">
+        <input
+          type="text"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full h-[45px] sm:h-[50px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
         />
       </div>

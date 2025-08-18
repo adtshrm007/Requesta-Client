@@ -1,11 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-export const fetchAdmin = async (adminID) => {
+export const fetchAdmin = async (adminID,password) => {
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       "http://localhost:3000/api/adminregister/get",
       {
-        params: { adminID },
+        adminID,
+        password
       }
     );
 

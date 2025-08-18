@@ -1,12 +1,13 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export const fetchStudentData = async (regnNo,password) => {
+export const fetchStudentData = async (regnNo, password) => {
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       "http://localhost:3000/api/studentregister/",
       {
-        params: { registrationNumber: regnNo,password:password },
+        registrationNumber: regnNo,
+        password,
       }
     );
 
