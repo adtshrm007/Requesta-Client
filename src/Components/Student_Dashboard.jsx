@@ -2,6 +2,7 @@ import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
 import { motion } from "motion/react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 import { submitLeaves } from "../utils/POSTLeaveApplication";
@@ -9,6 +10,7 @@ import { submitCertificate } from "../utils/POSTCertificateApplication";
 import { useNavigate } from "react-router-dom";
 import { getLeaves } from "../utils/GETLeavesForAStudent";
 import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
+import Loader from "./Loader";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [text, setText] = useState("Show More");
@@ -23,6 +25,9 @@ const StudentDashboard = () => {
   const [certificates, setCertificates] = useState([]);
   const [purpose, setPurpose] = useState("");
   const [certificateType, setCertificateType] = useState("");
+  const [supportingDocument, setSupportingDocument] = useState(null);
+  const [documentURL, setDocumentURL] = useState("");
+  const [loading, setLoading] = useState(false);
   const [expandedLeave, setExpandedLeave] = useState(null);
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
@@ -51,23 +56,54 @@ const StudentDashboard = () => {
 
     fetchData();
   }, [name]);
-  async function handleClickOnLeaveSubmit() {
-    const leaveData = {
-      subject: subject,
-      Reason: reason,
-    };
+  const handleClickOnLeaveSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("subject", subject);
+    formData.append("Reason", reason);
+    if (supportingDocument) {
+      formData.append("supportingDocument", supportingDocument); // file object
+    }
 
-    const res = await submitLeaves(leaveData);
-    console.log("Leave submitted:", res);
-    navigate("/studentdashboard");
-  }
-  async function handleClickOnCertificateSubmit() {
-    const certificateData = {
-      purpose: purpose,
-      CertificateType: certificateType,
-    };
-    const res = await submitCertificate(certificateData);
-    console.log("Certificate submitted:", res);
+    try {
+      const res = await submitLeaves(formData);
+      if (res.data) {
+        toast.success("Leave submitted successfully");
+        setSubject("");
+        setReason("");
+        setSupportingDocument(null);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Error submitting leave:", err);
+      toast.error(err);
+    }
+  };
+
+  async function handleClickOnCertificateSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    const form = new FormData();
+    form.append("purpose", purpose);
+    form.append("CertificateType", certificateType);
+    if (supportingDocument) {
+      form.append("supportingDocument", supportingDocument);
+    }
+    try {
+      const res = await submitCertificate(form);
+      if (res.data) {
+        toast.success("Certificate Submitted Successfully");
+        setPurpose("");
+        setCertificateType("");
+        setSupportingDocument(null);
+      }
+    } catch (err) {
+      toast.error("Error Occured Submiting the application");
+      console.error("Error submitting certificate:", err);
+    }
   }
   useEffect(() => {
     const showLeaves = async () => {
@@ -99,9 +135,11 @@ const StudentDashboard = () => {
   return (
     <>
       <>
+        <ToastContainer position="top-right" autoClose={3000} />
         {/* Header */}
         <div className="w-full max-w-[960px] h-auto min-h-[64px] mx-auto flex flex-wrap items-center justify-between px-4 text-white gap-4">
           {/* Logo & Title */}
+
           <Link to="/">
             <motion.div
               className="flex items-center font-growmajour text-lg sm:text-xl md:text-[22px] cursor-pointer"
@@ -200,10 +238,44 @@ const StudentDashboard = () => {
                           {new Date(l.createdAt).toLocaleDateString()}
                         </p>
                         {expandedLeave === l._id && (
-                          <p className="text-white font-ssold w-full text-justify mt-2">
-                            <span>Reason:</span> <br />
-                            <span className="text-[#0F0F0F]">{l.Reason}</span>
-                          </p>
+                          <>
+                            <p className="text-white font-ssold w-full text-justify mt-2">
+                              <span>Reason:</span> <br />
+                              <span className="text-[#0F0F0F]">{l.Reason}</span>
+                            </p>
+
+                            {l.supportingDocument && (
+                              <div className="w-[600px] h-auto flex items-center justify-center">
+                                <p className="text-white font-ssold w-full text-justify mt-2">
+                                  <span>Supporting Document:</span>
+                                </p>
+
+                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                                  <a
+                                    href={l.supportingDocument}
+                                    target="_blank"
+                                    className="font-mooxy text-center"
+                                    rel="noopener noreferrer"
+                                  >
+                                    View Supporting Document
+                                  </a>
+                                </div>
+                                <div className="w-[500px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center mx-4">
+                                  <a
+                                    href={l.supportingDocument.replace(
+                                      "/upload/",
+                                      "/upload/fl_attachment/"
+                                    )}
+                                    target="_blank"
+                                    className="font-mooxy text-center"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Download Document
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                       <div
@@ -265,12 +337,45 @@ const StudentDashboard = () => {
                           {new Date(c.createdAt).toLocaleDateString()}
                         </p>
                         {expandedLeave === c._id && (
-                          <p className="text-white font-ssold w-full text-justify mt-2">
-                            <span>Reason:</span> <br />
-                            <span className="text-[#0F0F0F]">
-                              {c.CertificateType}
-                            </span>
-                          </p>
+                          <>
+                            <p className="text-white font-ssold w-full text-justify mt-2">
+                              <span>Reason:</span> <br />
+                              <span className="text-[#0F0F0F]">
+                                {c.CertificateType}
+                              </span>
+                            </p>
+                            {c.supportingDocument && (
+                              <div className="w-[600px] h-auto flex items-center justify-center">
+                                <p className="text-white font-ssold w-full text-justify mt-2">
+                                  <span>Supporting Document:</span>
+                                </p>
+
+                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                                  <a
+                                    href={c.supportingDocument}
+                                    target="_blank"
+                                    className="font-mooxy text-center"
+                                    rel="noopener noreferrer"
+                                  >
+                                    View Supporting Document
+                                  </a>
+                                </div>
+                                <div className="w-[500px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center mx-4">
+                                  <a
+                                    href={c.supportingDocument.replace(
+                                      "/upload/",
+                                      "/upload/fl_attachment/"
+                                    )}
+                                    target="_blank"
+                                    className="font-mooxy text-center"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Download Document
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                       <div
@@ -298,7 +403,7 @@ const StudentDashboard = () => {
         )}
 
         {/* Create Request Forms */}
-        {createRequests && (
+        {createRequests && !loading && (
           <div className="min-h-screen bg-[#0D0D0D] text-white px-4 sm:px-6 py-12 flex flex-col gap-12 items-center font-sans">
             {/* Leave Form */}
             <div className="bg-[#1A1A1A] p-6 sm:p-8 rounded-2xl w-full max-w-xl shadow-xl">
@@ -308,12 +413,14 @@ const StudentDashboard = () => {
               <form
                 className="flex flex-col gap-4 font-mooxy"
                 onSubmit={handleClickOnLeaveSubmit}
+                encType="multipart/form-data"
               >
                 <label className="text-sm font-medium">
                   Subject:
                   <input
                     className="mt-1 p-3 w-full h-10 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
                     placeholder="Give the leave days"
+                    value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     required
                   />
@@ -323,16 +430,24 @@ const StudentDashboard = () => {
                   <textarea
                     className="mt-1 p-3 w-full h-28 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
                     placeholder="Explain your reason for leave..."
+                    value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     required
                   />
                 </label>
                 <label className="text-sm font-medium">
-                  Upload Supporting Document:
+                  Upload Supporting Document(Upload an Image):
                   <input
                     type="file"
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
+                    onChange={(e) => setSupportingDocument(e.target.files[0])}
+                    key={supportingDocument ? supportingDocument.name : ""}
                   />
+                  {supportingDocument && (
+                    <p className="mt-2 text-gray-300">
+                      📄 Selected: {supportingDocument.name}
+                    </p>
+                  )}
                 </label>
                 <button
                   type="submit"
@@ -351,6 +466,7 @@ const StudentDashboard = () => {
               <form
                 className="flex flex-col gap-4 font-mooxy"
                 onSubmit={handleClickOnCertificateSubmit}
+                encType="multipart/form-data"
               >
                 <label className="text-sm font-medium">
                   Purpose:
@@ -381,7 +497,14 @@ const StudentDashboard = () => {
                   <input
                     type="file"
                     className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
+                    key={supportingDocument ? supportingDocument.name : ""}
+                    onChange={(e) => setSupportingDocument(e.target.files[0])}
                   />
+                  {supportingDocument && (
+                    <p className="mt-2 text-gray-300">
+                      📄 Selected: {supportingDocument.name}
+                    </p>
+                  )}
                 </label>
                 <button
                   type="submit"
@@ -394,6 +517,11 @@ const StudentDashboard = () => {
           </div>
         )}
       </>
+      {loading && (
+        <div className="w-[200px] h-[200px] justify-self-center flex items-center justify-center">
+          <Loader />
+        </div>
+      )}
 
       <Footer />
     </>

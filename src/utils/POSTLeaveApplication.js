@@ -6,7 +6,8 @@ export const submitLeaves=async(leavedata)=>{
         const response=await axios.post("http://localhost:3000/api/leave/submitLeaves",leavedata,
             {
                 headers:{
-                    Authorization:`Bearer ${accessToken}`
+                    Authorization:`Bearer ${accessToken}`,
+                    "Content-Type": "multipart/form-data"
                 }
             }
 

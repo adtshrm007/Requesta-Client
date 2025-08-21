@@ -5,7 +5,8 @@ export const submitCertificate=async(certificateData)=>{
         const response=await axios.post("http://localhost:3000/api/certificate/submitCertificate",certificateData,
             {
                 headers:{
-                    Authorization:`Bearer ${accessToken}`
+                    Authorization:`Bearer ${accessToken}`,
+                    "Content-Type":"multipart/form-data"
                 }
             }
         );
