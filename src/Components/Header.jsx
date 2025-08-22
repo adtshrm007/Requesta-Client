@@ -26,7 +26,7 @@ const Header = () => {
             ease: "easeInOut",
           }}
         >
-          <img src={logo} alt="logo" className="w-6 h-6 mr-2" />
+          <img src={logo} alt="logo" className="w-6 h-6 mr-2 relative bottom-1" />
           <p>REQUESTA</p>
         </motion.div>
       </Link>

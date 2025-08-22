@@ -29,6 +29,7 @@ const StudentDashboard = () => {
   const [documentURL, setDocumentURL] = useState("");
   const [loading, setLoading] = useState(false);
   const [expandedLeave, setExpandedLeave] = useState(null);
+  const [notifications, setNotifications] = useState("");
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
     setHome(!home);
@@ -105,33 +106,34 @@ const StudentDashboard = () => {
       console.error("Error submitting certificate:", err);
     }
   }
-  useEffect(() => {
-    const showLeaves = async () => {
-      try {
-        const res = await getLeaves();
+  const notification = async () => {
+    try {
+      const [res1, res2] = await Promise.all([
+        getLeaves(),
+        showAllCertificates(),
+      ]);
 
-        if (res) {
-          setLeave(res);
-        }
-      } catch (err) {
-        console.error("Error fetching leaves:", err);
-      }
-    };
-    showLeaves();
-  }, []);
+      const r1 = res1.filter(
+        (i) => i.status === "approved" || i.status === "rejected"
+      );
+      const r2 = res2.filter(
+        (i) => i.status === "approved" || i.status === "rejected"
+      );
+
+      const total = r1.length + r2.length;
+
+      setNotifications(total > 0 ? total : "");
+      setLeave(res1);
+      setCertificates(res2);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
   useEffect(() => {
-    const showCertificates = async () => {
-      try {
-        const res = await showAllCertificates();
-        if (res) {
-          setCertificates(res);
-        }
-      } catch (err) {
-        console.error("Error fetching certificates:", err);
-      }
-    };
-    showCertificates();
+    notification();
   }, []);
+
   return (
     <>
       <>
@@ -165,9 +167,18 @@ const StudentDashboard = () => {
 
           {/* Nav Links */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
-            <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
-              Notifications
-            </p>
+            <div className="flex flex-col mt-5">
+              <Link to="/notifications">
+                <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
+                  Notifications
+                </p>
+              </Link>
+              <div className="w-[20px] h-[20px] bg-slate-500 justify-self-end rounded-full relative left-22 bottom-3 flex items-center justify-center">
+                <p className="text-white font-mooxy text-center mt-1">
+                  {notifications}
+                </p>
+              </div>
+            </div>
             <Link to="/studentprofile">
               <p className="bg-[#191919] text-white px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
                 Profile

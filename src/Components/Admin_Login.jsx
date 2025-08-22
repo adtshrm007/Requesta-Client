@@ -56,7 +56,7 @@ export default function AdminLogin() {
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center mr-2">
             <input
-              type="text"
+              type={showPassword?"text":"password"}
               placeholder="Password"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
               onChange={(e) => setPassword(e.target.value)}

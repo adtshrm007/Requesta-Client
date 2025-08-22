@@ -10,6 +10,7 @@ import StudentProfile from './Components/Student_Profile';
 import Students from './Components/Students';
 import AdminProfile from './Components/Admin_Profile';
 import AddAdmin from './Components/AddAdmin';
+import Notifications from './Components/Notifications';
 import { NotificationsAndRequest } from './Components/NotificationsAndRequests';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
@@ -30,6 +31,7 @@ app.render(
       <Route path="/adminprofile" element={<AdminProfile/>}/>
       <Route path="/addadmin" element={<AddAdmin/>}/>
       <Route path="/notificationsAndrequests" element={<NotificationsAndRequest/>}/>
+      <Route path="/notifications" element={<Notifications/>}/>
     </Routes>
   </BrowserRouter>
 );
