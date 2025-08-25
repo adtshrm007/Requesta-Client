@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [totalPendingCertificates, setTotalPendingCertificates] = useState(0);
   const [totalApprovedCertificates, setTotalApprovedCertificates] = useState(0);
   const [totalRejectedCertificates, setTotalRejectedCertificates] = useState(0);
+  const [notifications, setNotifications] = useState(0);
   const getAdminData = async () => {
     const currentAdmin = await getAdminDashboard();
     return currentAdmin;
@@ -57,6 +58,7 @@ export default function AdminDashboard() {
     setTotalPendingCertificates(pendingCertificates);
     setTotalApprovedCertificates(approvedCertificates);
     setTotalRejectedCertificates(rejectedCertificates);
+    setNotifications(pendingLeaves + pendingCertificates);
 
     if (leaves && Array.isArray(leaves)) {
       setTotalLeaves(leaves.length);
@@ -87,9 +89,16 @@ export default function AdminDashboard() {
 
         {/* Nav Links */}
         <div className="flex flex-wrap justify-center sm:justify-end gap-3 text-[#777777] font-mooxy text-[14px]">
-          <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-            Notifications
-          </p>
+          <Link to="/notificationsforadmin">
+            <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer relative left-9">
+              Notifications
+            </p>
+          </Link>
+          <div className="w-[25px] h-[25px] bg-slate-500 justify-self-end rounded-full relative right-1 top-6 flex items-center justify-center">
+            <p className="text-white font-mooxy text-center mt-1">
+              {notifications}
+            </p>
+          </div>
           <Link to="/adminprofile">
             <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
               Profile

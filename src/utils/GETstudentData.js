@@ -20,7 +20,11 @@ export const fetchStudentData = async (regnNo, password) => {
   } catch (error) {
     if (error.response && error.response.status === 404) {
       toast.error(error.response.data.message || "Student not found");
-    } else {
+    }
+    else if(error.response&&error.response.status===401){
+      toast.error(error.response.message||"Wrong Credentials")
+    } 
+    else {
       toast.error("Something went wrong while fetching student data.");
       console.error("Error fetching student data:", error);
     }

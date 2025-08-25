@@ -1,10 +1,10 @@
 import axios from "axios";
-export const updateLeaveStatus = async (leaveId,status) => {
+export const updateLeaveStatus = async (leaveId,status,remark) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
       "http://localhost:3000/api/leave/updateLeaves",
-      {leaveId,status} ,
+      {leaveId,status,remark} ,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

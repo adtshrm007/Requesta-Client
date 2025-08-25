@@ -29,7 +29,7 @@ const StudentDashboard = () => {
   const [documentURL, setDocumentURL] = useState("");
   const [loading, setLoading] = useState(false);
   const [expandedLeave, setExpandedLeave] = useState(null);
-  const [notifications, setNotifications] = useState("");
+  const [notifications, setNotifications] = useState(0);
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
     setHome(!home);
@@ -64,7 +64,7 @@ const StudentDashboard = () => {
     formData.append("subject", subject);
     formData.append("Reason", reason);
     if (supportingDocument) {
-      formData.append("supportingDocument", supportingDocument); // file object
+      formData.append("supportingDocument", supportingDocument);
     }
 
     try {
@@ -269,19 +269,6 @@ const StudentDashboard = () => {
                                     rel="noopener noreferrer"
                                   >
                                     View Supporting Document
-                                  </a>
-                                </div>
-                                <div className="w-[500px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center mx-4">
-                                  <a
-                                    href={l.supportingDocument.replace(
-                                      "/upload/",
-                                      "/upload/fl_attachment/"
-                                    )}
-                                    target="_blank"
-                                    className="font-mooxy text-center"
-                                    rel="noopener noreferrer"
-                                  >
-                                    Download Document
                                   </a>
                                 </div>
                               </div>

@@ -9,6 +9,7 @@ import { getAllLeaves } from "../utils/GETAllLeaves";
 import { updateLeaveStatus } from "../utils/UpdateLeaveStatus";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { updateCertificateStatus } from "../utils/UPDATECertificateStatus";
+import { ToastContainer, toast } from "react-toastify";
 export const NotificationsAndRequest = () => {
   const location = useLocation();
 
@@ -40,6 +41,16 @@ export const NotificationsAndRequest = () => {
   const [pendingCertificates, setPendingCertificates] = useState([]);
   const [acceptedCertificates, setAcceptedCertificates] = useState([]);
   const [rejectedCertificates, setRejectedCertificates] = useState([]);
+  const [supportingDocument, setSupportingDocument] = useState([]);
+  const [remarkBox, setRemarkBox] = useState(null);
+  const [remark, setRemark] = useState({});
+  const [confirm, setConfirm] = useState(false);
+  function handleClickOnConfirm() {
+    console.log(remark);
+    setTimeout(() => {
+      window.location.reload();
+    }, 4000);
+  }
 
   // Fetch all leaves once on mount
   useEffect(() => {
@@ -49,6 +60,7 @@ export const NotificationsAndRequest = () => {
         setPendingLeaves(res.filter((leave) => leave.status === "pending"));
         setAcceptedLeaves(res.filter((leave) => leave.status === "approved"));
         setRejectedLeaves(res.filter((leave) => leave.status === "rejected"));
+        setSupportingDocument(res.supportingDocument);
       }
     };
     fetchLeaves();
@@ -79,12 +91,22 @@ export const NotificationsAndRequest = () => {
   // Optimistic Accept
   const handleClickOnAccept = (leaveId) => {
     // Update UI instantly
+    if (!remark[leaveId]) {
+      toast.error("Enter the remark first!!!");
+      return;
+    }
+
     setPendingLeaves((prev) =>
-      prev.map((l) => (l._id === leaveId ? { ...l, status: "approved" } : l))
+      prev.map((l) =>
+        l._id === leaveId
+          ? { ...l, status: "approved", remark: remark[leaveId] }
+          : l
+      )
     );
+    setConfirm(confirm === leaveId ? null : leaveId);
 
     // Update backend
-    updateLeaveStatus(leaveId, "approved").catch(() => {
+    updateLeaveStatus(leaveId, "approved", remark[leaveId]).catch(() => {
       // rollback if API fails
       setPendingLeaves((prev) =>
         prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
@@ -94,11 +116,20 @@ export const NotificationsAndRequest = () => {
 
   // Optimistic Reject
   const handleClickOnReject = (leaveId) => {
+    if (!remark[leaveId]) {
+      toast.error("Enter the remark first!!!");
+      return;
+    }
     setPendingLeaves((prev) =>
-      prev.map((l) => (l._id === leaveId ? { ...l, status: "rejected" } : l))
+      prev.map((l) =>
+        l._id === leaveId
+          ? { ...l, status: "rejected", remark: remark[leaveId] }
+          : l
+      )
     );
+    setConfirm(confirm === leaveId ? null : leaveId);
 
-    updateLeaveStatus(leaveId, "rejected").catch(() => {
+    updateLeaveStatus(leaveId, "rejected", remark[leaveId]).catch(() => {
       setPendingLeaves((prev) =>
         prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
       );
@@ -136,6 +167,7 @@ export const NotificationsAndRequest = () => {
   return (
     <>
       {/* Header */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-[100%]  h-[64px] mx-4 sticky top-0 z-10 flex items-center justify-between px-4 text-white backdrop-blur-xl">
         <Link to="/">
           <motion.div
@@ -180,7 +212,7 @@ export const NotificationsAndRequest = () => {
               {pendingleaves.map((l) => (
                 <div
                   key={l._id || l.studentId._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center  transition-colors duration-300"
                 >
                   <div>
                     <p className="text-gray-300">
@@ -226,6 +258,69 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-400 text-xs">
                       Applied On: {new Date(l.createdAt).toLocaleDateString()}
                     </p>
+                    {l.supportingDocument && (
+                      <div className="w-[600px] h-auto flex items-center justify-center">
+                        <p className="text-white font-radonregular w-full text-justify mt-2">
+                          <span>Supporting Document:</span>
+                        </p>
+
+                        <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center relative right-34">
+                          <a
+                            href={l.supportingDocument}
+                            target="_blank"
+                            className="font-mooxy text-center"
+                            rel="noopener noreferrer"
+                          >
+                            View Supporting Document
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <div>
+                        {/* Show Remark Input */}
+                        {remarkBox === l._id && (
+                          <div className="w-[960px] h-auto mt-5">
+                            <p className="text-white font-radonregular">
+                              Remarks:
+                            </p>
+                            <input
+                              type="text"
+                              placeholder="Enter the remarks.."
+                              value={remark[l._id] || ""}
+                              onChange={(e) =>
+                                setRemark((prev) => ({
+                                  ...prev,
+                                  [l._id]: e.target.value,
+                                }))
+                              }
+                              className="w-[960px] h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
+                            />
+                          </div>
+                        )}
+
+                        {/* Button to open Remark Box */}
+                        <div
+                          className="w-[150px] h-[30px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-[10px] cursor-pointer"
+                          onClick={() =>
+                            setRemarkBox(remarkBox === l._id ? null : l._id)
+                          }
+                        >
+                          <p className="text-center text-white font-mooxy mt-1">
+                            Add Remark
+                          </p>
+                        </div>
+                        {confirm === l._id && (
+                          <div
+                            className="w-[150px] h-[30px] bg-white mt-5 rounded-[20px] flex justify-center self-center"
+                            onClick={handleClickOnConfirm}
+                          >
+                            {" "}
+                            <p className="font-mooxy mt-1">Confirm</p>{" "}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Accept / Reject Buttons */}
