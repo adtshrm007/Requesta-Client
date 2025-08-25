@@ -136,13 +136,18 @@ export const NotificationsAndRequest = () => {
     });
   };
   const handleClickOnAcceptCertificate = (certId) => {
+    if (!remark[certId]) {
+      toast.error("Enter the remark first!!!");
+      return;
+    }
     // Update UI instantly
     setPendingCertificates((prev) =>
       prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c))
     );
+    setConfirm(confirm === certId ? null : certId);
 
     // Update backend
-    updateCertificateStatus(certId, "approved").catch(() => {
+    updateCertificateStatus(certId, "approved", remark[certId]).catch(() => {
       // rollback if API fails
       setPendingCertificates((prev) =>
         prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
@@ -150,16 +155,30 @@ export const NotificationsAndRequest = () => {
     });
   };
   const handleClickOnRejectCertificate = (certId) => {
+    if (!remark[certId]) {
+      toast.error("Enter the remark first!!!");
+      return;
+    }
     // Update UI instantly
     setPendingCertificates((prev) =>
-      prev.map((c) => (c._id === certId ? { ...c, status: "rejected" } : c))
+      prev.map((c) =>
+        c._id === certId
+          ? { ...c, status: "rejected", remark: remark[certId] }
+          : c
+      )
     );
 
+    setConfirm(confirm === certId ? null : certId);
+
     // Update backend
-    updateCertificateStatus(certId, "rejected").catch(() => {
+    updateCertificateStatus(certId, "rejected", remark[certId]).catch(() => {
       // rollback if API fails
       setPendingCertificates((prev) =>
-        prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
+        prev.map((c) =>
+          c._id === certId
+            ? { ...c, status: "pending", remark: remark[certId] }
+            : c
+        )
       );
     });
   };
@@ -490,9 +509,10 @@ export const NotificationsAndRequest = () => {
               {pendingCertificates.map((l) => (
                 <div
                   key={l._id || l.student._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center hover:bg-gray-700 transition-colors duration-300"
+                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-start hover:bg-gray-700 transition-colors duration-300"
                 >
-                  <div>
+                  {/* Left: Certificate Info */}
+                  <div className="flex-1">
                     <p className="text-gray-300">
                       <span className="text-gray-200 font-bold font-radonregular">
                         Registration Number:
@@ -505,7 +525,7 @@ export const NotificationsAndRequest = () => {
                       </span>{" "}
                       {l.student?.name || "N/A"}
                     </p>
-                    <p className="text-gray-300 ">
+                    <p className="text-gray-300">
                       <span className="text-gray-200 font-bold font-radonregular">
                         Purpose:
                       </span>{" "}
@@ -534,10 +554,69 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-400 text-xs">
                       Applied On: {new Date(l.createdAt).toLocaleDateString()}
                     </p>
+
+                    {/* Supporting Document */}
+                    {l.supportingDocument && (
+                      <div className="mt-2 flex">
+                        <p className="text-white font-radonregular">
+                          Supporting Document:
+                        </p>
+                        <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                          <a
+                            href={l.supportingDocument}
+                            target="_blank"
+                            className="font-mooxy text-center"
+                            rel="noopener noreferrer"
+                          >
+                            View Supporting Document
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ✅ Remark Section at the Bottom */}
+                    {remarkBox === l._id && (
+                      <div className="w-[600px] h-auto mt-5">
+                        <p className="text-white font-radonregular">Remarks:</p>
+                        <input
+                          type="text"
+                          placeholder="Enter the remarks.."
+                          value={remark[l._id] || ""}
+                          onChange={(e) =>
+                            setRemark((prev) => ({
+                              ...prev,
+                              [l._id]: e.target.value,
+                            }))
+                          }
+                          className="w-[600px] h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
+                        />
+                      </div>
+                    )}
+
+                    {/* Add Remark Button */}
+                    <div
+                      className="w-[150px] h-[30px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-[10px] cursor-pointer"
+                      onClick={() =>
+                        setRemarkBox(remarkBox === l._id ? null : l._id)
+                      }
+                    >
+                      <p className="text-center text-white font-mooxy mt-1">
+                        Add Remark
+                      </p>
+                    </div>
+
+                    {confirm === l._id && (
+                      <div
+                        className="w-[150px] h-[30px] bg-white mt-3 rounded-[20px] flex justify-center items-center cursor-pointer"
+                        onClick={handleClickOnConfirm}
+                      >
+                        <p className="font-mooxy">Confirm</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Accept / Reject Buttons */}
-                  <div className="w-[150px] h-[150px] flex flex-col justify-evenly gap-2">
+                  {/* Right: Action Buttons */}
+                  <div className="w-[150px] flex flex-col gap-2">
                     <div
                       className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
                       onClick={() => handleClickOnAcceptCertificate(l._id)}
@@ -559,7 +638,7 @@ export const NotificationsAndRequest = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">No leave applications found.</p>
+            <p className="text-gray-400">No certificate applications found.</p>
           )}
         </div>
         <div className="max-w-[960px] min-w-[95%] h-auto  mt-7 mb-10 mx-5">

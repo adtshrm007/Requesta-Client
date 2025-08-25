@@ -1,10 +1,10 @@
 import axios from "axios";
-export const updateCertificateStatus = async (certId,status) => {
+export const updateCertificateStatus = async (certId,status,remark) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
       "http://localhost:3000/api/certificate/updateCertificates",
-      {certId,status} ,
+      {certId,status,remark} ,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

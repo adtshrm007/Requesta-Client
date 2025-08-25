@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import { getLeaves } from "../utils/GETLeavesForAStudent";
 import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
 import { useState, useEffect } from "react";
+import { Link as ScrollLink } from "react-scroll";
 
 export default function Notifications() {
   const [leaves, setLeaves] = useState([]);
   const [certificates, setCertificates] = useState([]);
-
+  const [leaverequests, setLeaveRequests] = useState(0);
+  const [certificateRequets, setCertificateRequests] = useState(0);
 
   async function showLeaves() {
     try {
@@ -23,6 +25,7 @@ export default function Notifications() {
       );
 
       setLeaves(r);
+      setLeaveRequests(r.length);
     } catch (err) {
       console.log(err);
     }
@@ -41,6 +44,7 @@ export default function Notifications() {
       );
 
       setCertificates(r);
+      setCertificateRequests(r.length);
     } catch (err) {
       console.log(err);
     }
@@ -89,6 +93,26 @@ export default function Notifications() {
               Profile
             </p>
           </Link>
+          <ScrollLink to="leave">
+            <p className=" bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer relative top-4">
+              Leave Notifications
+            </p>
+            <div className="w-[30px] h-[30px] bg-slate-700 relative top-2 z-100 left-28 rounded-[100px] flex items-center justify-center">
+              <p className="text-white text-center font-mooxy">
+                {leaverequests}
+              </p>
+            </div>
+          </ScrollLink>
+          <ScrollLink to="cert">
+            <p className="bg-[#191919] text-white px-3 sm:px-4 py-[6px] rounded-full cursor-pointer relative top-4">
+              Certificate Notifications
+            </p>
+            <div className="w-[30px] h-[30px] bg-slate-700 relative top-2 z-100 left-34 rounded-[100px] flex items-center justify-center">
+              <p className="text-white text-center font-mooxy">
+                {certificateRequets}
+              </p>
+            </div>
+          </ScrollLink>
         </div>
       </div>
 
@@ -100,38 +124,59 @@ export default function Notifications() {
       </div>
 
       {/* Leaves Notifications */}
+
+      <div className="w-[960px] h-[40px] justify-self-center mt-12">
+        <p className="text-[#999999] text-[42px] font-radonregular" id="leave">
+          Notifications of Leave Requests
+        </p>
+      </div>
       {leaves.length > 0 ? (
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col gap-4 items-center mt-5">
           {leaves.map((l) => (
             <div
-              className="w-[960px] h-[60px] bg-slate-700 mt-5 flex flex-col text-white justify-center rounded-[20px] mb-4"
+              className="w-[960px] h-[60px] bg-slate-700 flex flex-col text-white justify-center rounded-[20px] mb-4"
               key={l._id}
             >
               <p className="font-radonregular ml-7 text-[#999999]">
-                Your leave request for{" "}
-                <b className="text-white">{l.subject}</b> has been{" "}
-                <b className="text-white">{l.status}</b>.{" "}on{" "}<b className="text-white">{new Date(l.updatedAt).toDateString()}.</b>
+                Your leave request of <b className="text-white">{l.subject}</b>{" "}
+                has been <b className="text-white">{l.status}</b>. on{" "}
+                <b className="text-white">
+                  {new Date(l.updatedAt).toDateString()}.
+                </b>
               </p>
-              <p className="font-mooxy ml-7 text-[#999999]">Remark: {l.remark || "—"}</p>
+              <p className="font-mooxy ml-7 text-[#999999]">
+                Remark: {l.remark || "—"}
+              </p>
             </div>
           ))}
         </div>
       ) : null}
 
       {/* Certificates Notifications */}
+      <div className="w-[960px] h-[40px] justify-self-center mt-12">
+        <p className="text-[#999999] text-[42px] font-radonregular" id="cert">
+          Notifications of Certificate Requests
+        </p>
+      </div>
       {certificates.length > 0 ? (
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col gap-4 items-center mt-5">
           {certificates.map((c) => (
             <div
-              className="w-[960px] h-[60px] bg-slate-700 mt-5 flex flex-col text-white justify-center rounded-[20px] mb-4"
+              className="w-[960px] h-[60px] bg-slate-700 flex flex-col text-white justify-center rounded-[20px] mb-4"
               key={c._id}
             >
               <p className="font-radonregular ml-7 text-[#999999]">
                 Your certificate request for{" "}
-                <b className="text-white">{c.CertificateType}{" "}Certificate</b> has been{" "}
-                <b className="text-white">{c.status}</b>{" "}on{" "}<b className="text-white">{new Date(c.updatedAt).toDateString()}.</b>
+                <b className="text-white">{c.CertificateType} Certificate</b>{" "}
+                <b className="text-white">{c.purpose}</b>
+                has been <b className="text-white">{c.status}</b> on{" "}
+                <b className="text-white">
+                  {new Date(c.updatedAt).toDateString()}.
+                </b>
               </p>
-              <p className="font-mooxy ml-7 text-[#999999]">Remark: {c.remark || "—"}</p>
+              <p className="font-mooxy ml-7 text-[#999999]">
+                Remark: {c.remark || "—"}
+              </p>
             </div>
           ))}
         </div>

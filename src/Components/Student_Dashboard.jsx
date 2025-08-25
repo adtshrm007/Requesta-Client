@@ -100,6 +100,9 @@ const StudentDashboard = () => {
         setPurpose("");
         setCertificateType("");
         setSupportingDocument(null);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } catch (err) {
       toast.error("Error Occured Submiting the application");
@@ -107,6 +110,8 @@ const StudentDashboard = () => {
     }
   }
   const notification = async () => {
+    const now = new Date();
+    const oneDay = 1000 * 60 * 60 * 24;
     try {
       const [res1, res2] = await Promise.all([
         getLeaves(),
@@ -114,10 +119,14 @@ const StudentDashboard = () => {
       ]);
 
       const r1 = res1.filter(
-        (i) => i.status === "approved" || i.status === "rejected"
+        (i) =>
+          (i.status === "approved" || i.status === "rejected") &&
+          now - new Date(i.updatedAt) < oneDay
       );
       const r2 = res2.filter(
-        (i) => i.status === "approved" || i.status === "rejected"
+        (i) =>
+          (i.status === "approved" || i.status === "rejected") &&
+          now - new Date(i.updatedAt) < oneDay
       );
 
       const total = r1.length + r2.length;
@@ -173,7 +182,7 @@ const StudentDashboard = () => {
                   Notifications
                 </p>
               </Link>
-              <div className="w-[20px] h-[20px] bg-slate-500 justify-self-end rounded-full relative left-22 bottom-3 flex items-center justify-center">
+              <div className="w-[30px] h-[30px] bg-slate-500 justify-self-end rounded-full relative left-22 bottom-3 flex items-center justify-center">
                 <p className="text-white font-mooxy text-center mt-1">
                   {notifications}
                 </p>
