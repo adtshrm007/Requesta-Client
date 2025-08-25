@@ -177,6 +177,7 @@ export default function Notifications() {
               <p className="font-mooxy ml-7 text-[#999999]">
                 Remark: {c.remark || "—"}
               </p>
+              <p>{c.addCertificate}</p>
             </div>
           ))}
         </div>

@@ -45,6 +45,8 @@ export const NotificationsAndRequest = () => {
   const [remarkBox, setRemarkBox] = useState(null);
   const [remark, setRemark] = useState({});
   const [confirm, setConfirm] = useState(false);
+  const [certificateAdd, setCertificateAdd] = useState(null);
+  const [certificate, setCertificate] = useState({});
   function handleClickOnConfirm() {
     console.log(remark);
     setTimeout(() => {
@@ -140,6 +142,17 @@ export const NotificationsAndRequest = () => {
       toast.error("Enter the remark first!!!");
       return;
     }
+    if (!certificate[certId]) {
+      toast.error("Add a certificate");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("certId", certId);
+    formData.append("status", "approved");
+    formData.append("remark", remark[certId]);
+    formData.append("addCertificate", certificate[certId]);
+
     // Update UI instantly
     setPendingCertificates((prev) =>
       prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c))
@@ -147,18 +160,30 @@ export const NotificationsAndRequest = () => {
     setConfirm(confirm === certId ? null : certId);
 
     // Update backend
-    updateCertificateStatus(certId, "approved", remark[certId]).catch(() => {
+    updateCertificateStatus(formData).catch(() => {
       // rollback if API fails
       setPendingCertificates((prev) =>
         prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
       );
     });
   };
+
   const handleClickOnRejectCertificate = (certId) => {
     if (!remark[certId]) {
       toast.error("Enter the remark first!!!");
       return;
     }
+    if (!certificate[certId]) {
+      toast.error("Add a certificate");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("certId", certId);
+    formData.append("status", "rejected");
+    formData.append("remark", remark[certId]);
+    formData.append("addCertificate", certificate[certId]);
+
     // Update UI instantly
     setPendingCertificates((prev) =>
       prev.map((c) =>
@@ -167,11 +192,10 @@ export const NotificationsAndRequest = () => {
           : c
       )
     );
-
     setConfirm(confirm === certId ? null : certId);
 
     // Update backend
-    updateCertificateStatus(certId, "rejected", remark[certId]).catch(() => {
+    updateCertificateStatus(formData).catch(() => {
       // rollback if API fails
       setPendingCertificates((prev) =>
         prev.map((c) =>
@@ -509,30 +533,26 @@ export const NotificationsAndRequest = () => {
               {pendingCertificates.map((l) => (
                 <div
                   key={l._id || l.student._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-start hover:bg-gray-700 transition-colors duration-300"
+                  className="bg-gray-800 p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-300"
                 >
-                  {/* Left: Certificate Info */}
-                  <div className="flex-1">
+                  {/* Top: Certificate Info */}
+                  <div>
                     <p className="text-gray-300">
-                      <span className="text-gray-200 font-bold font-radonregular">
+                      <span className="text-gray-200 font-bold">
                         Registration Number:
                       </span>{" "}
                       {l.student?.registrationNumber || "N/A"}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-200 font-bold font-radonregular">
-                        Name:
-                      </span>{" "}
+                      <span className="text-gray-200 font-bold">Name:</span>{" "}
                       {l.student?.name || "N/A"}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-200 font-bold font-radonregular">
-                        Purpose:
-                      </span>{" "}
+                      <span className="text-gray-200 font-bold">Purpose:</span>{" "}
                       {l.purpose}
                     </p>
-                    <p className="text-gray-300 text-justify">
-                      <span className="text-gray-200 font-bold font-radonregular">
+                    <p className="text-gray-300">
+                      <span className="text-gray-200 font-bold">
                         Certificate Type:
                       </span>{" "}
                       {l.CertificateType}
@@ -557,26 +577,29 @@ export const NotificationsAndRequest = () => {
 
                     {/* Supporting Document */}
                     {l.supportingDocument && (
-                      <div className="mt-2 flex">
+                      <div className="mt-2 flex gap-3">
                         <p className="text-white font-radonregular">
                           Supporting Document:
                         </p>
-                        <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                        <div className="w-[200px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
                           <a
                             href={l.supportingDocument}
                             target="_blank"
-                            className="font-mooxy text-center"
                             rel="noopener noreferrer"
+                            className="font-mooxy text-center text-black"
                           >
-                            View Supporting Document
+                            View
                           </a>
                         </div>
                       </div>
                     )}
+                  </div>
 
-                    {/* ✅ Remark Section at the Bottom */}
-                    {remarkBox === l._id && (
-                      <div className="w-[600px] h-auto mt-5">
+                  {/* Bottom: Remark + Certificate Input */}
+                  {remarkBox === l._id && (
+                    <div className="mt-5 flex flex-col gap-4">
+                      {/* Remark Input */}
+                      <div>
                         <p className="text-white font-radonregular">Remarks:</p>
                         <input
                           type="text"
@@ -588,50 +611,60 @@ export const NotificationsAndRequest = () => {
                               [l._id]: e.target.value,
                             }))
                           }
-                          className="w-[600px] h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
+                          className="w-full h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
                         />
                       </div>
-                    )}
 
-                    {/* Add Remark Button */}
+                      {/* Certificate File Upload */}
+                      <div>
+                        <p className="text-white font-radonregular">
+                          Add Certificate:
+                        </p>
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            setCertificate((prev) => ({
+                              ...prev,
+                              [l._id]: e.target.files[0], // store file object
+                            }))
+                          }
+                          className="w-full h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
+                        />
+                        {certificate[l._id] && (
+                          <p className="text-green-400 mt-2 text-sm">
+                            File selected: {certificate[l._id].name}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Buttons Row */}
+                  <div className="mt-4 flex gap-3">
+                    {/* Toggle Remark Box */}
                     <div
-                      className="w-[150px] h-[30px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-[10px] cursor-pointer"
+                      className="w-[150px] h-[30px] bg-blue-500 hover:bg-blue-600 rounded-[10px] cursor-pointer flex items-center justify-center"
                       onClick={() =>
                         setRemarkBox(remarkBox === l._id ? null : l._id)
                       }
                     >
-                      <p className="text-center text-white font-mooxy mt-1">
-                        Add Remark
-                      </p>
+                      <p className="text-white font-mooxy">Add Remark</p>
                     </div>
 
-                    {confirm === l._id && (
-                      <div
-                        className="w-[150px] h-[30px] bg-white mt-3 rounded-[20px] flex justify-center items-center cursor-pointer"
-                        onClick={handleClickOnConfirm}
-                      >
-                        <p className="font-mooxy">Confirm</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right: Action Buttons */}
-                  <div className="w-[150px] flex flex-col gap-2">
+                    {/* Accept Button */}
                     <div
-                      className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
+                      className="w-[150px] h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer flex items-center justify-center"
                       onClick={() => handleClickOnAcceptCertificate(l._id)}
                     >
-                      <p className="text-center text-white font-mooxy mt-1">
-                        Accept
-                      </p>
+                      <p className="text-white font-mooxy">Accept</p>
                     </div>
+
+                    {/* Reject Button */}
                     <div
-                      className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
+                      className="w-[150px] h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer flex items-center justify-center"
                       onClick={() => handleClickOnRejectCertificate(l._id)}
                     >
-                      <p className="text-center text-white font-mooxy mt-1">
-                        Reject
-                      </p>
+                      <p className="text-white font-mooxy">Reject</p>
                     </div>
                   </div>
                 </div>
