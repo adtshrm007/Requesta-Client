@@ -178,7 +178,7 @@ const StudentDashboard = () => {
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
             <div className="flex flex-col mt-5">
               <Link to="/notifications">
-                <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
+                <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer relative top-1">
                   Notifications
                 </p>
               </Link>

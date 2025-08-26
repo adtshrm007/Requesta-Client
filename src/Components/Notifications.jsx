@@ -162,14 +162,14 @@ export default function Notifications() {
         <div className="flex flex-col gap-4 items-center mt-5">
           {certificates.map((c) => (
             <div
-              className="w-[960px] h-[60px] bg-slate-700 flex flex-col text-white justify-center rounded-[20px] mb-4"
+              className="w-[960px] h-auto bg-slate-700 flex flex-col text-white justify-center rounded-[20px] mb-4"
               key={c._id}
             >
               <p className="font-radonregular ml-7 text-[#999999]">
                 Your certificate request for{" "}
                 <b className="text-white">{c.CertificateType} Certificate</b>{" "}
                 <b className="text-white">{c.purpose}</b>
-                has been <b className="text-white">{c.status}</b> on{" "}
+                {" "}has been <b className="text-white">{c.status}</b>{" "}on{" "}
                 <b className="text-white">
                   {new Date(c.updatedAt).toDateString()}.
                 </b>
@@ -177,7 +177,22 @@ export default function Notifications() {
               <p className="font-mooxy ml-7 text-[#999999]">
                 Remark: {c.remark || "—"}
               </p>
-              <p>{c.addCertificate}</p>
+              {c.addCertificate && (
+                <div className="w-[500px] h-[30px] ml-7 mb-4 flex items-center justify-between">
+                  <p className="font-mooxy">View & Download Certificate:</p>
+                  <div className="bg-white  w-[50%] h-full rounded-[20px] flex items-center justify-center font-mooxy">
+                    <a
+                      href={c.addCertificate}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-black"
+                      download
+                    >
+                      Certificate
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
