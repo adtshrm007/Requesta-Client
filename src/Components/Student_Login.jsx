@@ -20,7 +20,7 @@ export default function StudentLoginRegister() {
       toast.error("Please enter password");
       return;
     }
-    console.log(RegistrationNumber, password);
+
     const res = await fetchStudentData(RegistrationNumber, password);
     if (res) {
       navigate("/studentdashboard");

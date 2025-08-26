@@ -2,29 +2,28 @@ import { useState } from "react";
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
 import { fetchAdmin } from "../utils/GETAdminData";
-import { ToastContainer,toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
   const [adminID, setAdminId] = useState("");
-  const [password,setPassword]=useState("");
-  const [showPassword,setShowPassword]=useState(false);
-  const handleAdminLogin=async()=>{
-    if(!adminID.trim()){
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const handleAdminLogin = async () => {
+    if (!adminID.trim()) {
       toast.error("Please enter admin ID");
       return;
     }
-    const res=await fetchAdmin(adminID,password);
-    if(res){
-      toast.success("Admin Logged In Successfully")
+    const res = await fetchAdmin(adminID, password);
+    if (res) {
+      toast.success("Admin Logged In Successfully");
       navigate("/admindashboard");
+    } else {
+      toast.error(res.message || "Admin not found");
     }
-    else{
-      toast.error(res.message||"Admin not found");
-    }
-
-  }
+  };
   function handleShowPassword() {
     setShowPassword(!showPassword);
   }
@@ -56,7 +55,7 @@ export default function AdminLogin() {
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center mr-2">
             <input
-              type={showPassword?"text":"password"}
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
               onChange={(e) => setPassword(e.target.value)}
@@ -72,12 +71,12 @@ export default function AdminLogin() {
               )}
             </div>
           </div>
-            <button
-              className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
-              onClick={handleAdminLogin}
-            >
-              Login
-            </button>
+          <button
+            className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
+            onClick={handleAdminLogin}
+          >
+            Login
+          </button>
         </div>
       </div>
     </>

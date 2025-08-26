@@ -46,7 +46,6 @@ const StudentProfile = () => {
     setEditProfile(!editProfile);
   }
   function handleEditProfile() {
-    console.log(name, regnNo, branch, mobileNumber, year);
     EditProfile();
     navigate("/studentdashboard");
   }

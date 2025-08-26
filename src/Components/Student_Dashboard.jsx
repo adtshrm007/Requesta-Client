@@ -382,6 +382,25 @@ const StudentDashboard = () => {
                                 </div>
                               </div>
                             )}
+                            {c.addCertificate && (
+                              <div className="w-[600px] h-auto flex items-center justify-center">
+                                <p className="text-white font-ssold w-full text-justify mt-2">
+                                  <span>View & Download Certificate:</span>
+                                </p>
+
+                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                                  <a
+                                    href={c.addCertificate}
+                                    target="_blank"
+                                    className="font-mooxy text-center"
+                                    rel="noopener noreferrer"
+                                    download
+                                  >
+                                    Certificate
+                                  </a>
+                                </div>
+                              </div>
+                            )}
                           </>
                         )}
                       </div>
