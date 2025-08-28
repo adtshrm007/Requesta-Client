@@ -7,7 +7,7 @@ const AddAdmin = () => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
   const [password,setPassword]=useState("");
-  const [adminMobileNumber, setAdminMobileNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [adminDepartment, setAdminDepartment] = useState("");
   const [adminID, setAdminID] = useState("");
 
@@ -16,7 +16,7 @@ const AddAdmin = () => {
       adminID: adminID,
       password:password,
       name: adminName,
-      mobileNumber: adminMobileNumber,
+      email: email,
       department: adminDepartment,
     };
 
@@ -71,8 +71,8 @@ const AddAdmin = () => {
       <div className="bg-[#0D0D0D] rounded-[16px] sm:rounded-[20px] overflow-hidden">
         <input
           type="text"
-          placeholder="Mobile No."
-          onChange={(e) => setAdminMobileNumber(e.target.value)}
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full h-[45px] sm:h-[50px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
         />
       </div>

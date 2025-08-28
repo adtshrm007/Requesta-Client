@@ -12,7 +12,7 @@ const StudentProfile = () => {
   const [regnNo, setregnNo] = useState("");
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
-  const [mobileNumber, setmobileNumber] = useState("");
+  const [email, setEmail] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -22,7 +22,7 @@ const StudentProfile = () => {
         setName(student.name);
         setBranch(student.branch);
         setregnNo(student.registrationNumber);
-        setmobileNumber(student.mobileNumber);
+        setEmail(student.email);
         setYear(student.year);
       }
     };
@@ -33,7 +33,7 @@ const StudentProfile = () => {
     const updatedStudent = {
       registrationNumber: regnNo,
       name,
-      mobileNumber,
+      email,
       branch,
       year,
     };
@@ -143,7 +143,7 @@ const StudentProfile = () => {
                     Phone Number
                   </p>
                   <p className="text-[16px] font-mooxy text-[#777777]">
-                    {mobileNumber}
+                    {email}
                   </p>
                 </div>
               </div>
@@ -177,8 +177,8 @@ const StudentProfile = () => {
               { label: "Name", value: name, setter: setName },
               {
                 label: "Mobile No.",
-                value: mobileNumber,
-                setter: setmobileNumber,
+                value: email,
+                setter: setEmail,
               },
               { label: "Branch", value: branch, setter: setBranch },
               { label: "Batch Year", value: year, setter: setYear },

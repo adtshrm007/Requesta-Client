@@ -8,25 +8,23 @@ export default function StudentRegister() {
   const [regNo, setregNo] = useState("");
   const [name, setName] = useState("");
   const [branch, setBranch] = useState("");
-  const [mobileNo, setMobileNo] = useState("");
+  const [email, setEmail] = useState("");
   const [batchYear, setbatchYear] = useState("");
-  const [password,setPassword]=useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   async function handleRegister() {
     const newStudent = {
       registrationNumber: regNo,
       name: name,
-      mobileNumber: mobileNo,
-      password:password,
+      email: email,
+      password: password,
       branch: branch,
       year: batchYear,
     };
 
     const result = await postStudentData(newStudent);
 
-    if (result) {
-      navigate("/studentlogin");
-    }
+   
   }
   return (
     <>
@@ -61,23 +59,26 @@ export default function StudentRegister() {
               placeholder="Name"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
 
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
               type="text"
-              placeholder="Mobile No."
+              placeholder="Email"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
-              onChange={(e) => setMobileNo(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
             <input
-              type="text"
+              type="email"
               placeholder="Password"
               className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 
@@ -94,6 +95,7 @@ export default function StudentRegister() {
               name="branch"
               className="w-full h-[45px] px-4 outline-none font-mooxy text-sm sm:text-base appearance-none cursor-pointer hover:bg-white/5 focus:bg-white/10 transition-all duration-200"
               value={branch}
+              required
               onChange={(e) => setBranch(e.target.value)}
             >
               <option value="">--Select Branch--</option>
@@ -106,12 +108,32 @@ export default function StudentRegister() {
           </div>
 
           <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
-            <input
-              type="text"
-              placeholder="Batch Year"
-              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
+            <label
+              htmlFor="year"
+              className="block px-4 pt-2 text-xs sm:text-sm text-white font-mooxy"
+            >
+              Batch Year(Passing out Year):
+            </label>
+
+            <select
+              id="year"
+              name="year"
+              className="w-full h-[45px] px-4 outline-none  font-mooxy text-sm sm:text-base appearance-none cursor-pointer hover:bg-white/5 focus:bg-white/10 transition-all duration-200"
+              value={batchYear}
+              required
               onChange={(e) => setbatchYear(e.target.value)}
-            />
+            >
+              <option value="">--Select Batch Year--</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
           </div>
 
           <button

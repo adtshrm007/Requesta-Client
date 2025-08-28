@@ -587,6 +587,7 @@ export const NotificationsAndRequest = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-mooxy text-center text-black"
+                            download
                           >
                             View
                           </a>

@@ -131,7 +131,7 @@ const StudentDashboard = () => {
 
       const total = r1.length + r2.length;
 
-      setNotifications(total > 0 ? total : "");
+      setNotifications(total > 0 ? total : 0);
       setLeave(res1);
       setCertificates(res2);
     } catch (err) {
