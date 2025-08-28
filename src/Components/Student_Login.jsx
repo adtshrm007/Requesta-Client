@@ -5,29 +5,74 @@ import { fetchStudentData } from "../utils/GETstudentData";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-
+import { loginStudentUsingEmail } from "../utils/GETStudentDataUsingEmail";
+import { sendOTP } from "../utils/SENDOTP";
 export default function StudentLoginRegister() {
   const navigate = useNavigate();
   const [RegistrationNumber, setRegistrationNumber] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [loginWithPassword, setLoginWithPassword] = useState(true);
+  const [loginWithEmail, setLoginWithEmail] = useState(false);
+  const [getOTP, setGetOTP] = useState(false);
+  const [otpBox, setOTPBox] = useState(false);
+  const [otp, setOTP] = useState("");
   async function handleLogin() {
     if (!RegistrationNumber.trim()) {
       toast.error("Please enter registration number");
       return;
     }
-    if (!password.trim()) {
-      toast.error("Please enter password");
-      return;
-    }
+    if (loginWithPassword) {
+      if (!password.trim()) {
+        toast.error("Please enter password");
+        return;
+      }
 
-    const res = await fetchStudentData(RegistrationNumber, password);
-    if (res) {
-      navigate("/studentdashboard");
+      const res = await fetchStudentData(RegistrationNumber, password);
+      if (res) {
+        navigate("/studentdashboard");
+      }
+    }
+    if (loginWithEmail) {
+      if (!email.trim()) {
+        toast.error("Please enter email");
+        return;
+      }
+
+      if (!otp.trim()) {
+        toast.error("Enter the OTP");
+      }
+
+      if (otp) {
+        const res = await loginStudentUsingEmail(
+          RegistrationNumber,
+          email,
+          otp
+        );
+        if (res) {
+          navigate("/studentdashboard");
+        }
+      }
     }
   }
   function handleShowPassword() {
     setShowPassword(!showPassword);
+  }
+  function handleClickOnLoginWithEmail() {
+    setLoginWithPassword(!loginWithPassword);
+    setLoginWithEmail(!loginWithEmail);
+    setGetOTP(!getOTP);
+  }
+  async function handleClickOnGetOTP() {
+    setOTPBox(true);
+    try {
+      const res1 = await sendOTP(RegistrationNumber, email);
+      console.log(res1);
+      toast.success("OTP sent successfully");
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -55,24 +100,69 @@ export default function StudentLoginRegister() {
               onChange={(e) => setRegistrationNumber(e.target.value)}
             />
           </div>
-          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div
-              className="w-[20px] h-[20px] text-white cursor-pointer mr-2 flex"
-              onClick={handleShowPassword}
-            >
-              {showPassword ? (
-                <i className="fa-solid fa-eye-slash text-white w-[20px] h-[20px]"></i>
-              ) : (
-                <i className="fa-solid fa-eye text-white w-[20px] h-[20px]"></i>
-              )}
+          {loginWithPassword && (
+            <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div
+                className="w-[20px] h-[20px] text-white cursor-pointer mr-2 flex"
+                onClick={handleShowPassword}
+              >
+                {showPassword ? (
+                  <i className="fa-solid fa-eye-slash text-white w-[20px] h-[20px]"></i>
+                ) : (
+                  <i className="fa-solid fa-eye text-white w-[20px] h-[20px]"></i>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {loginWithEmail && (
+            <>
+              <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center">
+                <input
+                  type="text"
+                  placeholder="Email"
+                  className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              {otpBox && (
+                <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden flex justify-center items-center">
+                  <input
+                    type="text"
+                    placeholder="Enter the OTP"
+                    className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+                    onChange={(e) => setOTP(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          <p
+            className="text-white font-mooxy text-[16px] relative left-3 underline cursor-pointer"
+            onClick={handleClickOnLoginWithEmail}
+          >
+            {loginWithPassword ? "Login using email?" : "Login with password?"}
+          </p>
+
+          {loginWithEmail && (
+            <motion.button
+              className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleClickOnGetOTP}
+            >
+              Get OTP
+            </motion.button>
+          )}
+
           <motion.button
             className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
             whileHover={{ scale: 1.1 }}
