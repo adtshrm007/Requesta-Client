@@ -16,6 +16,7 @@ export const loginStudentUsingEmail = async (regNo, email, otp) => {
     }
     if (response.data) {
       localStorage.setItem("accessToken", response.data.accessToken);
+      toast.success("Logged In Successfully");
       return response.data;
     }
   } catch (err) {

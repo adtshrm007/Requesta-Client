@@ -11,6 +11,7 @@ export default function AdminLogin() {
   const [adminID, setAdminId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loginWithEmail,setLoginWithEmail]=useState(false);
   const handleAdminLogin = async () => {
     if (!adminID.trim()) {
       toast.error("Please enter admin ID");
@@ -71,6 +72,15 @@ export default function AdminLogin() {
               )}
             </div>
           </div>
+          <div className="bg-[#0D0D0D] rounded-[20px] overflow-hidden">
+            <input
+              type="text"
+              placeholder="Enter the OTP"
+              className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy"
+              onChange={(e) => setAdminId(e.target.value)}
+            />
+          </div>
+          <p className="text-white text-white font-mooxy ml-2 underline cursor-pointer">Login using Email?</p>
           <button
             className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
             onClick={handleAdminLogin}

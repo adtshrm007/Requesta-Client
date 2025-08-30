@@ -12,6 +12,7 @@ export const updateStudent = async (studentData) => {
         },
       }
     );
+    toast.success("Profile Updated Successfully")
     return response.data;
   } catch (err) {
     toast.error("This email is already registered")

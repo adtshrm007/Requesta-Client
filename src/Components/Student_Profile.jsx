@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 import { updateStudent } from "../utils/UPDATEstudents";
 import { useNavigate } from "react-router-dom";
+import { sendOTP } from "../utils/SENDOTP";
+import Loader from "./Loader";
+import { toast } from "react-toastify";
 const StudentProfile = () => {
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
@@ -13,6 +16,7 @@ const StudentProfile = () => {
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
   const [email, setEmail] = useState("");
+  const [loader, setLoader] = useState(false);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -48,6 +52,16 @@ const StudentProfile = () => {
   function handleEditProfile() {
     EditProfile();
     navigate("/studentdashboard");
+    window.location.reload();
+  }
+
+  async function handleClickOnChangePassword() {
+    try {
+      const res = await sendOTP(regnNo, email);
+      console.log(res);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -75,6 +89,14 @@ const StudentProfile = () => {
           >
             Edit Profile
           </p>
+          <Link to="/changepassword">
+            <p
+              className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer"
+              onClick={handleClickOnChangePassword}
+            >
+              Change Password
+            </p>
+          </Link>
         </div>
       </div>
 
@@ -127,7 +149,7 @@ const StudentProfile = () => {
             </div>
 
             {/* Right Column */}
-            <div className="flex-1">
+            <div className="flex-1 mt-5">
               <div className="mt-6 space-y-6">
                 <div>
                   <p className="text-white text-[16px] font-radonregular">
@@ -169,18 +191,12 @@ const StudentProfile = () => {
           {/* Form */}
           <div className="flex flex-col gap-5 w-full max-w-[350px]">
             {[
-              {
-                label: "Registration Number",
-                value: regnNo,
-                setter: setregnNo,
-              },
               { label: "Name", value: name, setter: setName },
               {
                 label: "Mobile No.",
                 value: email,
                 setter: setEmail,
               },
-              { label: "Branch", value: branch, setter: setBranch },
               { label: "Batch Year", value: year, setter: setYear },
             ].map((field, i) => (
               <div
@@ -196,6 +212,32 @@ const StudentProfile = () => {
                 />
               </div>
             ))}
+            <div className="bg-gradient-to-r from-[#1a1a1a] via-[#0D0D0D] to-[#1a1a1a] rounded-[12px] overflow-hidden border border-white/10">
+              <label
+                htmlFor="branch"
+                className="block px-4 pt-2 text-xs sm:text-sm text-gray-300 font-mooxy"
+              >
+                Branch:
+              </label>
+
+              <select
+                id="branch"
+                name="branch"
+                className="w-full h-[45px] px-4 outline-none font-mooxy text-sm sm:text-base appearance-none cursor-pointer hover:bg-white/5 focus:bg-white/10 transition-all duration-200"
+                required
+                defaultValue={branch}
+                onChange={(e) => setBranch(e.target.value)}
+              >
+                <option value="">--Select Branch--</option>
+                <option value="Computer Science And Engineering">
+                  Computer Science
+                </option>
+                <option value="Electronics And Communication">
+                  Electronics
+                </option>
+                <option value="Mechanical">Mechanical</option>
+              </select>
+            </div>
 
             <button
               className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
@@ -203,7 +245,7 @@ const StudentProfile = () => {
             >
               Submit Changes
             </button>
-          </div>  
+          </div>
         </div>
       )}
     </>

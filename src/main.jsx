@@ -12,6 +12,7 @@ import AdminProfile from './Components/Admin_Profile';
 import AddAdmin from './Components/AddAdmin';
 import Notifications from './Components/Notifications';
 import NotificationsForAdmin from './Components/NotificationsForAdmin';
+import ChangePassword from './Components/ChangePassword';
 import { NotificationsAndRequest } from './Components/NotificationsAndRequests';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
@@ -34,6 +35,7 @@ app.render(
       <Route path="/notificationsAndrequests" element={<NotificationsAndRequest/>}/>
       <Route path="/notifications" element={<Notifications/>}/>
       <Route path="/notificationsforadmin" element={<NotificationsForAdmin/>}/>
+      <Route path="/changepassword" element={<ChangePassword/>}/>
     </Routes>
   </BrowserRouter>
 );
