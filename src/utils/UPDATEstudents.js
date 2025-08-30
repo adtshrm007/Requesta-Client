@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { toast } from "react-toastify";
 export const updateStudent = async (studentData) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
@@ -14,6 +14,7 @@ export const updateStudent = async (studentData) => {
     );
     return response.data;
   } catch (err) {
+    toast.error("This email is already registered")
     return err.response?.data || err.message || "An error occurred while updating student data.";
   }
 };

@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { toast } from "react-toastify";
 export const loginStudentUsingEmail = async (regNo, email, otp) => {
   try {
     const response = await axios.post(
@@ -10,11 +10,15 @@ export const loginStudentUsingEmail = async (regNo, email, otp) => {
         otp: otp,
       }
     );
+    if (response.status === 201) {
+      toast.error("Wrong OTP!!");
+      return;
+    }
     if (response.data) {
       localStorage.setItem("accessToken", response.data.accessToken);
       return response.data;
     }
   } catch (err) {
-    console.log(err);
+    console.err(err);
   }
 };

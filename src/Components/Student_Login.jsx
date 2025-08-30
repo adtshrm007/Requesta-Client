@@ -29,9 +29,13 @@ export default function StudentLoginRegister() {
         return;
       }
 
-      const res = await fetchStudentData(RegistrationNumber, password);
-      if (res) {
-        navigate("/studentdashboard");
+      try {
+        const res = await fetchStudentData(RegistrationNumber, password);
+        if (res) {
+          navigate("/studentdashboard");
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
     if (loginWithEmail) {
@@ -44,15 +48,20 @@ export default function StudentLoginRegister() {
         toast.error("Enter the OTP");
       }
 
-      if (otp) {
+      try{
+        if (otp) {
         const res = await loginStudentUsingEmail(
           RegistrationNumber,
           email,
           otp
         );
-        if (res) {
-          navigate("/studentdashboard");
+        if(res){
+          navigate("/studentdashboard")
         }
+      }
+      }
+      catch(err){
+        console.error(err)
       }
     }
   }

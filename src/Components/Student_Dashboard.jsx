@@ -367,23 +367,10 @@ const StudentDashboard = () => {
                                     View Supporting Document
                                   </a>
                                 </div>
-                                <div className="w-[500px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center mx-4">
-                                  <a
-                                    href={c.supportingDocument.replace(
-                                      "/upload/",
-                                      "/upload/fl_attachment/"
-                                    )}
-                                    target="_blank"
-                                    className="font-mooxy text-center"
-                                    rel="noopener noreferrer"
-                                  >
-                                    Download Document
-                                  </a>
-                                </div>
                               </div>
                             )}
                             {c.addCertificate && (
-                              <div className="w-[600px] h-auto flex items-center justify-center">
+                              <div className="w-[600px] h-auto flex items-center justify-center mt-5">
                                 <p className="text-white font-ssold w-full text-justify mt-2">
                                   <span>View & Download Certificate:</span>
                                 </p>
