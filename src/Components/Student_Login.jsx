@@ -37,7 +37,7 @@ export default function StudentLoginRegister() {
 
       try {
         const res = await fetchStudentData(RegistrationNumber, password);
-        if(!res){
+        if (!res) {
           setLogin(true);
           setLoader(false);
         }
@@ -54,8 +54,10 @@ export default function StudentLoginRegister() {
         return;
       }
 
+
       if (!otp.trim()) {
         toast.error("Enter the OTP");
+        return;
       }
 
       setLogin(false);
@@ -68,9 +70,10 @@ export default function StudentLoginRegister() {
             email,
             otp
           );
-          if(!res){
+          if (!res) {
             setLoader(false);
             setLogin(true);
+            setOTPBox(false);
           }
           if (res) {
             navigate("/studentdashboard");
@@ -90,7 +93,18 @@ export default function StudentLoginRegister() {
     setGetOTP(!getOTP);
   }
   async function handleClickOnGetOTP() {
-    setOTPBox(true);
+    if (email && RegistrationNumber) {
+      setOTPBox(true);
+    }
+    if (!RegistrationNumber) {
+      toast.error("Enter the registration number");
+      return;
+    }
+    if (!email) {
+      toast.error("Enter the email");
+      return;
+    }
+
     try {
       const res1 = await sendOTP(RegistrationNumber, email);
       console.log(res1);

@@ -12,9 +12,10 @@ export const updateAdmin = async (adminData) => {
         },
       }
     );
-    toast.success("Admin data updated successfully!");
+    toast.success("Admin Profile updated successfully!");
     return response.data.data
   } catch (err) {
+    toast.error("This email is already registered");
     return err;
   }
 };

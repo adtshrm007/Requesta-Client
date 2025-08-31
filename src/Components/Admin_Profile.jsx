@@ -4,12 +4,14 @@ import { Link } from "react-router-dom";
 import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import { updateAdmin } from "../utils/UPDATEAdmin";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { sendOTP } from "../utils/SENDOTPforAdmin";
 const AdminProfile = () => {
   const navigate = useNavigate();
   const [home, setHome] = useState(true);
   const [editProfile, setEditProfile] = useState(false);
   const [adminName, setAdminName] = useState("");
-  const [adminMobileNumber, setAdminMobileNumber] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [adminDepartment, setAdminDepartment] = useState("");
   const [adminID, setAdminID] = useState("");
 
@@ -28,7 +30,7 @@ const AdminProfile = () => {
         setAdminDepartment(res.department);
         setAdminID(res.adminID);
         setAdminName(res.name);
-        setAdminMobileNumber(res.mobileNumber);
+        setAdminEmail(res.email);
       }
     };
     fetchDetails();
@@ -38,7 +40,7 @@ const AdminProfile = () => {
     const newUpdatedAdmin = {
       adminID: adminID,
       department: adminDepartment,
-      mobileNumber: adminMobileNumber,
+      email: adminEmail,
       name: adminName,
     };
     const newAdmin = await updateAdmin(newUpdatedAdmin);
@@ -50,9 +52,19 @@ const AdminProfile = () => {
     navigate("/admindashboard");
   }
 
+  async function handleClickOnChangePassword() {
+    try {
+      const res = await sendOTP(adminID, adminEmail);
+      console.log(res);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   return (
     <>
       {/* Top Navbar */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="w-full max-w-[960px] mx-auto h-[64px] flex items-center justify-between px-4 text-white">
         {/* Logo & Title */}
         <Link to="/">
@@ -62,7 +74,7 @@ const AdminProfile = () => {
               alt="logo"
               className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-2"
             />
-            <p className= "xs:block">REQUESTA</p>
+            <p className="xs:block">REQUESTA</p>
           </div>
         </Link>
 
@@ -79,6 +91,12 @@ const AdminProfile = () => {
           >
             Edit Profile
           </p>
+          <Link to="/changeadminpassword">
+            <p className="bg-white text-black px-3 sm:px-4 py-1 rounded-full cursor-pointer text-xs sm:text-sm md:text-base"
+            onClick={handleClickOnChangePassword}>
+              Change Password
+            </p>
+          </Link>
         </div>
       </div>
 
@@ -121,7 +139,7 @@ const AdminProfile = () => {
             </div>
 
             {/* Right */}
-            <div className="flex-1">
+            <div className="flex-1 mt-10">
               <div className="mt-6 md:mt-0">
                 <p className="text-white text-base font-radonregular">Name</p>
                 <p className="text-[#777777] text-sm sm:text-base font-mooxy">
@@ -129,11 +147,9 @@ const AdminProfile = () => {
                 </p>
               </div>
               <div className="mt-6">
-                <p className="text-white text-base font-radonregular">
-                  Phone Number
-                </p>
+                <p className="text-white text-base font-radonregular">Email</p>
                 <p className="text-[#777777] text-sm sm:text-base font-mooxy">
-                  {adminMobileNumber}
+                  {adminEmail}
                 </p>
               </div>
             </div>
@@ -178,20 +194,37 @@ const AdminProfile = () => {
             <div className="bg-[#0D0D0D] rounded-2xl overflow-hidden">
               <input
                 type="text"
-                placeholder="Mobile No."
-                defaultValue={adminMobileNumber}
-                onChange={(e) => setAdminMobileNumber(e.target.value)}
+                placeholder="Email"
+                defaultValue={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
                 className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
               />
             </div>
-            <div className="bg-[#0D0D0D] rounded-2xl overflow-hidden">
-              <input
-                type="text"
-                placeholder="Department"
+            <div className="bg-gradient-to-r from-[#1a1a1a] via-[#0D0D0D] to-[#1a1a1a] rounded-[12px] overflow-hidden border border-white/10">
+              <label
+                htmlFor="branch"
+                className="block px-4 pt-2 text-xs sm:text-sm text-gray-300 font-mooxy"
+              >
+                Branch:
+              </label>
+
+              <select
+                id="branch"
+                name="branch"
+                className="w-full h-[45px] px-4 outline-none font-mooxy text-sm sm:text-base appearance-none cursor-pointer hover:bg-white/5 focus:bg-white/10 transition-all duration-200"
                 defaultValue={adminDepartment}
+                required
                 onChange={(e) => setAdminDepartment(e.target.value)}
-                className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
-              />
+              >
+                <option value="">--Select Branch--</option>
+                <option value="Computer Science And Engineering">
+                  Computer Science
+                </option>
+                <option value="Electronics And Communication">
+                  Electronics
+                </option>
+                <option value="Mechanical">Mechanical</option>
+              </select>
             </div>
 
             <button

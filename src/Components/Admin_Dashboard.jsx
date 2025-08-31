@@ -7,7 +7,7 @@ import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
+import { ToastContainer } from "react-toastify";
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
@@ -78,6 +78,7 @@ export default function AdminDashboard() {
   return (
     <>
       {/* Header */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="w-full max-w-[960px] mx-auto flex flex-col sm:flex-row items-center justify-between px-4 py-4 text-white">
         {/* Logo & Title */}
         <Link to="/">
