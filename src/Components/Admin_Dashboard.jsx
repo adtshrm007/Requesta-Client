@@ -6,11 +6,13 @@ import { getStudents } from "../utils/GETAllStudents";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { getAdmins } from "../utils/GETOtherAdminsData";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
+  const [role, setRole] = useState("");
   const [totalLeaves, setTotalLeaves] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalCertificates, setTotalCertificates] = useState(0);
@@ -20,16 +22,26 @@ export default function AdminDashboard() {
   const [totalPendingCertificates, setTotalPendingCertificates] = useState(0);
   const [totalApprovedCertificates, setTotalApprovedCertificates] = useState(0);
   const [totalRejectedCertificates, setTotalRejectedCertificates] = useState(0);
+  const [addAdmin, setAddAdmin] = useState(false);
+  const [otherAdmins, setOtherAdmins] = useState(false);
   const [notifications, setNotifications] = useState(0);
   const getAdminData = async () => {
     const currentAdmin = await getAdminDashboard();
+    console.log(currentAdmin.acceptedLeaveRequests);
     return currentAdmin;
   };
   useEffect(() => {
     const fetchData = async () => {
+      const otheradmins = await getAdmins();
+      if (otheradmins) {
+        setOtherAdmins(true);
+      }
       const admin = await getAdminData();
       if (admin && admin.name) {
         setAdminName(admin.name);
+      }
+      if (admin && admin.role) {
+        setRole(admin.role);
       }
     };
     fetchData();
@@ -75,6 +87,8 @@ export default function AdminDashboard() {
     fetchTotalStudents();
   }, []);
 
+  
+
   return (
     <>
       {/* Header */}
@@ -110,22 +124,35 @@ export default function AdminDashboard() {
               Students
             </p>
           </Link>
-          <Link to="/addadmin">
-            <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
-              Add an admin
-            </p>
-          </Link>
+          {otherAdmins && (
+            <Link to="/addadmin">
+              <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
+                Add an admin
+              </p>
+            </Link>
+          )}
+          {otherAdmins && (
+            <Link to="/otherAdmins">
+              <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
+                Other Admins
+              </p>
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Tagline */}
       <div className="w-full max-w-[960px] mx-auto px-4 flex flex-col items-center justify-center text-center py-10">
-        <div className="text-white text-3xl sm:text-4xl md:text-5xl font-growmajour mb-2">
+        <div className="text-white text-3xl sm:text-4xl md:text-5xl font-growmajour">
           Welcome, {adminName}
+        </div>
+        <div className="text-[#777777] text-2xl sm:text-3xl md:text-4xl font-radonregular mb-5">
+          {role}
         </div>
         <div className="text-[#777777] text-2xl sm:text-3xl md:text-4xl font-radonregular mb-5">
           Manage Leaves & Requests
         </div>
+
         <div className="flex justify-center items-center gap-5">
           <Link to="/notificationsAndrequests">
             <button className="bg-white w-[200px] sm:w-[220px] h-[36px] rounded-full text-[14px] sm:text-[15px] text-center cursor-pointer">

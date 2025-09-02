@@ -176,15 +176,6 @@ const AdminProfile = () => {
             <div className="bg-[#0D0D0D] rounded-2xl overflow-hidden">
               <input
                 type="text"
-                placeholder="Admin Id"
-                defaultValue={adminID}
-                onChange={(e) => setAdminID(e.target.value)}
-                className="w-full h-[45px] px-4 bg-transparent text-white outline-none font-mooxy text-sm sm:text-base"
-              />
-            </div>
-            <div className="bg-[#0D0D0D] rounded-2xl overflow-hidden">
-              <input
-                type="text"
                 placeholder="Name"
                 defaultValue={adminName}
                 onChange={(e) => setAdminName(e.target.value)}

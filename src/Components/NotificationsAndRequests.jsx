@@ -30,7 +30,7 @@ export const NotificationsAndRequest = () => {
         const interval = setInterval(() => {
           if (scrollToSection()) clearInterval(interval);
         }, 100);
-        setTimeout(() => clearInterval(interval), 3000); // stop after 3s
+        setTimeout(() => clearInterval(interval), 3000);
       }
     }
   }, [location]);
@@ -47,6 +47,7 @@ export const NotificationsAndRequest = () => {
   const [confirm, setConfirm] = useState(false);
   const [certificateAdd, setCertificateAdd] = useState(null);
   const [certificate, setCertificate] = useState({});
+  const [showFilters, setShowFilters] = useState(false);
   function handleClickOnConfirm() {
     console.log(remark);
     setTimeout(() => {
@@ -207,6 +208,168 @@ export const NotificationsAndRequest = () => {
     });
   };
 
+  const now = new Date();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const oneWeek = oneDay * 7;
+  const oneMonth=oneWeek*4;
+
+  async function handleClickOnLastDayRequets() {
+    const res1 = await getAllLeaves();
+    if (res1) {
+      setPendingLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "pending" &&
+            now - new Date(leave.createdAt) < oneDay
+        )
+      );
+      setAcceptedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "approved" &&
+            now - new Date(leave.createdAt) < oneDay
+        )
+      );
+      setRejectedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "rejected" &&
+            now - new Date(leave.createdAt) < oneDay
+        )
+      );
+      setSupportingDocument(res1.supportingDocument);
+    }
+    const res2 = await getAllCertificatesRequests();
+    if (res2) {
+      setPendingCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "pending" &&
+            now - new Date(cert.createdAt) < oneDay
+        )
+      );
+      setAcceptedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "approved" &&
+            now - new Date(cert.createdAt) < oneDay
+        )
+      );
+      setRejectedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "rejected" &&
+            now - new Date(cert.createdAt) < oneDay
+        )
+      );
+    }
+  }
+
+  async function handleClickOnLastWeekRequets() {
+    const res1 = await getAllLeaves();
+    if (res1) {
+      setPendingLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "pending" &&
+            now - new Date(leave.createdAt) < oneWeek
+        )
+      );
+      setAcceptedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "approved" &&
+            now - new Date(leave.createdAt) < oneWeek
+        )
+      );
+      setRejectedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "rejected" &&
+            now - new Date(leave.createdAt) < oneWeek
+        )
+      );
+      setSupportingDocument(res1.supportingDocument);
+    }
+    const res2 = await getAllCertificatesRequests();
+    if (res2) {
+      setPendingCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "pending" &&
+            now - new Date(cert.createdAt) < oneWeek
+        )
+      );
+      setAcceptedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "approved" &&
+            now - new Date(cert.createdAt) < oneWeek
+        )
+      );
+      setRejectedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "rejected" &&
+            now - new Date(cert.createdAt) < oneWeek
+        )
+      );
+    }
+  }
+
+
+  async function handleClickOnLastMonthRequets() {
+    const res1 = await getAllLeaves();
+    if (res1) {
+      setPendingLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "pending" &&
+            now - new Date(leave.createdAt) < oneMonth
+        )
+      );
+      setAcceptedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "approved" &&
+            now - new Date(leave.createdAt) < oneMonth
+        )
+      );
+      setRejectedLeaves(
+        res1.filter(
+          (leave) =>
+            leave.status === "rejected" &&
+            now - new Date(leave.createdAt) < oneMonth
+        )
+      );
+      setSupportingDocument(res1.supportingDocument);
+    }
+    const res2 = await getAllCertificatesRequests();
+    if (res2) {
+      setPendingCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "pending" &&
+            now - new Date(cert.createdAt) < oneMonth
+        )
+      );
+      setAcceptedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "approved" &&
+            now - new Date(cert.createdAt) < oneMonth
+        )
+      );
+      setRejectedCertificates(
+        res2.filter(
+          (cert) =>
+            cert.status === "rejected" &&
+            now - new Date(cert.createdAt) < oneMonth
+        )
+      );
+    }
+  }
+
   return (
     <>
       {/* Header */}
@@ -231,13 +394,43 @@ export const NotificationsAndRequest = () => {
           </motion.div>
         </Link>
 
-        <Link to="/admindashboard">
-          <div className="flex items-center gap-4 text-[#777777] font-mooxy text-[15px]">
+        <div className="flex items-center gap-4 text-[#777777] font-mooxy text-[15px]">
+          <Link to="/admindashboard">
             <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
               Back to Dashboard
             </p>
+          </Link>
+
+          <div className="w-auto h-auto flex flex-col items-center justify-center relative">
+            {/* Toggle button */}
+            <p
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer w-[150px] h-[36px] text-center"
+            >
+              Apply Filters
+            </p>
+
+            {showFilters && (
+              <div className="w-[170px] h-auto bg-slate-700 mt-2 rounded-lg shadow-lg p-2 flex flex-col gap-2 absolute top-8">
+                <p
+                  className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded"
+                  onClick={handleClickOnLastWeekRequets}
+                >
+                  Last week requests
+                </p>
+                <p
+                  className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded"
+                  onClick={handleClickOnLastDayRequets}
+                >
+                  Last day requests
+                </p>
+                <p className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded" onClick={handleClickOnLastMonthRequets}>
+                  Last month requets
+                </p>
+              </div>
+            )}
           </div>
-        </Link>
+        </div>
       </div>
 
       {/* Leaves Section */}

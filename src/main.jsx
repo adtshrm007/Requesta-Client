@@ -10,6 +10,7 @@ import StudentProfile from './Components/Student_Profile';
 import Students from './Components/Students';
 import AdminProfile from './Components/Admin_Profile';
 import AddAdmin from './Components/AddAdmin';
+import { OtherAdmins } from './Components/OtherAdmins';
 import Notifications from './Components/Notifications';
 import NotificationsForAdmin from './Components/NotificationsForAdmin';
 import ChangeAdminPassword from './Components/ChangeAdminPassword';
@@ -38,6 +39,7 @@ app.render(
       <Route path="/notificationsforadmin" element={<NotificationsForAdmin/>}/>
       <Route path="/changepassword" element={<ChangePassword/>}/>
       <Route path="/changeadminpassword" element={<ChangeAdminPassword/>}/>
+      <Route path="/otherAdmins" element={<OtherAdmins/>}/>
     </Routes>
   </BrowserRouter>
 );
