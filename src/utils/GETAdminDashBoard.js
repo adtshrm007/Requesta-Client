@@ -11,7 +11,6 @@ export const getAdminDashboard = async () => {
         },
       }
     );
-    console.log(response.data.data)
     return response.data.data;
   } catch (err) {
     return err;

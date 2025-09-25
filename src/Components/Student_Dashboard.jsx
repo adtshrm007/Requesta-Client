@@ -10,6 +10,7 @@ import { submitCertificate } from "../utils/POSTCertificateApplication";
 import { useNavigate } from "react-router-dom";
 import { getLeaves } from "../utils/GETLeavesForAStudent";
 import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
+import { Menu, X } from "lucide-react";
 import Loader from "./Loader";
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [expandedLeave, setExpandedLeave] = useState(null);
   const [notifications, setNotifications] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   // Logic to handle click on "My Requests"
   function handleClickOnCreateRequest() {
     setHome(!home);
@@ -148,9 +150,8 @@ const StudentDashboard = () => {
       <>
         <ToastContainer position="top-right" autoClose={3000} />
         {/* Header */}
-        <div className="w-full max-w-[960px] h-auto min-h-[64px] mx-auto flex flex-wrap items-center justify-between px-4 text-white gap-4">
+        <div className="w-full max-w-[960px] mx-auto flex items-center justify-between px-4 py-3 text-white">
           {/* Logo & Title */}
-
           <Link to="/">
             <motion.div
               className="flex items-center font-growmajour text-lg sm:text-xl md:text-[22px] cursor-pointer"
@@ -170,36 +171,84 @@ const StudentDashboard = () => {
                 alt="logo"
                 className="w-6 h-6 sm:w-[25px] sm:h-[25px] mr-2"
               />
-              <p>REQUESTA</p>
+              <p className="mt-3 text-[23px]">REQUESTA</p>
             </motion.div>
           </Link>
 
-          {/* Nav Links */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
-            <div className="flex flex-col mt-5">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
+            <div className="flex flex-col items-center">
               <Link to="/notifications">
-                <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer relative top-1">
+                <p className="bg-white text-black px-3 py-[6px] rounded-full cursor-pointer relative top-4 flex items-center">
                   Notifications
                 </p>
               </Link>
-              <div className="w-[30px] h-[30px] bg-slate-500 justify-self-end rounded-full relative left-22 bottom-3 flex items-center justify-center">
-                <p className="text-white font-mooxy text-center mt-1">
-                  {notifications}
-                </p>
-              </div>
+              {notifications >= 0 && (
+                <div className="w-[28px] h-[28px] bg-slate-500 rounded-full mt-2 flex items-center justify-center relative top-[-3px] left-[35px] ">
+                  <p className="text-white font-mooxy text-xs">
+                    {notifications}
+                  </p>
+                </div>
+              )}
             </div>
             <Link to="/studentprofile">
-              <p className="bg-[#191919] text-white px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
+              <p className="bg-[#191919] text-white px-3 py-[6px] rounded-full cursor-pointer">
                 Profile
               </p>
             </Link>
             <p
               onClick={handleClickOnCreateRequest}
-              className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer"
+              className="bg-white text-black px-3 py-[6px] rounded-full cursor-pointer"
             >
               Create Request
             </p>
           </div>
+
+          {/* Mobile Hamburger */}
+          <div className="md:hidden">
+            {menuOpen ? (
+              <X
+                size={28}
+                className="cursor-pointer"
+                onClick={() => setMenuOpen(false)}
+              />
+            ) : (
+              <Menu
+                size={28}
+                className="cursor-pointer"
+                onClick={() => setMenuOpen(true)}
+              />
+            )}
+          </div>
+
+          {/* Mobile Menu */}
+          {menuOpen && (
+            <div className="absolute top-[64px] left-0 w-full bg-[#111] flex flex-col items-center gap-4 py-6 md:hidden shadow-lg z-50">
+              <Link
+                to="/notifications"
+                className="bg-white text-black px-4 py-2 rounded-full font-mooxy"
+                onClick={() => setMenuOpen(false)}
+              >
+                Notifications {notifications >= 0 && `(${notifications})`}
+              </Link>
+              <Link
+                to="/studentprofile"
+                className="bg-[#191919] text-white px-4 py-2 rounded-full font-mooxy"
+                onClick={() => setMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <p
+                onClick={() => {
+                  handleClickOnCreateRequest();
+                  setMenuOpen(false);
+                }}
+                className="bg-white text-black px-4 py-2 rounded-full cursor-pointer font-mooxy"
+              >
+                Create Request
+              </p>
+            </div>
+          )}
         </div>
 
         {home && (
@@ -219,7 +268,6 @@ const StudentDashboard = () => {
               </h2>
             </div>
 
-            {/* Leave Requests */}
             <div className="w-full max-w-[960px] mx-auto px-4 mt-7 mb-10">
               <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
                 My Leave Requests
@@ -232,10 +280,11 @@ const StudentDashboard = () => {
                       key={l._id}
                       className="bg-slate-700 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
                     >
-                      <div className="flex-1">
+                      {/* Left content */}
+                      <div className="flex-1 w-full">
                         <p className="text-white font-bold">
                           Subject:{" "}
-                          <span className="text-black font-radonregular">
+                          <span className="text-gray-300 font-radonregular">
                             {l.subject}
                           </span>
                         </p>
@@ -251,42 +300,47 @@ const StudentDashboard = () => {
                             }`}
                           >
                             {l.status}
+                            {l.approvedBy && (
+                              <span className="text-white ml-1">
+                                ({l.approvedBy})
+                              </span>
+                            )}
                           </span>
                         </p>
                         <p className="text-gray-400 text-xs">
                           Applied On:{" "}
                           {new Date(l.createdAt).toLocaleDateString()}
                         </p>
+
                         {expandedLeave === l._id && (
-                          <>
-                            <p className="text-white font-ssold w-full text-justify mt-2">
+                          <div className="mt-3 space-y-2">
+                            <p className="text-white font-ssold w-full text-justify">
                               <span>Reason:</span> <br />
-                              <span className="text-[#0F0F0F]">{l.Reason}</span>
+                              <span className="text-[#ccc]">{l.Reason}</span>
                             </p>
 
                             {l.supportingDocument && (
-                              <div className="w-[600px] h-auto flex items-center justify-center">
-                                <p className="text-white font-ssold w-full text-justify mt-2">
-                                  <span>Supporting Document:</span>
+                              <div className="w-full sm:w-[600px] flex flex-col gap-2">
+                                <p className="text-white font-ssold">
+                                  Supporting Document:
                                 </p>
-
-                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
-                                  <a
-                                    href={l.supportingDocument}
-                                    target="_blank"
-                                    className="font-mooxy text-center"
-                                    rel="noopener noreferrer"
-                                  >
-                                    View Supporting Document
-                                  </a>
-                                </div>
+                                <a
+                                  href={l.supportingDocument}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full sm:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center font-mooxy text-black"
+                                >
+                                  View Document
+                                </a>
                               </div>
                             )}
-                          </>
+                          </div>
                         )}
                       </div>
+
+                      {/* Toggle Button */}
                       <div
-                        className="min-w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                        className="min-w-[100px] h-[35px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer text-black self-end sm:self-center"
                         onClick={() =>
                           setExpandedLeave(
                             expandedLeave === l._id ? null : l._id
@@ -318,6 +372,7 @@ const StudentDashboard = () => {
                       key={c._id}
                       className="bg-slate-700 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
                     >
+                      {/* Left Side */}
                       <div className="flex-1">
                         <p className="text-white font-bold">
                           Purpose:{" "}
@@ -343,6 +398,8 @@ const StudentDashboard = () => {
                           Applied On:{" "}
                           {new Date(c.createdAt).toLocaleDateString()}
                         </p>
+
+                        {/* Expanded Details */}
                         {expandedLeave === c._id && (
                           <>
                             <p className="text-white font-ssold w-full text-justify mt-2">
@@ -351,17 +408,18 @@ const StudentDashboard = () => {
                                 {c.CertificateType}
                               </span>
                             </p>
+
+                            {/* Supporting Document */}
                             {c.supportingDocument && (
-                              <div className="w-[600px] h-auto flex items-center justify-center">
-                                <p className="text-white font-ssold w-full text-justify mt-2">
+                              <div className="mt-3 w-full">
+                                <p className="text-white font-ssold text-justify">
                                   <span>Supporting Document:</span>
                                 </p>
-
-                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                                <div className="w-full sm:w-[400px] lg:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center mt-1">
                                   <a
                                     href={c.supportingDocument}
                                     target="_blank"
-                                    className="font-mooxy text-center"
+                                    className="font-mooxy text-center text-sm sm:text-base"
                                     rel="noopener noreferrer"
                                   >
                                     View Supporting Document
@@ -369,17 +427,18 @@ const StudentDashboard = () => {
                                 </div>
                               </div>
                             )}
+
+                            {/* Download Certificate */}
                             {c.addCertificate && (
-                              <div className="w-[600px] h-auto flex items-center justify-center mt-5">
-                                <p className="text-white font-ssold w-full text-justify mt-2">
+                              <div className="mt-5 w-full">
+                                <p className="text-white font-ssold text-justify">
                                   <span>View & Download Certificate:</span>
                                 </p>
-
-                                <div className="w-[600px] h-[30px] bg-slate-100 rounded-[20px] flex items-center justify-center">
+                                <div className="w-full sm:w-[400px] lg:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center mt-1">
                                   <a
                                     href={c.addCertificate}
                                     target="_blank"
-                                    className="font-mooxy text-center"
+                                    className="font-mooxy text-center text-sm sm:text-base"
                                     rel="noopener noreferrer"
                                     download
                                   >
@@ -391,8 +450,10 @@ const StudentDashboard = () => {
                           </>
                         )}
                       </div>
+
+                      {/* Toggle Button */}
                       <div
-                        className="min-w-[100px] h-[30px] bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2 bg-slate-100 rounded-[10px] font-mooxy flex items-center justify-center cursor-pointer"
                         onClick={() =>
                           setExpandedLeave(
                             expandedLeave === c._id ? null : c._id

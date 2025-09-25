@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { postAdminData } from "../utils/POSTAdminData";
 import logo from "../assets/logo.svg.png";
 import { useState } from "react";
@@ -120,10 +119,9 @@ const AddAdmin = () => {
               onChange={(e) => setRole(e.target.value)}
             >
               <option value="">--Select Role--</option>
-              <option value="Super Admin">
-                Super Admin
-              </option>
+              <option value="Super Admin">Super Admin</option>
               <option value="Departmental Admin">Departmental Admin</option>
+              <option value="Faculty">Faculty</option>
             </select>
           </div>
 

@@ -1,18 +1,18 @@
 import axios from "axios";
-export const getAdmins = async () => {
+
+export const getAdminLeaves = async () => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/admins",
+      "http://localhost:3000/api/adminLeave/getLeave",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    return response.data;
+    return response.data
   } catch (err) {
-    console.log(err);
-    return null
+    console.error(err);
   }
 };
