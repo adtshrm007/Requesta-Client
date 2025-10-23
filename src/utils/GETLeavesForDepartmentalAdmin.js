@@ -4,7 +4,7 @@ export const getLeavesForDepartmentalAdmin = async () => {
   try {
     const adminAccessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/leave/leavesForDepartmentalAdmin",
+      "https://requesta-server-3.onrender.com/api/leave/leavesForDepartmentalAdmin",
       {
         headers: {
             Authorization: `Bearer ${adminAccessToken}`,

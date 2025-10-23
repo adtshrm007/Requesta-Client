@@ -4,7 +4,7 @@ export const getLeavesOfAStudentForAdmin = async (studentId) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/studentRequests",{
+      "https://requesta-server-3.onrender.com/api/adminregister/studentRequests",{
         params:{studentId},
         headers: {
           Authorization: `Bearer ${accessToken}`,

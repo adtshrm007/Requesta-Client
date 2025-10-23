@@ -3,7 +3,7 @@ export const updateLeaveStatus = async (leaveId,status,remark) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
-      "http://localhost:3000/api/leave/updateLeaves",
+      "https://requesta-server-3.onrender.com/api/leave/updateLeaves",
       {leaveId,status,remark} ,
       {
         headers: {

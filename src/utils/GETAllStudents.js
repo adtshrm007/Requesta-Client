@@ -3,7 +3,7 @@ export const getStudents = async () => {
   try {
     const accessToken=localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/students",{
+      "https://requesta-server-3.onrender.com/api/adminregister/students",{
         headers:{
             Authorization:`Bearer ${accessToken}`
         }

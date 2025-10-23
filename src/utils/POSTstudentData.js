@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 export const postStudentData = async (studentData) => {
   try {
     const postData = await axios.post(
-      "http://localhost:3000/api/studentregister/register",
+      "https://requesta-server-3.onrender.com/api/studentregister/register",
       studentData
     );
     toast.success("Registered Successfully");

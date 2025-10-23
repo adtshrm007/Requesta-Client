@@ -2,7 +2,7 @@ import axios from "axios";
 export const submitCertificate=async(certificateData)=>{
     try{
         const accessToken=localStorage.getItem("accessToken");
-        const response=await axios.post("http://localhost:3000/api/certificate/submitCertificate",certificateData,
+        const response=await axios.post("https://requesta-server-3.onrender.com/api/certificate/submitCertificate",certificateData,
             {
                 headers:{
                     Authorization:`Bearer ${accessToken}`,

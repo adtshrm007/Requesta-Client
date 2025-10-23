@@ -4,7 +4,7 @@ export const updateAdmin = async (adminData) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
-      "http://localhost:3000/api/adminregister/update",
+      "https://requesta-server-3.onrender.com/api/adminregister/update",
       adminData,
       {
         headers: {

@@ -4,7 +4,7 @@ export const getDepartmentalAdmin = async () => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/departmentalAdmin",
+      "https://requesta-server-3.onrender.com/api/adminregister/departmentalAdmin",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

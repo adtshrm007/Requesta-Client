@@ -4,7 +4,7 @@ export const updateCertificateStatus = async (formData) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
-      "http://localhost:3000/api/certificate/updateCertificates",
+      "https://requesta-server-3.onrender.com/api/certificate/updateCertificates",
       formData,
       {
         headers: {

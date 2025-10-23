@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 export const fetchStudentData = async (regnNo, password) => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/studentregister/",
+      "https://requesta-server-3.onrender.com/api/studentregister/",
       {
         registrationNumber: regnNo,
         password,

@@ -4,7 +4,7 @@ export const getAdminDashboard = async () => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/dashboard",
+      "https://requesta-server-3.onrender.com/api/adminregister/dashboard",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

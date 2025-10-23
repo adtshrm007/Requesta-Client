@@ -3,7 +3,7 @@ export const getCertificateOfAStudentForAdmin = async (student) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
-      "http://localhost:3000/api/adminregister/certificateRequests",
+      "https://requesta-server-3.onrender.com/adminregister/certificateRequests",
       {
         params: { student },
         headers: {

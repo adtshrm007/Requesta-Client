@@ -3,7 +3,7 @@ import axios from "axios";
 export const getAllCertificatesRequests=async()=>{
     try{
         const accessToken=localStorage.getItem("adminaccessToken");
-        const response=await axios.get("http://localhost:3000/api/certificate/showCertificates",{
+        const response=await axios.get("https://requesta-server-3.onrender.com/api/certificate/showCertificates",{
             headers:{   
                 Authorization:`Bearer ${accessToken}`
             }

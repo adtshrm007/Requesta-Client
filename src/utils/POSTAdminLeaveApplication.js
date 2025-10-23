@@ -4,7 +4,7 @@ export const submitAdminLeaveApplication = async (leavedata) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.post(
-      "http://localhost:3000/api/adminLeave/leave",
+      "https://requesta-server-3.onrender.com/api/adminLeave/leave",
       leavedata,
       {
         headers: {

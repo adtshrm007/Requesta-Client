@@ -3,7 +3,7 @@ export const changeAdminPassword=async(otp,password)=>{
     try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
-      "http://localhost:3000/api/adminregister/changepassword",
+      "https://requesta-server-3.onrender.com/api/adminregister/changepassword",
       { otp, password },{
         headers:{
             Authorization:`Bearer ${accessToken}`

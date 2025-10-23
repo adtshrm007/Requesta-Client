@@ -4,11 +4,11 @@ export const updateStudent = async (studentData) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
     const response = await axios.put(
-      "http://localhost:3000/api/studentregister/update",
+      "https://requesta-server-3.onrender.com/api/studentregister/update",
       studentData,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`, 
         },
       }
     );

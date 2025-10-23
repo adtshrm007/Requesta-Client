@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 export const fetchAdmin = async (adminID,password) => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/adminregister/get",
+      "https://requesta-server-3.onrender.com/api/adminregister/get",
       {
         adminID,
         password
