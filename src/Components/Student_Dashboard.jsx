@@ -12,6 +12,11 @@ import { getLeaves } from "../utils/GETLeavesForAStudent";
 import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
 import { Menu, X } from "lucide-react";
 import Loader from "./Loader";
+import { Document, Page, pdfjs } from "react-pdf";
+
+// Set workerSrc (required for PDF.js to work)
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [text, setText] = useState("Show More");
@@ -324,13 +329,9 @@ const StudentDashboard = () => {
                                 <p className="text-white font-ssold">
                                   Supporting Document:
                                 </p>
-                                <a
-                                  href={l.supportingDocument}
-                                  download
-                                  className="w-full sm:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center font-mooxy text-black"
-                                >
-                                  View Document
-                                </a>
+                                <Document file={l.supportingDocument}>
+                                  <Page pageNumber={1} />
+                                </Document>
                               </div>
                             )}
                           </div>
