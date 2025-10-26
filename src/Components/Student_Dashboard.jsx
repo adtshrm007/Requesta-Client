@@ -14,8 +14,9 @@ import { Menu, X } from "lucide-react";
 import Loader from "./Loader";
 import { Document, Page, pdfjs } from "react-pdf";
 
-// Set workerSrc (required for PDF.js to work)
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
