@@ -12,45 +12,6 @@ import { getLeaves } from "../utils/GETLeavesForAStudent";
 import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
 import { Menu, X } from "lucide-react";
 import Loader from "./Loader";
-import { Document, Page, pdfjs } from "react-pdf";
-
-import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
-
-const SupportingDocumentViewer = ({ url }) => {
-  const [file, setFile] = useState(null);
-
-  useEffect(() => {
-    if (!url) return;
-
-    // Convert external PDF URL to Blob URL
-    const fetchPdf = async () => {
-      try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        setFile(blobUrl);
-      } catch (err) {
-        console.error("Failed to load PDF:", err);
-      }
-    };
-
-    fetchPdf();
-  }, [url]);
-
-  if (!file) return <p className="text-gray-400">Loading document...</p>;
-
-  return (
-    <div className="w-full sm:w-[600px] flex flex-col gap-2">
-      <p className="text-white font-ssold">Supporting Document:</p>
-      <Document file={file}>
-        <Page pageNumber={1} />
-      </Document>
-    </div>
-  );
-};
-
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [text, setText] = useState("Show More");
@@ -359,9 +320,19 @@ const StudentDashboard = () => {
                             </p>
 
                             {l.supportingDocument && (
-                              <SupportingDocumentViewer
-                                url={l.supportingDocument}
-                              />
+                              <div className="w-full sm:w-[600px] flex flex-col gap-2">
+                                <p className="text-white font-ssold">
+                                  Supporting Document:
+                                </p>
+                                <a
+                                  href={l.supportingDocument}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full sm:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center font-mooxy text-black"
+                                >
+                                  View Document
+                                </a>
+                              </div>
                             )}
                           </div>
                         )}
