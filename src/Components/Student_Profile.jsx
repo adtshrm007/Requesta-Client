@@ -254,18 +254,28 @@ const StudentProfile = () => {
               <select
                 id="branch"
                 name="branch"
-                className="w-full h-[45px] px-4 bg-transparent outline-none font-mooxy text-sm text-white appearance-none cursor-pointer"
+                className="w-full h-[45px] px-4 bg-transparent outline-none font-mooxy text-sm text-gray-300 appearance-none cursor-pointer"
                 defaultValue={branch}
                 onChange={(e) => setBranch(e.target.value)}
               >
-                <option value="">--Select Branch--</option>
-                <option value="Computer Science And Engineering">
+                <option value="" className="text-black">
+                  --Select Branch--
+                </option>
+                <option
+                  value="Computer Science And Engineering"
+                  className="text-black"
+                >
                   Computer Science
                 </option>
-                <option value="Electronics And Communication">
+                <option
+                  value="Electronics And Communication"
+                  className="text-black"
+                >
                   Electronics
                 </option>
-                <option value="Mechanical">Mechanical</option>
+                <option value="Mechanical" className="text-black">
+                  Mechanical
+                </option>
               </select>
             </div>
             <button
