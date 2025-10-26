@@ -76,9 +76,9 @@ const StudentDashboard = () => {
         setSubject("");
         setReason("");
         setSupportingDocument(null);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 1000);
       }
     } catch (err) {
       console.error("Error submitting leave:", err);
@@ -320,19 +320,11 @@ const StudentDashboard = () => {
                             </p>
 
                             {l.supportingDocument && (
-                              <div className="w-full sm:w-[600px] flex flex-col gap-2">
-                                <p className="text-white font-ssold">
-                                  Supporting Document:
-                                </p>
-                                <a
-                                  href={l.supportingDocument}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="w-full sm:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center font-mooxy text-black"
-                                >
-                                  View Document
-                                </a>
-                              </div>
+                              <iframe
+                                src={supportingDocument}
+                                width="100%"
+                                height="600px"
+                              ></iframe>
                             )}
                           </div>
                         )}
