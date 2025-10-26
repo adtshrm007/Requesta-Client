@@ -76,9 +76,9 @@ const StudentDashboard = () => {
         setSubject("");
         setReason("");
         setSupportingDocument(null);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 1000);
       }
     } catch (err) {
       console.error("Error submitting leave:", err);
