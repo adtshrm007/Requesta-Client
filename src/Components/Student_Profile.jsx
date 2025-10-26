@@ -43,6 +43,7 @@ const StudentProfile = () => {
       year,
     };
     const postEditedData = await updateStudent(updatedStudent);
+    console.log(postEditedData)
     return postEditedData;
   };
 
@@ -52,8 +53,8 @@ const StudentProfile = () => {
   }
   function handleEditProfile() {
     EditProfile();
-    navigate("/studentdashboard");
-    window.location.reload();
+    // navigate("/studentdashboard");
+    // window.location.reload();
   }
 
   async function handleClickOnChangePassword() {
