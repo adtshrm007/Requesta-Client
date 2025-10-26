@@ -326,8 +326,7 @@ const StudentDashboard = () => {
                                 </p>
                                 <a
                                   href={l.supportingDocument}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                                  download
                                   className="w-full sm:w-[600px] h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center font-mooxy text-black"
                                 >
                                   View Document
