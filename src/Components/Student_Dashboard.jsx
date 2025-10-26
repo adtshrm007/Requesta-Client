@@ -321,7 +321,7 @@ const StudentDashboard = () => {
 
                             {l.supportingDocument && (
                               <iframe
-                                src={supportingDocument}
+                                src={l.supportingDocument}
                                 width="100%"
                                 height="600px"
                               ></iframe>
