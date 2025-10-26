@@ -53,7 +53,6 @@ const StudentProfile = () => {
   function handleEditProfile() {
     EditProfile();
     navigate("/studentdashboard");
-    window.location.reload();
   }
 
   async function handleClickOnChangePassword() {
