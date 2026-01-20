@@ -6,8 +6,8 @@ The **Role-Based Student ERP & Academic Workflow System** is a full-stack web ap
 
 This project demonstrates **real-world product architecture**, focusing on scalability, security, and clean separation of responsibilities across different user roles.
 
-🔗 **Live Demo:** *[Add link]*
-🔗 **GitHub Repository:** *[Add link]*
+🔗 **Live Demo:** https://requesta-client.vercel.app/
+
 
 ---
 
