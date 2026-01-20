@@ -8,16 +8,15 @@ This project demonstrates **real-world product architecture**, focusing on scala
 
 🔗 **Live Demo:** https://requesta-client.vercel.app/
 
-
 ---
 
 ## 🎯 Key Objectives
 
-* Digitize academic workflows end-to-end
-* Implement strict **role-based access control (RBAC)**
-* Provide real-time status tracking for requests
-* Ensure secure authentication and authorization
-* Build a scalable, production-ready MERN stack application
+- Digitize academic workflows end-to-end
+- Implement strict **role-based access control (RBAC)**
+- Provide real-time status tracking for requests
+- Ensure secure authentication and authorization
+- Build a scalable, production-ready MERN stack application
 
 ---
 
@@ -25,22 +24,22 @@ This project demonstrates **real-world product architecture**, focusing on scala
 
 ### 1️⃣ Student
 
-* Submit leave requests and certificate requests
-* Upload supporting documents securely
-* Track request status in real time (Pending / Approved / Rejected)
-* View request history and responses
+- Submit leave requests and certificate requests
+- Upload supporting documents securely
+- Track request status in real time (Pending / Approved / Rejected)
+- View request history and responses
 
 ### 2️⃣ Faculty / Mentor
 
-* Review student requests assigned to them
-* Approve or reject requests with remarks
-* Forward requests to higher authorities based on workflow hierarchy
+- Review student requests assigned to them
+- Approve or reject requests with remarks
+- Forward requests to higher authorities based on workflow hierarchy
 
 ### 3️⃣ Admin / HOD / Authority
 
-* Final approval or rejection of requests
-* View all requests across departments
-* Manage users and enforce role permissions
+- Final approval or rejection of requests
+- View all requests across departments
+- Manage users and enforce role permissions
 
 Each role has **strictly enforced permissions**—users can only access actions and data relevant to their role.
 
@@ -50,10 +49,10 @@ Each role has **strictly enforced permissions**—users can only access actions 
 
 The system follows a **client–server architecture**:
 
-* **Frontend:** React.js (role-specific dashboards)
-* **Backend:** Node.js + Express.js (RESTful APIs)
-* **Database:** MongoDB (NoSQL, schema-based via Mongoose)
-* **Authentication:** JWT-based stateless authentication
+- **Frontend:** React.js (role-specific dashboards)
+- **Backend:** Node.js + Express.js (RESTful APIs)
+- **Database:** MongoDB (NoSQL, schema-based via Mongoose)
+- **Authentication:** JWT-based stateless authentication
 
 ```
 Client (React) → REST API (Express) → MongoDB
@@ -66,20 +65,20 @@ Client (React) → REST API (Express) → MongoDB
 
 ### Authentication
 
-* Secure login using **JSON Web Tokens (JWT)**
-* Tokens issued upon successful login
-* Tokens validated on every protected API request
+- Secure login using **JSON Web Tokens (JWT)**
+- Tokens issued upon successful login
+- Tokens validated on every protected API request
 
 ### Authorization (RBAC)
 
-* Middleware-based role validation
-* Fine-grained access control per route
-* Prevents unauthorized data access and actions
+- Middleware-based role validation
+- Fine-grained access control per route
+- Prevents unauthorized data access and actions
 
 Example:
 
-* Students cannot approve requests
-* Faculty cannot access admin-only endpoints
+- Students cannot approve requests
+- Faculty cannot access admin-only endpoints
 
 ---
 
@@ -109,21 +108,21 @@ Each user sees a **custom dashboard** based on their role:
 
 ### Student Dashboard
 
-* New request submission forms
-* Status tracker
-* Request history
+- New request submission forms
+- Status tracker
+- Request history
 
 ### Faculty Dashboard
 
-* Pending approvals list
-* Action buttons (Approve / Reject / Forward)
-* Remarks and audit trail
+- Pending approvals list
+- Action buttons (Approve / Reject / Forward)
+- Remarks and audit trail
 
 ### Admin Dashboard
 
-* Global request overview
-* Final decision controls
-* System-wide visibility
+- Global request overview
+- Final decision controls
+- System-wide visibility
 
 Dashboards update dynamically to reflect real-time request changes.
 
@@ -131,10 +130,10 @@ Dashboards update dynamically to reflect real-time request changes.
 
 ## 📁 Document Upload & Validation
 
-* Secure file uploads for certificates and proof documents
-* Server-side validation for file type and size
-* Files linked to specific requests
-* Prevents unauthorized access to sensitive documents
+- Secure file uploads for certificates and proof documents
+- Server-side validation for file type and size
+- Files linked to specific requests
+- Prevents unauthorized access to sensitive documents
 
 ---
 
@@ -142,40 +141,40 @@ Dashboards update dynamically to reflect real-time request changes.
 
 ### Frontend
 
-* React.js
-* Role-based UI rendering
-* Axios for API communication
+- React.js
+- Role-based UI rendering
+- Axios for API communication
 
 ### Backend
 
-* Node.js
-* Express.js
-* RESTful API architecture
+- Node.js
+- Express.js
+- RESTful API architecture
 
 ### Database
 
-* MongoDB
-* Mongoose ODM
+- MongoDB
+- Mongoose ODM
 
 ### Security
 
-* JSON Web Tokens (JWT)
-* Role-Based Access Control (RBAC)
+- JSON Web Tokens (JWT)
+- Role-Based Access Control (RBAC)
 
 ---
 
 ## 📦 API Design
 
-* Clean RESTful endpoints
-* Separate routes for auth, users, and requests
-* Middleware for authentication and role validation
+- Clean RESTful endpoints
+- Separate routes for auth, users, and requests
+- Middleware for authentication and role validation
 
 Example API Flow:
 
-* `POST /auth/login`
-* `POST /requests/create`
-* `PUT /requests/:id/approve`
-* `GET /requests/my-requests`
+- `POST /auth/login`
+- `POST /requests/create`
+- `PUT /requests/:id/approve`
+- `GET /requests/my-requests`
 
 ---
 
@@ -183,9 +182,9 @@ Example API Flow:
 
 ### Prerequisites
 
-* Node.js
-* MongoDB
-* npm / yarn
+- Node.js
+- MongoDB
+- npm / yarn
 
 ### Backend Setup
 
@@ -214,29 +213,29 @@ MONGO_URI=your_mongodb_uri
 
 ## 🧪 Features Implemented
 
-* ✔ Role-based authentication & authorization
-* ✔ Multi-level approval workflows
-* ✔ Real-time request tracking
-* ✔ Secure document uploads
-* ✔ Scalable backend architecture
+- ✔ Role-based authentication & authorization
+- ✔ Multi-level approval workflows
+- ✔ Real-time request tracking
+- ✔ Secure document uploads
+- ✔ Scalable backend architecture
 
 ---
 
 ## 📈 Future Enhancements
 
-* Notifications via email / WhatsApp
-* Analytics dashboard for admins
-* Integration with college ERP systems
-* Audit logs and reporting
+- Notifications via email / WhatsApp
+- Analytics dashboard for admins
+- Integration with college ERP systems
+- Audit logs and reporting
 
 ---
 
 ## 🎓 What This Project Demonstrates
 
-* Real-world MERN stack development
-* Secure backend design
-* RBAC and workflow-based systems
-* Production-focused thinking, not demo-level code
+- Real-world MERN stack development
+- Secure backend design
+- RBAC and workflow-based systems
+- Production-focused thinking, not demo-level code
 
 ---
 
@@ -245,8 +244,8 @@ MONGO_URI=your_mongodb_uri
 If you’d like to discuss this project or collaborate:
 
 **Aditya**
-GitHub: *[your link]*
-LinkedIn: *[your link]*
+GitHub: http://github.com/adtshrm007
+LinkedIn:https://www.linkedin.com/in/aditya-sharma-836856315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
 
 ---
 
