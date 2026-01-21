@@ -185,14 +185,6 @@ export default function StudentLoginRegister() {
                 </>
               )}
 
-              <p
-                className="text-white font-mooxy text-[16px] relative left-3 underline cursor-pointer"
-                onClick={handleClickOnLoginWithEmail}
-              >
-                {loginWithPassword
-                  ? "Login using email?"
-                  : "Login with password?"}
-              </p>
 
               {loginWithEmail && (
                 <motion.button

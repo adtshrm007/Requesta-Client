@@ -170,12 +170,6 @@ export default function AdminLogin() {
                 />
               </div>
             )}
-            <p
-              className="text-white text-white font-mooxy ml-2 underline cursor-pointer"
-              onClick={handleClickOnLoginWithEmail}
-            >
-              {loginWithPassword ? "Login with Email?" : "Login with password?"}
-            </p>
             {loginWithEmail && (
               <button
                 className="w-full h-[45px] rounded-[20px] bg-white text-black font-mooxy cursor-pointer"
