@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 const TagLine = () => {
   const tagline1 = "Leave & Certificate Portal.";
-  const tagline2 = "Apply smart. Track fast.";
+  const tagline2 = "Apply smart. Track fast";
 
   return (
     <motion.div
