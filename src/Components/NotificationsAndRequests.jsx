@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Footer from "./Footer";
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowLeft, Filter, Calendar, FileText, CheckCircle, XCircle, Clock, Upload, ChevronDown } from "lucide-react";
+import {
+  Menu, X, ArrowLeft, Filter, Calendar, FileText, CheckCircle,
+  XCircle, Clock, Upload, ChevronDown, ExternalLink, AlertCircle,
+  MessageSquare, Users, ShieldCheck, UserCheck
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { updateLeaveStatus } from "../utils/UpdateLeaveStatus";
@@ -17,6 +21,369 @@ import { getAdmins } from "../utils/GETOtherAdminsData";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
+
+// ─── Design tokens ──────────────────────────────────────────────────────────
+const statusConfig = {
+  pending:   { label: "Pending",   cls: "text-amber-400 bg-amber-400/10 border-amber-400/25",  icon: Clock },
+  approved:  { label: "Approved",  cls: "text-green-400 bg-green-400/10 border-green-400/25",  icon: CheckCircle },
+  rejected:  { label: "Rejected",  cls: "text-red-400 bg-red-400/10 border-red-400/25",         icon: XCircle },
+  forwarded: { label: "Forwarded", cls: "text-sky-400 bg-sky-400/10 border-sky-400/25",         icon: UserCheck },
+};
+const StatusPill = ({ status }) => {
+  const cfg = statusConfig[status] || statusConfig.pending;
+  const Icon = cfg.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mooxy border ${cfg.cls}`}>
+      <Icon size={11} /> {cfg.label}
+    </span>
+  );
+};
+
+// Shared input classes
+const inputCls = "w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all";
+
+// ─── Section heading ─────────────────────────────────────────────────────────
+const SectionHeading = ({ icon: Icon, title, count, color = "indigo", id }) => {
+  const colors = {
+    indigo: "text-indigo-400", sky: "text-sky-400", purple: "text-purple-400",
+    green: "text-green-400", amber: "text-amber-400", red: "text-red-400",
+  };
+  return (
+    <div id={id} className="flex items-center gap-2 mb-5 pt-8 pb-4 border-b border-white/5">
+      <Icon size={18} className={colors[color]} />
+      <h2 className="font-growmajour text-lg text-white">{title}</h2>
+      {count != null && (
+        <span className="ml-auto text-white/30 font-mooxy text-xs">{count} {count === 1 ? "entry" : "entries"}</span>
+      )}
+    </div>
+  );
+};
+
+// ─── Leave card ──────────────────────────────────────────────────────────────
+const LeaveCard = ({
+  l, remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm,
+  onAccept, onReject, onForward, onAcceptAdmin, onRejectAdmin,
+  showAcceptReject, showForwardReject, isAdminType = false,
+}) => (
+  <div className="bg-white/[0.03] border border-white/8 hover:border-white/12 rounded-2xl overflow-hidden transition-all">
+    <div className="p-5">
+      {/* Header row */}
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <p className="text-white font-mooxy font-semibold text-sm">
+              {isAdminType
+                ? `${l.admin?.name}` 
+                : (l.studentName || l.studentId?.name || "Student")}
+            </p>
+            <StatusPill status={l.status} />
+          </div>
+          <p className="text-white/35 font-mooxy text-xs">
+            {isAdminType
+              ? `Admin ID: ${l.admin?.adminID}`
+              : `Reg No: ${l.studentId?.registrationNumber || "N/A"}`}
+          </p>
+        </div>
+        <p className="text-white/25 font-mooxy text-xs">
+          {new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+        </p>
+      </div>
+
+      {/* Details grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+        <div>
+          <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Subject / Type</p>
+          <p className="text-white/70 font-mooxy text-sm">{l.subject || l.type || "—"}</p>
+        </div>
+        {l.Reason || l.reason ? (
+          <div className="col-span-2 sm:col-span-1">
+            <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Reason</p>
+            <p className="text-white/70 font-mooxy text-sm line-clamp-2">{l.Reason || l.reason}</p>
+          </div>
+        ) : null}
+        {l.fromDate && (
+          <div>
+            <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">From → To</p>
+            <p className="text-white/70 font-mooxy text-sm">
+              {new Date(l.fromDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+              {" → "}
+              {l.toDate ? new Date(l.toDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Supporting doc */}
+      {l.supportingDocument && (
+        <a
+          href={l.supportingDocument}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all mb-4"
+        >
+          <ExternalLink size={12} /> View Document
+        </a>
+      )}
+
+      {/* Remark toggle + textarea */}
+      <button
+        onClick={() => setRemarkBox(remarkBox === l._id ? null : l._id)}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all mb-3"
+      >
+        <MessageSquare size={12} /> {remarkBox === l._id ? "Hide Remark" : "Add Remark"}
+      </button>
+
+      {remarkBox === l._id && (
+        <textarea
+          rows={2}
+          placeholder="Enter remark before approving / rejecting…"
+          value={remark[l._id] || ""}
+          onChange={(e) => setRemark((prev) => ({ ...prev, [l._id]: e.target.value }))}
+          className={`${inputCls} resize-none mb-3`}
+        />
+      )}
+
+      {/* Confirm */}
+      {confirm === l._id && (
+        <button
+          onClick={handleConfirm}
+          className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-mooxy transition-all mb-3"
+        >
+          Confirm Action
+        </button>
+      )}
+    </div>
+
+    {/* Action footer */}
+    {(showAcceptReject || showForwardReject) && (
+      <div className="border-t border-white/5 px-5 py-3 flex flex-wrap gap-2 bg-white/[0.015]">
+        {showAcceptReject && (
+          <>
+            <button
+              onClick={() => isAdminType ? onAcceptAdmin(l._id) : onAccept(l._id)}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-green-500/15 hover:bg-green-500/25 border border-green-500/30 text-green-300 text-xs font-mooxy transition-all"
+            >
+              <CheckCircle size={12} /> Accept
+            </button>
+            <button
+              onClick={() => isAdminType ? onRejectAdmin(l._id) : onReject(l._id)}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 text-xs font-mooxy transition-all"
+            >
+              <XCircle size={12} /> Reject
+            </button>
+          </>
+        )}
+        {showForwardReject && (
+          <>
+            <button
+              onClick={() => onForward(l._id)}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-mooxy transition-all"
+            >
+              <UserCheck size={12} /> Forward
+            </button>
+            <button
+              onClick={() => onReject(l._id)}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 text-xs font-mooxy transition-all"
+            >
+              <XCircle size={12} /> Reject
+            </button>
+          </>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+// ─── Certificate card ─────────────────────────────────────────────────────────
+const CertCard = ({
+  c, remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm,
+  certificate, setCertificate, onAccept, onReject, onForward,
+  showActions,
+}) => (
+  <div className="bg-white/[0.03] border border-white/8 hover:border-white/12 rounded-2xl overflow-hidden transition-all">
+    <div className="p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <p className="text-white font-mooxy font-semibold text-sm">
+              {c.studentName || c.studentId?.name || "Student"}
+            </p>
+            <StatusPill status={c.status} />
+          </div>
+          <p className="text-white/35 font-mooxy text-xs">
+            Reg No: {c.studentId?.registrationNumber || "N/A"}
+          </p>
+        </div>
+        <p className="text-white/25 font-mooxy text-xs">
+          {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+        <div>
+          <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Certificate Type</p>
+          <p className="text-white/70 font-mooxy text-sm">{c.CertificateType || "—"}</p>
+        </div>
+        <div>
+          <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Purpose</p>
+          <p className="text-white/70 font-mooxy text-sm">{c.purpose || "—"}</p>
+        </div>
+        {c.remark && (
+          <div>
+            <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Admin Remark</p>
+            <p className="text-white/70 font-mooxy text-sm">{c.remark}</p>
+          </div>
+        )}
+      </div>
+
+      {c.addCertificate && (
+        <a
+          href={c.addCertificate}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 hover:bg-green-500/15 border border-green-500/25 text-green-300 text-xs font-mooxy transition-all mb-4"
+        >
+          <ExternalLink size={12} /> View Certificate
+        </a>
+      )}
+
+      {showActions && (
+        <>
+          <button
+            onClick={() => setRemarkBox(remarkBox === c._id ? null : c._id)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all mb-3"
+          >
+            <MessageSquare size={12} /> {remarkBox === c._id ? "Hide Remark" : "Add Remark"}
+          </button>
+
+          {remarkBox === c._id && (
+            <textarea
+              rows={2}
+              placeholder="Enter remark before approving / rejecting…"
+              value={remark[c._id] || ""}
+              onChange={(e) => setRemark((prev) => ({ ...prev, [c._id]: e.target.value }))}
+              className={`${inputCls} resize-none mb-3`}
+            />
+          )}
+
+          <div className="mb-3">
+            <label className="flex flex-col items-center justify-center gap-1.5 w-full h-16 bg-white/3 border border-dashed border-white/15 rounded-xl cursor-pointer hover:border-purple-500/40 hover:bg-purple-500/5 transition-all">
+              <Upload size={14} className="text-white/30" />
+              <span className="text-white/30 text-xs font-mooxy">
+                {certificate[c._id] ? certificate[c._id].name : "Upload Certificate"}
+              </span>
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => setCertificate((prev) => ({ ...prev, [c._id]: e.target.files[0] }))}
+              />
+            </label>
+          </div>
+
+          {confirm === c._id && (
+            <button
+              onClick={handleConfirm}
+              className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-mooxy transition-all mb-3"
+            >
+              Confirm Action
+            </button>
+          )}
+        </>
+      )}
+    </div>
+
+    {showActions && (
+      <div className="border-t border-white/5 px-5 py-3 flex flex-wrap gap-2 bg-white/[0.015]">
+        <button
+          onClick={() => onAccept(c._id)}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-green-500/15 hover:bg-green-500/25 border border-green-500/30 text-green-300 text-xs font-mooxy transition-all"
+        >
+          <CheckCircle size={12} /> Approve
+        </button>
+        <button
+          onClick={() => onForward(c._id)}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-mooxy transition-all"
+        >
+          <UserCheck size={12} /> Forward
+        </button>
+        <button
+          onClick={() => onReject(c._id)}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 text-xs font-mooxy transition-all"
+        >
+          <XCircle size={12} /> Reject
+        </button>
+      </div>
+    )}
+  </div>
+);
+
+// ─── Empty state ─────────────────────────────────────────────────────────────
+const EmptyState = ({ label }) => (
+  <div className="bg-white/[0.02] border border-white/5 rounded-2xl px-6 py-10 text-center">
+    <AlertCircle size={28} className="text-white/10 mx-auto mb-3" />
+    <p className="text-white/25 font-mooxy text-sm">{label}</p>
+  </div>
+);
+
+// ─── Read-only info card (approved / rejected sections) ───────────────────────
+const InfoCard = ({ l, isAdminType = false }) => (
+  <div className="bg-white/[0.02] border border-white/6 rounded-2xl p-5 hover:border-white/10 transition-all">
+    <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+      <div className="flex items-center gap-2 flex-wrap">
+        <p className="text-white/70 font-mooxy text-sm font-semibold">
+          {isAdminType
+            ? `${l.admin?.name} (${l.admin?.adminID})`
+            : `${l.studentName || l.studentId?.name || "Student"} — ${l.studentId?.registrationNumber || ""}`}
+        </p>
+        <StatusPill status={l.status} />
+      </div>
+      <p className="text-white/20 font-mooxy text-xs">
+        {new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+      </p>
+    </div>
+    <div className="flex flex-wrap gap-x-6 gap-y-1">
+      <p className="text-white/35 font-mooxy text-xs">{l.subject || l.type || l.CertificateType}</p>
+      {(l.Reason || l.reason) && <p className="text-white/35 font-mooxy text-xs truncate max-w-sm">{l.Reason || l.reason}</p>}
+      {l.remark && <p className="text-white/35 font-mooxy text-xs">Remark: {l.remark}</p>}
+    </div>
+    {l.supportingDocument && (
+      <a href={l.supportingDocument} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 mt-3 text-white/30 hover:text-white/60 text-xs font-mooxy transition-colors">
+        <ExternalLink size={11} /> View Document
+      </a>
+    )}
+  </div>
+);
+
+// ─── Info card for certificates ───────────────────────────────────────────────
+const CertInfoCard = ({ c }) => (
+  <div className="bg-white/[0.02] border border-white/6 rounded-2xl p-5 hover:border-white/10 transition-all">
+    <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+      <div className="flex items-center gap-2 flex-wrap">
+        <p className="text-white/70 font-mooxy text-sm font-semibold">
+          {c.studentName || c.studentId?.name || "Student"} — {c.studentId?.registrationNumber || ""}
+        </p>
+        <StatusPill status={c.status} />
+      </div>
+      <p className="text-white/20 font-mooxy text-xs">
+        {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+      </p>
+    </div>
+    <div className="flex flex-wrap gap-x-6 gap-y-1">
+      <p className="text-white/35 font-mooxy text-xs">{c.CertificateType}</p>
+      {c.purpose && <p className="text-white/35 font-mooxy text-xs">{c.purpose}</p>}
+      {c.remark && <p className="text-white/35 font-mooxy text-xs">Remark: {c.remark}</p>}
+    </div>
+    {c.addCertificate && (
+      <a href={c.addCertificate} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 mt-3 text-green-400/60 hover:text-green-300 text-xs font-mooxy transition-colors">
+        <ExternalLink size={11} /> View Certificate
+      </a>
+    )}
+  </div>
+);
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export const NotificationsAndRequest = () => {
   const location = useLocation();
 
@@ -24,20 +391,16 @@ export const NotificationsAndRequest = () => {
     if (location.state?.target) {
       const scrollToSection = () => {
         const target = document.getElementById(location.state.target);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-          return true;
-        }
+        if (target) { target.scrollIntoView({ behavior: "smooth" }); return true; }
         return false;
       };
       if (!scrollToSection()) {
-        const interval = setInterval(() => {
-          if (scrollToSection()) clearInterval(interval);
-        }, 100);
+        const interval = setInterval(() => { if (scrollToSection()) clearInterval(interval); }, 100);
         setTimeout(() => clearInterval(interval), 3000);
       }
     }
   }, [location]);
+
   const [pendingleaves, setPendingLeaves] = useState([]);
   const [acceptedLeaves, setAcceptedLeaves] = useState([]);
   const [rejectedLeaves, setRejectedLeaves] = useState([]);
@@ -55,33 +418,23 @@ export const NotificationsAndRequest = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [otherAdmins, setOtherAdmins] = useState(false);
   const [departmentalAdmin, setDepartmentalAdmin] = useState(false);
-  const [departmentalAdminApproved, setDepartmentalAdminApproved] = useState(
-    []
-  );
+  const [departmentalAdminApproved, setDepartmentalAdminApproved] = useState([]);
   const [approvedByFaculty, setApprovedByFaculty] = useState([]);
-  const [leavesOfDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState(
-    []
-  );
-  const [approvedByDepartmentalAdmin, setapprovedByDepartmentalAdmin] =
-    useState([]);
-  const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] =
-    useState([]);
+  const [leavesOfDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState([]);
+  const [approvedByDepartmentalAdmin, setapprovedByDepartmentalAdmin] = useState([]);
+  const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   function handleClickOnConfirm() {
     console.log(remark);
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+    setTimeout(() => { window.location.reload(); }, 1000);
   }
 
   useEffect(() => {
     const fetchData = async () => {
       const otheradmins = await getAdmins();
       const departmental = await getDepartmentalAdmin();
-      if (otheradmins) {
-        setOtherAdmins(true);
-      }
+      if (otheradmins) setOtherAdmins(true);
       if (departmental.data) {
         setDepartmentalAdmin(true);
         const adminApproved = await getSuperAdminLeaves();
@@ -90,6 +443,7 @@ export const NotificationsAndRequest = () => {
     };
     fetchData();
   }, []);
+
   useEffect(() => {
     const fetchLeaves = async () => {
       const res = await getAllLeaves();
@@ -97,20 +451,11 @@ export const NotificationsAndRequest = () => {
       const res2 = await getLeavesForDepartmentalAdmin();
       const res3 = await getDepartmentalAdminLeave();
       if (res3) {
-        setLeavesForDepartmentalAdmin(
-          res3.filter((leave) => leave.status === "pending")
-        );
-        setapprovedByDepartmentalAdmin(
-          res3.filter((leave) => leave.status === "approved")
-        );
-        setrejectedDepartmentalAdminLeave(
-          res3.filter((leave) => leave.status === "rejected")
-        );
+        setLeavesForDepartmentalAdmin(res3.filter((leave) => leave.status === "pending"));
+        setapprovedByDepartmentalAdmin(res3.filter((leave) => leave.status === "approved"));
+        setrejectedDepartmentalAdminLeave(res3.filter((leave) => leave.status === "rejected"));
       }
-      if (res2) {
-        setApprovedByFaculty(res2);
-      }
-
+      if (res2) setApprovedByFaculty(res2);
       if (res) {
         setPendingLeaves(res.filter((leave) => leave.status === "pending"));
         setAcceptedLeaves(res.filter((leave) => leave.status === "approved"));
@@ -118,238 +463,115 @@ export const NotificationsAndRequest = () => {
         setSupportingDocument(res.supportingDocument);
       }
       if (res1) {
-        setPendingFacultyLeaves(
-          res1.filter((leave) => leave.status === "pending")
-        );
-        setAcceptedFacultyLeaves(
-          res1.filter((leave) => leave.status === "approved")
-        );
-        setRejectedFacultyLeaves(
-          res1.filter((leave) => leave.status === "rejected")
-        );
+        setPendingFacultyLeaves(res1.filter((leave) => leave.status === "pending"));
+        setAcceptedFacultyLeaves(res1.filter((leave) => leave.status === "approved"));
+        setRejectedFacultyLeaves(res1.filter((leave) => leave.status === "rejected"));
       }
     };
     fetchLeaves();
   }, []);
+
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
         const res = await getAllCertificatesRequests();
         if (res) {
-          setPendingCertificates(
-            res.filter((cert) => cert.status === "pending")
-          );
-          setAcceptedCertificates(
-            res.filter((cert) => cert.status === "approved")
-          );
-          setRejectedCertificates(
-            res.filter((cert) => cert.status === "rejected")
-          );
+          setPendingCertificates(res.filter((cert) => cert.status === "pending"));
+          setAcceptedCertificates(res.filter((cert) => cert.status === "approved"));
+          setRejectedCertificates(res.filter((cert) => cert.status === "rejected"));
         }
-      } catch (err) {
-        console.error("Error fetching certificates:", err);
-      }
+      } catch (err) { console.error("Error fetching certificates:", err); }
     };
-
     fetchCertificates();
   }, []);
 
   const handleClickOnAccept = (leaveId) => {
-    if (!remark[leaveId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-
-    setPendingLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId
-          ? { ...l, status: "approved", remark: remark[leaveId] }
-          : l
-      )
-    );
+    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
+    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "approved", remark: remark[leaveId] } : l));
     setConfirm(confirm === leaveId ? null : leaveId);
-
     updateLeaveStatus(leaveId, "approved", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) =>
-        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
-      );
+      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
     });
   };
 
   const handleClickOnAcceptAdminLeave = (leaveId) => {
-    if (!remark[leaveId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-
-    setPendingFacultyLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId
-          ? { ...l, status: "approved", remark: remark[leaveId] }
-          : l
-      )
-    );
+    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
+    setPendingFacultyLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "approved", remark: remark[leaveId] } : l));
     setConfirm(confirm === leaveId ? null : leaveId);
     updateAdminLeaves(leaveId, "approved", remark[leaveId]).catch(() => {
-      setPendingFacultyLeaves((prev) =>
-        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
-      );
+      setPendingFacultyLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
     });
   };
 
   const handleClickOnRejectAdminLeave = (leaveId) => {
-    if (!remark[leaveId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-
-    setPendingFacultyLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId
-          ? { ...l, status: "rejected", remark: remark[leaveId] }
-          : l
-      )
-    );
+    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
+    setPendingFacultyLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "rejected", remark: remark[leaveId] } : l));
     setConfirm(confirm === leaveId ? null : leaveId);
-
     updateAdminLeaves(leaveId, "rejected", remark[leaveId]).catch(() => {
-      setPendingFacultyLeaves((prev) =>
-        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
-      );
+      setPendingFacultyLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
     });
   };
 
   const handleClickOnReject = (leaveId) => {
-    if (!remark[leaveId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-    setPendingLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId
-          ? { ...l, status: "rejected", remark: remark[leaveId] }
-          : l
-      )
-    );
+    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
+    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "rejected", remark: remark[leaveId] } : l));
     setConfirm(confirm === leaveId ? null : leaveId);
-
     updateLeaveStatus(leaveId, "rejected", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) =>
-        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
-      );
+      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
     });
   };
-  const handleClickOnAcceptCertificate = (certId) => {
-    if (!remark[certId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-    if (!certificate[certId]) {
-      toast.error("Add a certificate");
-      return;
-    }
 
+  const handleClickOnAcceptCertificate = (certId) => {
+    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
+    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
     const formData = new FormData();
     formData.append("certId", certId);
     formData.append("status", "approved");
     formData.append("remark", remark[certId]);
     formData.append("addCertificate", certificate[certId]);
-
-    setPendingCertificates((prev) =>
-      prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c))
-    );
+    setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c)));
     setConfirm(confirm === certId ? null : certId);
-
     updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) =>
-        prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
-      );
+      setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c)));
     });
   };
 
   const handleClickOnForwardLeaveApplication = (leaveId) => {
-    if (!remark[leaveId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-
-    setPendingLeaves((prev) =>
-      prev.map((l) =>
-        l._id === leaveId
-          ? { ...l, status: "forwarded", remark: remark[leaveId] }
-          : l
-      )
-    );
+    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
+    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "forwarded", remark: remark[leaveId] } : l));
     setConfirm(confirm === leaveId ? null : leaveId);
-
     updateLeaveStatus(leaveId, "forwarded", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) =>
-        prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l))
-      );
+      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
     });
   };
 
   const handleClickOnRejectCertificate = (certId) => {
-    if (!remark[certId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-    if (!certificate[certId]) {
-      toast.error("Add a certificate");
-      return;
-    }
-
+    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
+    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
     const formData = new FormData();
     formData.append("certId", certId);
     formData.append("status", "rejected");
     formData.append("remark", remark[certId]);
     formData.append("addCertificate", certificate[certId]);
-
-    setPendingCertificates((prev) =>
-      prev.map((c) =>
-        c._id === certId
-          ? { ...c, status: "rejected", remark: remark[certId] }
-          : c
-      )
-    );
+    setPendingCertificates((prev) => prev.map((c) => c._id === certId ? { ...c, status: "rejected", remark: remark[certId] } : c));
     setConfirm(confirm === certId ? null : certId);
-
     updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) =>
-        prev.map((c) =>
-          c._id === certId
-            ? { ...c, status: "pending", remark: remark[certId] }
-            : c
-        )
-      );
+      setPendingCertificates((prev) => prev.map((c) => c._id === certId ? { ...c, status: "pending", remark: remark[certId] } : c));
     });
   };
 
   const handleClickOnForwardCertificate = (certId) => {
-    if (!remark[certId]) {
-      toast.error("Enter the remark first!!!");
-      return;
-    }
-    if (!certificate[certId]) {
-      toast.error("Add a certificate");
-      return;
-    }
-
+    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
+    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
     const formData = new FormData();
     formData.append("certId", certId);
     formData.append("status", "forwarded");
     formData.append("remark", remark[certId]);
     formData.append("addCertificate", certificate[certId]);
-
-    setPendingCertificates((prev) =>
-      prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c))
-    );
+    setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c)));
     setConfirm(confirm === certId ? null : certId);
-
     updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) =>
-        prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c))
-      );
+      setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c)));
     });
   };
 
@@ -361,163 +583,60 @@ export const NotificationsAndRequest = () => {
   async function handleClickOnLastDayRequets() {
     const res1 = await getAllLeaves();
     if (res1) {
-      setPendingLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "pending" &&
-            now - new Date(leave.createdAt) < oneDay
-        )
-      );
-      setAcceptedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "approved" &&
-            now - new Date(leave.createdAt) < oneDay
-        )
-      );
-      setRejectedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "rejected" &&
-            now - new Date(leave.createdAt) < oneDay
-        )
-      );
+      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneDay));
+      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneDay));
+      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneDay));
       setSupportingDocument(res1.supportingDocument);
     }
     const res2 = await getAllCertificatesRequests();
     if (res2) {
-      setPendingCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "pending" && now - new Date(cert.createdAt) < oneDay
-        )
-      );
-      setAcceptedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "approved" &&
-            now - new Date(cert.createdAt) < oneDay
-        )
-      );
-      setRejectedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "rejected" &&
-            now - new Date(cert.createdAt) < oneDay
-        )
-      );
+      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneDay));
+      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneDay));
+      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneDay));
     }
   }
 
   async function handleClickOnLastWeekRequets() {
     const res1 = await getAllLeaves();
     if (res1) {
-      setPendingLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "pending" &&
-            now - new Date(leave.createdAt) < oneWeek
-        )
-      );
-      setAcceptedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "approved" &&
-            now - new Date(leave.createdAt) < oneWeek
-        )
-      );
-      setRejectedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "rejected" &&
-            now - new Date(leave.createdAt) < oneWeek
-        )
-      );
+      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneWeek));
+      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneWeek));
+      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneWeek));
       setSupportingDocument(res1.supportingDocument);
     }
     const res2 = await getAllCertificatesRequests();
     if (res2) {
-      setPendingCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "pending" &&
-            now - new Date(cert.createdAt) < oneWeek
-        )
-      );
-      setAcceptedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "approved" &&
-            now - new Date(cert.createdAt) < oneWeek
-        )
-      );
-      setRejectedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "rejected" &&
-            now - new Date(cert.createdAt) < oneWeek
-        )
-      );
+      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneWeek));
+      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneWeek));
+      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneWeek));
     }
   }
 
   async function handleClickOnLastMonthRequets() {
     const res1 = await getAllLeaves();
     if (res1) {
-      setPendingLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "pending" &&
-            now - new Date(leave.createdAt) < oneMonth
-        )
-      );
-      setAcceptedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "approved" &&
-            now - new Date(leave.createdAt) < oneMonth
-        )
-      );
-      setRejectedLeaves(
-        res1.filter(
-          (leave) =>
-            leave.status === "rejected" &&
-            now - new Date(leave.createdAt) < oneMonth
-        )
-      );
+      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneMonth));
+      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneMonth));
+      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneMonth));
       setSupportingDocument(res1.supportingDocument);
     }
     const res2 = await getAllCertificatesRequests();
     if (res2) {
-      setPendingCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "pending" &&
-            now - new Date(cert.createdAt) < oneMonth
-        )
-      );
-      setAcceptedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "approved" &&
-            now - new Date(cert.createdAt) < oneMonth
-        )
-      );
-      setRejectedCertificates(
-        res2.filter(
-          (cert) =>
-            cert.status === "rejected" &&
-            now - new Date(cert.createdAt) < oneMonth
-        )
-      );
+      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneMonth));
+      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneMonth));
+      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneMonth));
     }
   }
+
+  // Shared card props
+  const sharedLeaveProps = { remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm: handleClickOnConfirm };
+  const sharedCertProps = { remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm: handleClickOnConfirm, certificate, setCertificate };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827]">
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
 
-      {/* Sticky Navbar */}
+      {/* ─── Sticky Navbar ─────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0B0F19]/85 backdrop-blur-xl">
         <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between">
           <Link to="/">
@@ -535,7 +654,6 @@ export const NotificationsAndRequest = () => {
                 <ArrowLeft size={14} /> Dashboard
               </button>
             </Link>
-
             <div className="relative">
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -547,14 +665,11 @@ export const NotificationsAndRequest = () => {
                 <div className="absolute top-full right-0 mt-2 w-44 bg-[#1a1f2e] border border-white/10 rounded-xl shadow-xl p-1.5 z-20 flex flex-col gap-0.5">
                   {[
                     { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
-                    { label: "Last 7 days", fn: handleClickOnLastWeekRequets },
-                    { label: "Last 30 days", fn: handleClickOnLastMonthRequets },
+                    { label: "Last 7 days",   fn: handleClickOnLastWeekRequets },
+                    { label: "Last 30 days",  fn: handleClickOnLastMonthRequets },
                   ].map(({ label, fn }) => (
-                    <button
-                      key={label}
-                      onClick={() => { fn(); setShowFilters(false); }}
-                      className="w-full text-left px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/8 text-sm font-mooxy transition-all"
-                    >
+                    <button key={label} onClick={() => { fn(); setShowFilters(false); }}
+                      className="w-full text-left px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/8 text-sm font-mooxy transition-all">
                       {label}
                     </button>
                   ))}
@@ -577,14 +692,11 @@ export const NotificationsAndRequest = () => {
             </Link>
             {[
               { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
-              { label: "Last 7 days", fn: handleClickOnLastWeekRequets },
-              { label: "Last 30 days", fn: handleClickOnLastMonthRequets },
+              { label: "Last 7 days",   fn: handleClickOnLastWeekRequets },
+              { label: "Last 30 days",  fn: handleClickOnLastMonthRequets },
             ].map(({ label, fn }) => (
-              <button
-                key={label}
-                onClick={() => { fn(); setMenuOpen(false); }}
-                className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"
-              >
+              <button key={label} onClick={() => { fn(); setMenuOpen(false); }}
+                className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy">
                 {label}
               </button>
             ))}
@@ -592,1557 +704,210 @@ export const NotificationsAndRequest = () => {
         )}
       </nav>
 
-      {/* Page header */}
-      <div className="max-w-[1400px] mx-auto px-5 pt-10 pb-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
-          <FileText size={11} /> Admin Panel
+      {/* ─── Page Content ──────────────────────────────────────────────── */}
+      <div className="max-w-[1200px] mx-auto px-5 pb-20">
+        {/* Page header */}
+        <div className="pt-10 pb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
+            <FileText size={11} /> Admin Panel
+          </div>
+          <h1 className="font-growmajour text-3xl text-white">Notifications &amp; Requests</h1>
+          <p className="text-white/40 font-mooxy text-sm mt-1.5">Review, approve, reject and forward all leave and certificate requests.</p>
         </div>
-        <h1 className="font-growmajour text-3xl text-white">Notifications &amp; Requests</h1>
-        <p className="text-white/40 font-mooxy text-sm mt-1.5">Review, approve, reject and forward all leave and certificate requests.</p>
-      </div>
 
-      <div className="max-w-[1400px] mx-auto px-5 pb-16">
-        <h2 className="text-white/60 font-growmajour text-xl mt-4 mb-6 flex items-center gap-2 border-b border-white/5 pb-4">
-          <Calendar size={18} className="text-indigo-400" /> All Leave Requests
-        </h2>
+        {/* ── LEAVE REQUESTS ─────────────────────────────────────────── */}
+        <SectionHeading icon={Calendar} title="All Leave Requests" color="indigo" />
 
-        {departmentalAdmin && (
-          <div className="w-full max-w-[960px] h-auto mt-7 mb-10 px-4 mx-auto">
-            <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
-              Leave Requests Approved by the Departmental Admin
-            </h2>
-
-            {departmentalAdminApproved.length > 0 ? (
-              <div className="flex flex-col gap-4" id="dept-leaves">
-                {departmentalAdminApproved.map((l) => (
-                  <div
-                    key={l._id || l.studentId._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between sm:items-start gap-3 transition-colors duration-300"
-                  >
-                    <div className="flex-1 space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.studentId?.registrationNumber || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.studentId?.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Subject:
-                        </span>{" "}
-                        {l.subject}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.Reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular mb-2">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full sm:w-[400px] bg-slate-100 rounded-[20px] flex items-center justify-center px-4 py-2">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              className="font-mooxy text-center text-sm sm:text-base text-black"
-                              rel="noopener noreferrer"
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
+        {/* Departmental Admin: Faculty-approved leaves */}
+        {departmentalAdmin && approvedByFaculty.length > 0 && (
+          <div className="mb-8" id="dept-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Faculty-Approved Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {approvedByFaculty.map((l) => <InfoCard key={l._id || l.studentId?._id} l={l} />)}
+            </div>
           </div>
         )}
 
-        {departmentalAdmin && (
-          <div className="w-full max-w-[960px] h-auto mt-7 mb-10 px-4 mx-auto">
-            <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
-              Pending Leave Requests of Departmental Admins
-            </h2>
-
-            {leavesOfDepartmentalAdmin.length > 0 ? (
-              <div className="flex flex-col gap-4" id="pending-dept-leaves">
-                {leavesOfDepartmentalAdmin.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between gap-4 transition-colors duration-300"
-                  >
-                    {/* Left Section: Details */}
-                    <div className="flex-1 space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {/* Supporting Document */}
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular mb-2">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full sm:w-[400px] bg-slate-100 rounded-[20px] flex items-center justify-center px-4 py-2">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              className="font-mooxy text-center text-sm sm:text-base text-black"
-                              rel="noopener noreferrer"
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Remark Box */}
-                      {remarkBox === l._id && (
-                        <div className="mt-4">
-                          <p className="text-white font-radonregular">
-                            Remarks:
-                          </p>
-                          <input
-                            type="text"
-                            placeholder="Enter the remarks.."
-                            value={remark[l._id] || ""}
-                            onChange={(e) =>
-                              setRemark((prev) => ({
-                                ...prev,
-                                [l._id]: e.target.value,
-                              }))
-                            }
-                            className="w-full h-[50px] border text-white bg-gray-900 rounded-[12px] mt-2 p-3 font-mooxy outline-none"
-                          />
-                        </div>
-                      )}
-                      <div
-                        className="w-[150px] h-[36px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-[10px] cursor-pointer flex items-center justify-center"
-                        onClick={() =>
-                          setRemarkBox(remarkBox === l._id ? null : l._id)
-                        }
-                      >
-                        <p className="text-center text-white font-mooxy">
-                          Add Remark
-                        </p>
-                      </div>
-
-                      {confirm === l._id && (
-                        <div
-                          className="w-[150px] h-[36px] bg-white mt-5 rounded-[12px] flex justify-center items-center cursor-pointer"
-                          onClick={handleClickOnConfirm}
-                        >
-                          <p className="font-mooxy text-black">Confirm</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Section: Action Buttons */}
-                    <div className="w-full sm:w-[150px] flex flex-col gap-2">
-                      {otherAdmins || departmentalAdmin ? (
-                        <>
-                          <div
-                            className="w-full h-[36px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer flex items-center justify-center"
-                            onClick={() => handleClickOnAcceptAdminLeave(l._id)}
-                          >
-                            <p className="text-white font-mooxy">Accept</p>
-                          </div>
-                          <div
-                            className="w-full h-[36px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer flex items-center justify-center"
-                            onClick={() => handleClickOnRejectAdminLeave(l._id)}
-                          >
-                            <p className="text-white font-mooxy">Reject</p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            className="w-full h-[36px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer flex items-center justify-center"
-                            onClick={() =>
-                              handleClickOnForwardLeaveApplication(l._id)
-                            }
-                          >
-                            <p className="text-white font-mooxy">Forward</p>
-                          </div>
-                          <div
-                            className="w-full h-[36px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer flex items-center justify-center"
-                            onClick={() => handleClickOnReject(l._id)}
-                          >
-                            <p className="text-white font-mooxy">Reject</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
+        {/* Pending dept admin leaves (for super admin) */}
+        {departmentalAdmin && leavesOfDepartmentalAdmin.length > 0 && (
+          <div className="mb-8" id="pending-dept-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Pending Departmental Admin Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {leavesOfDepartmentalAdmin.map((l) => (
+                <LeaveCard
+                  key={l._id || l.admin?._id}
+                  l={l}
+                  {...sharedLeaveProps}
+                  onAccept={handleClickOnAccept}
+                  onReject={handleClickOnReject}
+                  onAcceptAdmin={handleClickOnAcceptAdminLeave}
+                  onRejectAdmin={handleClickOnRejectAdminLeave}
+                  onForward={handleClickOnForwardLeaveApplication}
+                  showAcceptReject={!!(otherAdmins || departmentalAdmin)}
+                  showForwardReject={!(otherAdmins || departmentalAdmin)}
+                  isAdminType
+                />
+              ))}
+            </div>
           </div>
         )}
 
-        {departmentalAdmin && (
-          <div className="w-full max-w-[960px] h-auto mt-7 mb-10 px-4 mx-auto">
-            <h2 className="text-white font-growmajour text-[22px] sm:text-[26px] md:text-[28px] mb-4 text-center sm:text-left">
-              Accepted Leave Requests of Departmental Admins
-            </h2>
-
-            {approvedByDepartmentalAdmin.length > 0 ? (
-              <div className="flex flex-col gap-4" id="accepted-dept-leaves">
-                {approvedByDepartmentalAdmin.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-start md:items-center transition-colors duration-300 gap-4"
-                  >
-                    <div className="flex-1 w-full">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span className="ml-1 text-green-400">{l.status}</span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="w-full max-w-[600px] h-auto mt-3">
-                          <p className="text-white font-radonregular text-justify mb-2">
-                            <span>Supporting Document:</span>
-                          </p>
-                          <div className="w-full h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-mooxy text-center text-sm sm:text-base text-black hover:underline"
-                              aria-label="View supporting document"
-                            >
-                              View Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400 text-center">
-                No leave applications found.
-              </p>
-            )}
+        {/* Accepted dept admin leaves */}
+        {departmentalAdmin && approvedByDepartmentalAdmin.length > 0 && (
+          <div className="mb-8" id="accepted-dept-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Departmental Admin Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {approvedByDepartmentalAdmin.map((l) => <InfoCard key={l._id || l.admin?._id} l={l} isAdminType />)}
+            </div>
           </div>
         )}
 
-        {departmentalAdmin && (
-          <div className="w-full max-w-[960px] h-auto mt-7 mb-10 px-4 mx-auto">
-            <h2 className="text-white font-growmajour text-[22px] sm:text-[26px] md:text-[28px] mb-4 text-center sm:text-left">
-              Rejected Leave Requests of Departmental Admins
-            </h2>
-
-            {rejecteddepartmentalAdminLeave.length > 0 ? (
-              <div className="flex flex-col gap-4" id="rejected-dept-leaves">
-                {rejecteddepartmentalAdminLeave.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-start md:items-center transition-colors duration-300 gap-4"
-                  >
-                    <div className="flex-1 w-full">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="w-full max-w-[600px] h-auto mt-3">
-                          <p className="text-white font-radonregular text-justify mb-2">
-                            <span>Supporting Document:</span>
-                          </p>
-                          <div className="w-full h-[40px] bg-slate-100 rounded-[20px] flex items-center justify-center">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-mooxy text-center text-sm sm:text-base text-black hover:underline"
-                              aria-label="View supporting document"
-                            >
-                              View Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400 text-center">
-                No leave applications found.
-              </p>
-            )}
+        {/* Rejected dept admin leaves */}
+        {departmentalAdmin && rejecteddepartmentalAdminLeave.length > 0 && (
+          <div className="mb-8" id="rejected-dept-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Departmental Admin Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {rejecteddepartmentalAdminLeave.map((l) => <InfoCard key={l._id || l.admin?._id} l={l} isAdminType />)}
+            </div>
           </div>
         )}
 
-        {otherAdmins && (
-          <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 mt-7 mb-10 mx-auto">
-            <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-              Leave Requests Approved by the Faculty
-            </h2>
-
-            {approvedByFaculty.length > 0 ? (
-              <div className="flex flex-col gap-4" id="dept-leaves">
-                {approvedByFaculty.map((l) => (
-                  <div
-                    key={l._id || l.studentId._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-start md:items-center transition-colors duration-300"
-                  >
-                    {/* Left Section */}
-                    <div className="flex-1 w-full">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.studentId?.registrationNumber || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.studentId?.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Subject:
-                        </span>{" "}
-                        {l.subject}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.Reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular text-sm mb-1">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full sm:w-[400px] bg-slate-100 rounded-lg px-3 py-2">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              className="font-mooxy text-blue-700 underline block text-center"
-                              rel="noopener noreferrer"
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {remarkBox === l._id && (
-                        <div className="mt-5 w-full">
-                          <p className="text-white font-radonregular">
-                            Remarks:
-                          </p>
-                          <input
-                            type="text"
-                            placeholder="Enter the remarks.."
-                            value={remark[l._id] || ""}
-                            onChange={(e) =>
-                              setRemark((prev) => ({
-                                ...prev,
-                                [l._id]: e.target.value,
-                              }))
-                            }
-                            className="w-full border text-white rounded-lg mt-2 p-3 font-mooxy outline-none bg-gray-900"
-                          />
-                        </div>
-                      )}
-
-                      {/* Add Remark Button */}
-                      <div
-                        className="w-[130px] h-[35px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-lg cursor-pointer flex items-center justify-center"
-                        onClick={() =>
-                          setRemarkBox(remarkBox === l._id ? null : l._id)
-                        }
-                      >
-                        <p className="text-white font-mooxy text-sm">
-                          Add Remark
-                        </p>
-                      </div>
-
-                      {confirm === l._id && (
-                        <div
-                          className="w-[130px] h-[35px] bg-white mt-4 rounded-lg flex items-center justify-center cursor-pointer"
-                          onClick={handleClickOnConfirm}
-                        >
-                          <p className="font-mooxy text-sm">Confirm</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Section (Actions) */}
-                    <div className="w-full md:w-[150px] flex flex-row md:flex-col gap-2 mt-4 md:mt-0">
-                      {otherAdmins || departmentalAdmin ? (
-                        <>
-                          <div
-                            className="flex-1 bg-green-500 hover:bg-green-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnAccept(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Accept
-                            </p>
-                          </div>
-                          <div
-                            className="flex-1 bg-red-500 hover:bg-red-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnReject(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Reject
-                            </p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            className="flex-1 bg-green-500 hover:bg-green-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() =>
-                              handleClickOnForwardLeaveApplication(l._id)
-                            }
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Forward
-                            </p>
-                          </div>
-                          <div
-                            className="flex-1 bg-red-500 hover:bg-red-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnReject(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Reject
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-        )}
-
-        {otherAdmins && (
-          <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 mt-7 mb-10 mx-auto">
-            <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-              Pending Leave Requests of Faculties
-            </h2>
-
-            {pendingFacultyLeaves.length > 0 ? (
-              <div className="flex flex-col gap-4" id="dept-leaves">
-                {pendingFacultyLeaves.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-start md:items-center transition-colors duration-300"
-                  >
-                    {/* Left Content */}
-                    <div className="flex-1 w-full">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin?.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin?.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.Reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {/* Supporting Document */}
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular text-sm mb-1">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full sm:w-[400px] bg-slate-100 rounded-lg px-3 py-2">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              className="font-mooxy text-black block text-center"
-                              rel="noopener noreferrer"
-                              download
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Remark Box */}
-                      {remarkBox === l._id && (
-                        <div className="mt-5 w-full">
-                          <p className="text-white font-radonregular">
-                            Remarks:
-                          </p>
-                          <input
-                            type="text"
-                            placeholder="Enter the remarks.."
-                            value={remark[l._id] || ""}
-                            onChange={(e) =>
-                              setRemark((prev) => ({
-                                ...prev,
-                                [l._id]: e.target.value,
-                              }))
-                            }
-                            className="w-full border text-white rounded-lg mt-2 p-3 font-mooxy outline-none bg-gray-900"
-                          />
-                        </div>
-                      )}
-
-                      {/* Add Remark Button */}
-                      <div
-                        className="w-[130px] h-[35px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-lg cursor-pointer flex items-center justify-center"
-                        onClick={() =>
-                          setRemarkBox(remarkBox === l._id ? null : l._id)
-                        }
-                      >
-                        <p className="text-white font-mooxy text-sm">
-                          Add Remark
-                        </p>
-                      </div>
-
-                      {confirm === l._id && (
-                        <div
-                          className="w-[130px] h-[35px] bg-white mt-4 rounded-lg flex items-center justify-center cursor-pointer"
-                          onClick={handleClickOnConfirm}
-                        >
-                          <p className="font-mooxy text-sm">Confirm</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Action Buttons */}
-                    <div className="w-full md:w-[150px] flex flex-row md:flex-col gap-2 mt-4 md:mt-0">
-                      {otherAdmins ? (
-                        <>
-                          <div
-                            className="flex-1 bg-green-500 hover:bg-green-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnAcceptAdminLeave(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Accept
-                            </p>
-                          </div>
-                          <div
-                            className="flex-1 bg-red-500 hover:bg-red-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnRejectAdminLeave(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Reject
-                            </p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            className="flex-1 bg-green-500 hover:bg-green-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() =>
-                              handleClickOnForwardLeaveApplication(l._id)
-                            }
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Forward
-                            </p>
-                          </div>
-                          <div
-                            className="flex-1 bg-red-500 hover:bg-red-600 rounded-lg cursor-pointer flex items-center justify-center h-[35px]"
-                            onClick={() => handleClickOnReject(l._id)}
-                          >
-                            <p className="text-white font-mooxy text-sm">
-                              Reject
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-        )}
-
-        {otherAdmins && (
-          <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 mt-7 mb-10 mx-auto">
-            <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-              Accepted Leave Requests of Faculties
-            </h2>
-
-            {acceptedFacultyLeaves.length > 0 ? (
-              <div className="flex flex-col gap-4" id="faculty-approved-leaves">
-                {acceptedFacultyLeaves.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 transition-colors duration-300"
-                  >
-                    <div className="flex-1">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin?.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin?.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.Reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular mb-1">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full max-w-md bg-slate-100 rounded-[20px] flex items-center justify-center py-2 px-4">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                              className="font-mooxy text-center text-sm sm:text-base text-blue-600 hover:underline"
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {remarkBox === l._id && (
-                        <div className="w-full mt-5">
-                          <p className="text-white font-radonregular">
-                            Remarks:
-                          </p>
-                          <input
-                            type="text"
-                            placeholder="Enter the remarks.."
-                            value={remark[l._id] || ""}
-                            onChange={(e) =>
-                              setRemark((prev) => ({
-                                ...prev,
-                                [l._id]: e.target.value,
-                              }))
-                            }
-                            className="w-full border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none bg-gray-700"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-        )}
-
-        {otherAdmins && (
-          <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 mt-7 mb-10 mx-auto">
-            <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-              Rejected Leave Requests of Faculties
-            </h2>
-
-            {rejectedFacultyLeaves.length > 0 ? (
-              <div className="flex flex-col gap-4" id="faculty-rejected-leaves">
-                {rejectedFacultyLeaves.map((l) => (
-                  <div
-                    key={l._id || l.admin._id}
-                    className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 transition-colors duration-300"
-                  >
-                    <div className="flex-1">
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Registration Number:
-                        </span>{" "}
-                        {l.admin?.adminID || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Name:
-                        </span>{" "}
-                        {l.admin?.name || "N/A"}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-200 font-radonregular font-bold">
-                          Type:
-                        </span>{" "}
-                        {l.type}
-                      </p>
-                      <p className="text-gray-300 text-justify">
-                        <span className="text-gray-200 font-bold font-radonregular">
-                          Reason:
-                        </span>{" "}
-                        <span className="font-regular text-[#999999] font-mooxy">
-                          {l.Reason}
-                        </span>
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        Status:{" "}
-                        <span
-                          className={`ml-1 ${l.status === "approved"
-                              ? "text-green-400"
-                              : l.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-400"
-                            }`}
-                        >
-                          {l.status}
-                        </span>
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                      </p>
-
-                      {l.supportingDocument && (
-                        <div className="mt-3">
-                          <p className="text-white font-radonregular mb-1">
-                            Supporting Document:
-                          </p>
-                          <div className="w-full max-w-md bg-slate-100 rounded-[20px] flex items-center justify-center py-2 px-4">
-                            <a
-                              href={l.supportingDocument}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                              className="font-mooxy text-center text-sm sm:text-base text-blue-600 hover:underline"
-                            >
-                              View Supporting Document
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No leave applications found.</p>
-            )}
-          </div>
-        )}
-
-        <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 mt-7 mb-10 mx-auto justify-selft-center">
-          <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-            Pending Leave Requests
-          </h2>
-
+        {/* Pending student leaves */}
+        <div className="mb-8" id="pending-leaves">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+            Pending Student Leaves
+            {pendingleaves.length > 0 && <span className="ml-2 text-amber-400">({pendingleaves.length})</span>}
+          </p>
           {pendingleaves.length > 0 ? (
-            <div className="flex flex-col gap-4" id="pending-leaves">
+            <div className="grid grid-cols-1 gap-3">
               {pendingleaves.map((l) => (
-                <div
-                  key={l._id || l.studentId._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 transition-colors duration-300"
-                >
-                  {/* Left Side: Student Info */}
-                  <div className="flex-1">
-                    <p className="text-gray-300">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.studentId?.registrationNumber || "N/A"}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Name:
-                      </span>{" "}
-                      {l.studentId?.name || "N/A"}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Subject:
-                      </span>{" "}
-                      {l.subject}
-                    </p>
-                    <p className="text-gray-300 text-justify">
-                      <span className="text-gray-200 font-bold font-radonregular">
-                        Reason:
-                      </span>{" "}
-                      <span className="font-regular text-[#999999] font-mooxy">
-                        {l.Reason}
-                      </span>
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-
-                    {/* Supporting Document */}
-                    {l.supportingDocument && (
-                      <div className="mt-3">
-                        <p className="text-white font-radonregular mb-1">
-                          Supporting Document:
-                        </p>
-                        <div className="w-full max-w-md bg-slate-100 rounded-[20px] flex items-center justify-center py-2 px-4">
-                          <a
-                            href={l.supportingDocument}
-                            target="_blank"
-                            className="font-mooxy text-center text-sm sm:text-base text-blue-600 hover:underline"
-                            rel="noopener noreferrer"
-                          >
-                            View Supporting Document
-                          </a>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Remarks */}
-                    {remarkBox === l._id && (
-                      <div className="w-full max-w-3xl mt-5">
-                        <p className="text-white font-radonregular">Remarks:</p>
-                        <input
-                          type="text"
-                          placeholder="Enter the remarks.."
-                          value={remark[l._id] || ""}
-                          onChange={(e) =>
-                            setRemark((prev) => ({
-                              ...prev,
-                              [l._id]: e.target.value,
-                            }))
-                          }
-                          className="w-full h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
-                        />
-                      </div>
-                    )}
-
-                    {/* Add Remark Button */}
-                    <div
-                      className="w-[150px] h-[30px] bg-blue-500 hover:bg-blue-600 mt-3 rounded-[10px] cursor-pointer"
-                      onClick={() =>
-                        setRemarkBox(remarkBox === l._id ? null : l._id)
-                      }
-                    >
-                      <p className="text-center text-white font-mooxy mt-1">
-                        Add Remark
-                      </p>
-                    </div>
-
-                    {/* Confirm Button */}
-                    {confirm === l._id && (
-                      <div
-                        className="w-[150px] h-[30px] bg-white mt-5 rounded-[20px] flex justify-center self-center cursor-pointer"
-                        onClick={handleClickOnConfirm}
-                      >
-                        <p className="font-mooxy mt-1">Confirm</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Side: Action Buttons */}
-                  {otherAdmins || departmentalAdmin ? (
-                    <div className="w-full sm:w-[150px] flex sm:flex-col justify-between gap-2">
-                      <div
-                        className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
-                        onClick={() => handleClickOnAccept(l._id)}
-                      >
-                        <p className="text-center text-white font-mooxy mt-1">
-                          Accept
-                        </p>
-                      </div>
-                      <div
-                        className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
-                        onClick={() => handleClickOnReject(l._id)}
-                      >
-                        <p className="text-center text-white font-mooxy mt-1">
-                          Reject
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full sm:w-[150px] flex sm:flex-col justify-between gap-2">
-                      <div
-                        className="w-full h-[30px] bg-green-500 hover:bg-green-600 rounded-[10px] cursor-pointer"
-                        onClick={() =>
-                          handleClickOnForwardLeaveApplication(l._id)
-                        }
-                      >
-                        <p className="text-center text-white font-mooxy mt-1">
-                          Forward
-                        </p>
-                      </div>
-                      <div
-                        className="w-full h-[30px] bg-red-500 hover:bg-red-600 rounded-[10px] cursor-pointer"
-                        onClick={() => handleClickOnReject(l._id)}
-                      >
-                        <p className="text-center text-white font-mooxy mt-1">
-                          Reject
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <LeaveCard
+                  key={l._id}
+                  l={l}
+                  {...sharedLeaveProps}
+                  onAccept={handleClickOnAccept}
+                  onReject={handleClickOnReject}
+                  onAcceptAdmin={handleClickOnAcceptAdminLeave}
+                  onRejectAdmin={handleClickOnRejectAdminLeave}
+                  onForward={handleClickOnForwardLeaveApplication}
+                  showAcceptReject={!!(otherAdmins || departmentalAdmin)}
+                  showForwardReject={!(otherAdmins || departmentalAdmin)}
+                />
               ))}
             </div>
-          ) : (
-            <p className="text-gray-400">No leave applications found.</p>
-          )}
+          ) : <EmptyState label="No pending leave requests." />}
         </div>
 
-        <div className="w-full max-w-5xl h-auto mt-7 mb-10 px-4 sm:px-6 lg:px-8 justify-self-center">
-          <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-            Accepted Leave Requests
-          </h2>
-
+        {/* Accepted student leaves */}
+        <div className="mb-8" id="accepted-leaves">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Student Leaves</p>
           {acceptedLeaves.length > 0 ? (
-            <div className="flex flex-col gap-4" id="accepted-leaves">
-              {acceptedLeaves.map((l) => (
-                <div
-                  key={l._id || l.studentId._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 transition-colors duration-300"
-                >
-                  <div className="flex-1">
-                    <p className="text-gray-300 text-sm sm:text-base break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.studentId?.registrationNumber || "N/A"}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Name:
-                      </span>{" "}
-                      {l.studentId?.name || "N/A"}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base break-words font-radonregular">
-                      <span className="text-gray-200 font-bold">Subject:</span>{" "}
-                      {l.subject}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base text-justify break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Reason:
-                      </span>{" "}
-                      <span className="text-[#999999] font-mooxy font-light">
-                        {l.Reason}
-                      </span>
-                    </p>
-
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 gap-3">
+              {acceptedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
             </div>
-          ) : (
-            <p className="text-gray-400">No leave applications found.</p>
-          )}
+          ) : <EmptyState label="No approved leaves yet." />}
         </div>
 
-        <div className="w-full max-w-5xl h-auto mt-7 mb-10 px-4 sm:px-6 lg:px-8 justify-self-center">
-          <h2 className="text-white font-growmajour text-2xl sm:text-3xl mb-4">
-            Rejected Leave Requests
-          </h2>
-
+        {/* Rejected student leaves */}
+        <div className="mb-10" id="rejected-leaves">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Student Leaves</p>
           {rejectedLeaves.length > 0 ? (
-            <div className="flex flex-col gap-4" id="rejected-leaves">
-              {rejectedLeaves.map((l) => (
-                <div
-                  key={l._id || l.studentId._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 hover:bg-gray-700 transition-colors duration-300"
-                >
-                  <div className="flex-1">
-                    <p className="text-gray-300 text-sm sm:text-base break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.studentId?.registrationNumber || "N/A"}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Name:
-                      </span>{" "}
-                      {l.studentId?.name || "N/A"}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Subject:
-                      </span>{" "}
-                      {l.subject}
-                    </p>
-
-                    <p className="text-gray-300 text-sm sm:text-base text-justify break-words">
-                      <span className="text-gray-200 font-radonregular font-bold">
-                        Reason:
-                      </span>{" "}
-                      <span className="font-mooxy font-light">{l.Reason}</span>
-                    </p>
-
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 gap-3">
+              {rejectedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
             </div>
-          ) : (
-            <p className="text-gray-400">No leave applications found.</p>
-          )}
+          ) : <EmptyState label="No rejected leaves." />}
         </div>
-      </div>
-      <div id="certificates-section" className="px-4 sm:px-6 lg:px-8">
-        {/* Main Title */}
-        <h2 className="text-[#999999] font-radonregular underline text-2xl sm:text-3xl lg:text-4xl mt-10 mb-6 text-left">
-          All Certificate Requests
-        </h2>
 
-        {/* Pending Certificates */}
-        <div className="w-full max-w-5xl h-auto mt-7 mb-10 justify-self-center">
-          <h2 className="text-white font-growmajour text-xl sm:text-2xl lg:text-3xl mb-4">
-            Pending Certificate Requests
-          </h2>
+        {/* Faculty leaves */}
+        {pendingFacultyLeaves.length > 0 && (
+          <>
+            <SectionHeading icon={Users} title="Faculty Leave Requests" color="sky" />
+            <div className="mb-8" id="faculty-pending-leaves">
+              <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+                Pending Faculty Leaves <span className="text-amber-400">({pendingFacultyLeaves.length})</span>
+              </p>
+              <div className="grid grid-cols-1 gap-3">
+                {pendingFacultyLeaves.map((l) => (
+                  <LeaveCard
+                    key={l._id}
+                    l={l}
+                    {...sharedLeaveProps}
+                    onAccept={handleClickOnAccept}
+                    onReject={handleClickOnReject}
+                    onAcceptAdmin={handleClickOnAcceptAdminLeave}
+                    onRejectAdmin={handleClickOnRejectAdminLeave}
+                    onForward={handleClickOnForwardLeaveApplication}
+                    showAcceptReject
+                    isAdminType
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
+        {acceptedFacultyLeaves.length > 0 && (
+          <div className="mb-8" id="faculty-approved-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Faculty Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {acceptedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+            </div>
+          </div>
+        )}
+
+        {rejectedFacultyLeaves.length > 0 && (
+          <div className="mb-10" id="faculty-rejected-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Faculty Leaves</p>
+            <div className="grid grid-cols-1 gap-3">
+              {rejectedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+            </div>
+          </div>
+        )}
+
+        {/* ── CERTIFICATE REQUESTS ───────────────────────────────────── */}
+        <SectionHeading icon={FileText} title="Certificate Requests" color="purple" />
+
+        {/* Pending certificates */}
+        <div className="mb-8" id="pending-certificates">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+            Pending Certificates
+            {pendingCertificates.length > 0 && <span className="ml-2 text-amber-400">({pendingCertificates.length})</span>}
+          </p>
           {pendingCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4" id="pending-certificates">
-              {pendingCertificates.map((l) => (
-                <div
-                  key={l._id || l.student._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-300 flex flex-col gap-4"
-                >
-                  {/* Info */}
-                  <div>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.student?.registrationNumber || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Name:</span>{" "}
-                      {l.student?.name || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Purpose:</span>{" "}
-                      {l.purpose}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Certificate Type:
-                      </span>{" "}
-                      {l.CertificateType}
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-
-                    {/* Supporting Document */}
-                    {l.supportingDocument && (
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center">
-                        <p className="text-white font-radonregular text-sm">
-                          Supporting Document:
-                        </p>
-                        <a
-                          href={l.supportingDocument}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-1 rounded-full bg-slate-100 text-black font-mooxy text-center text-sm"
-                        >
-                          View
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Remark + Upload */}
-                  {remarkBox === l._id && (
-                    <div className="flex flex-col gap-4">
-                      <div>
-                        <p className="text-white font-radonregular">Remarks:</p>
-                        <input
-                          type="text"
-                          placeholder="Enter the remarks.."
-                          value={remark[l._id] || ""}
-                          onChange={(e) =>
-                            setRemark((prev) => ({
-                              ...prev,
-                              [l._id]: e.target.value,
-                            }))
-                          }
-                          className="w-full h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <p className="text-white font-radonregular">
-                          Add Certificate:
-                        </p>
-                        <input
-                          type="file"
-                          onChange={(e) =>
-                            setCertificate((prev) => ({
-                              ...prev,
-                              [l._id]: e.target.files[0],
-                            }))
-                          }
-                          className="w-full h-[50px] border text-white rounded-[20px] mt-2 p-3 font-mooxy outline-none"
-                        />
-                        {certificate[l._id] && (
-                          <p className="text-green-400 mt-2 text-sm">
-                            File selected: {certificate[l._id].name}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  {otherAdmins || departmentalAdmin ? (
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        className="flex-1 min-w-[120px] bg-blue-500 hover:bg-blue-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() =>
-                          setRemarkBox(remarkBox === l._id ? null : l._id)
-                        }
-                      >
-                        Add Remark
-                      </button>
-                      <button
-                        className="flex-1 min-w-[120px] bg-green-500 hover:bg-green-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() => handleClickOnAcceptCertificate(l._id)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="flex-1 min-w-[120px] bg-red-500 hover:bg-red-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() => handleClickOnRejectCertificate(l._id)}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        className="flex-1 min-w-[120px] bg-blue-500 hover:bg-blue-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() =>
-                          setRemarkBox(remarkBox === l._id ? null : l._id)
-                        }
-                      >
-                        Add Remark
-                      </button>
-                      <button
-                        className="flex-1 min-w-[120px] bg-green-500 hover:bg-green-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() => handleClickOnForwardCertificate(l._id)}
-                      >
-                        Forward
-                      </button>
-                      <button
-                        className="flex-1 min-w-[120px] bg-red-500 hover:bg-red-600 rounded-[10px] py-2 text-white font-mooxy"
-                        onClick={() => handleClickOnRejectCertificate(l._id)}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
+            <div className="grid grid-cols-1 gap-3">
+              {pendingCertificates.map((c) => (
+                <CertCard
+                  key={c._id}
+                  c={c}
+                  {...sharedCertProps}
+                  onAccept={handleClickOnAcceptCertificate}
+                  onReject={handleClickOnRejectCertificate}
+                  onForward={handleClickOnForwardCertificate}
+                  showActions
+                />
               ))}
             </div>
-          ) : (
-            <p className="text-gray-400">No certificate applications found.</p>
-          )}
+          ) : <EmptyState label="No pending certificate requests." />}
         </div>
 
-        {/* Accepted Certificates */}
-        <div className="w-full max-w-5xl h-auto mt-7 mb-10 justify-self-center">
-          <h2 className="text-white font-growmajour text-xl sm:text-2xl lg:text-3xl mb-4">
-            Accepted Certificate Requests
-          </h2>
+        {/* Approved certificates */}
+        <div className="mb-8" id="approved-certificates">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Certificates</p>
           {acceptedCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4" id="approved-certificates">
-              {acceptedCertificates.map((l) => (
-                <div
-                  key={l._id || l.student._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-300"
-                >
-                  <div>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.student?.registrationNumber || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Name:</span>{" "}
-                      {l.student?.name || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Purpose:</span>{" "}
-                      {l.purpose}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Certificate Type:
-                      </span>{" "}
-                      {l.CertificateType}
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 gap-3">
+              {acceptedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
             </div>
-          ) : (
-            <p className="text-gray-400">No certificate applications found.</p>
-          )}
+          ) : <EmptyState label="No approved certificates yet." />}
         </div>
 
-        {/* Rejected Certificates */}
-        <div className="w-full max-w-5xl h-auto mt-7 mb-10 justify-self-center">
-          <h2 className="text-white font-growmajour text-xl sm:text-2xl lg:text-3xl mb-4">
-            Rejected Certificate Requests
-          </h2>
+        {/* Rejected certificates */}
+        <div className="mb-8" id="rejected-certificates">
+          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Certificates</p>
           {rejectedCertificates.length > 0 ? (
-            <div className="flex flex-col gap-4" id="rejected-certificates">
-              {rejectedCertificates.map((l) => (
-                <div
-                  key={l._id || l.student._id}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-300"
-                >
-                  <div>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Registration Number:
-                      </span>{" "}
-                      {l.student?.registrationNumber || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Name:</span>{" "}
-                      {l.student?.name || "N/A"}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">Purpose:</span>{" "}
-                      {l.purpose}
-                    </p>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                      <span className="text-gray-200 font-bold">
-                        Certificate Type:
-                      </span>{" "}
-                      {l.CertificateType}
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      Status:{" "}
-                      <span
-                        className={`ml-1 ${l.status === "approved"
-                            ? "text-green-400"
-                            : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
-                      >
-                        {l.status}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      Applied On: {new Date(l.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 gap-3">
+              {rejectedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
             </div>
-          ) : (
-            <p className="text-gray-400">No certificate applications found.</p>
-          )}
+          ) : <EmptyState label="No rejected certificates." />}
         </div>
       </div>
 
