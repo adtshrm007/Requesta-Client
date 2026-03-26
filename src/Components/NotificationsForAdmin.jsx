@@ -1,64 +1,58 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getFacultyLeaves } from "../utils/GETFacultyLeaves";
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
+import { Bell, Calendar, FileText, User, ArrowLeft, Users, ShieldCheck, Menu, X, Clock } from "lucide-react";
+import gsap from "gsap";
+
 export default function NotificationsForAdmin() {
   const [leaves, setLeaves] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [facultyLeaves, setFacultyLeaves] = useState([]);
   const [departmetalLeaves, setDepartmentalLeaves] = useState([]);
   const [faculty, setFaculty] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const navRef = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    gsap.fromTo(navRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" });
+    gsap.fromTo(contentRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, delay: 0.2, ease: "power3.out" });
+  }, []);
 
   async function showLeaves() {
     try {
       const res = await getAllLeaves();
-
-      const r = res.filter((item) => item.status === "pending");
-
-      setLeaves(r);
-    } catch (err) {
-      console.log(err);
-    }
+      setLeaves(res.filter((item) => item.status === "pending"));
+    } catch (err) { console.log(err); }
   }
 
   async function showFacultyLeaves() {
     try {
       const facultyleaves = await getFacultyLeaves();
       const r = facultyleaves.filter((item) => item.status === "pending");
-      if (r) {
-        setFaculty(true);
-      }
+      if (r.length > 0) setFaculty(true);
       setFacultyLeaves(r);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) { console.log(err); }
   }
 
   async function showDepartmentalLeaves() {
     try {
       const fleaves = await getDepartmentalAdminLeave();
       console.log(fleaves);
-      const r = fleaves.filter((item) => item.status === "pending");
-      setDepartmentalLeaves(r);
-    } catch (err) {
-      console.log(err);
-    }
+      setDepartmentalLeaves(fleaves.filter((item) => item.status === "pending"));
+    } catch (err) { console.log(err); }
   }
 
   async function showCertificates() {
     try {
       const res = await getAllCertificatesRequests();
-
-      const r = res.filter((item) => item.status === "pending");
-
-      setCertificates(r);
-    } catch (err) {
-      console.log(err);
-    }
+      setCertificates(res.filter((item) => item.status === "pending"));
+    } catch (err) { console.log(err); }
   }
 
   useEffect(() => {
@@ -68,166 +62,201 @@ export default function NotificationsForAdmin() {
     showDepartmentalLeaves();
   }, []);
 
+  const total = leaves.length + certificates.length + facultyLeaves.length + departmetalLeaves.length;
+
+  const NotifCard = ({ children }) => (
+    <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-5 hover:border-white/12 transition-all flex items-start gap-3">
+      <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Clock size={14} className="text-amber-400" />
+      </div>
+      <div className="flex-1 min-w-0">{children}</div>
+    </div>
+  );
+
   return (
-    <>
-      {/* Top Bar */}
-      <div className="w-full max-w-[960px] mx-auto flex flex-col items-center px-4 pt-5">
-        {/* Header */}
-        <div className="w-full flex items-center justify-between">
-          <Link to="">
-            <motion.div
-              className="flex items-center font-growmajour text-lg sm:text-xl md:text-[22px] cursor-pointer"
-              initial={{ x: -100 }}
-              animate={{ x: 0 }}
-              transition={{
-                repeat: Infinity,
-                repeatType: "reverse",
-                type: "spring",
-                stiffness: 100,
-                duration: 5,
-                ease: "easeInOut",
-              }}
-            >
-              <img
-                src={logo}
-                alt="logo"
-                className="w-6 h-6 sm:w-[25px] sm:h-[25px] mr-2"
-              />
-              <p className="text-white">REQUESTA</p>
-            </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827]">
+      {/* Sticky Navbar */}
+      <nav ref={navRef} className="sticky top-0 z-50 border-b border-white/5 bg-[#0B0F19]/85 backdrop-blur-xl opacity-0">
+        <div className="max-w-[1200px] mx-auto px-5 h-16 flex items-center justify-between">
+          <Link to="/">
+            <div className="flex items-center gap-2.5 cursor-pointer">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
+                <img src={logo} alt="Requesta" className="w-5 h-5" />
+              </div>
+              <span className="font-growmajour text-[18px] bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">REQUESTA</span>
+            </div>
           </Link>
 
-          {/* Nav Links */}
-          <div className="flex items-center gap-2 sm:gap-4 text-[#777777] font-mooxy text-sm sm:text-[15px]">
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/admindashboard">
-              <p className="bg-white text-black px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
-                Dashboard
-              </p>
+              <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all font-mooxy">
+                <ArrowLeft size={14} /> Dashboard
+              </button>
             </Link>
             <Link to="/adminprofile">
-              <p className="bg-[#191919] text-white px-3 sm:px-4 py-[6px] rounded-full cursor-pointer">
-                Profile
-              </p>
+              <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy">
+                <User size={14} /> Profile
+              </button>
             </Link>
+            {total > 0 && (
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 text-sm font-mooxy">
+                <Bell size={14} />
+                {total} pending action{total > 1 ? "s" : ""}
+              </div>
+            )}
           </div>
+
+          <button className="md:hidden text-white/60 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
 
-        {/* Title */}
-        <div className="w-full text-center mt-10 mb-6">
-          <p className="text-[#999999] text-2xl sm:text-3xl md:text-[42px] font-growmajour">
-            NOTIFICATIONS
+        {menuOpen && (
+          <div className="md:hidden border-t border-white/5 bg-[#0D1117] px-5 py-3 flex flex-col gap-1">
+            <Link to="/admindashboard" onClick={() => setMenuOpen(false)}>
+              <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2">
+                <ArrowLeft size={14} /> Dashboard
+              </button>
+            </Link>
+            <Link to="/adminprofile" onClick={() => setMenuOpen(false)}>
+              <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2">
+                <User size={14} /> Profile
+              </button>
+            </Link>
+          </div>
+        )}
+      </nav>
+
+      {/* Content */}
+      <div ref={contentRef} className="max-w-[900px] mx-auto px-5 py-10 opacity-0">
+        {/* Page header */}
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
+            <Bell size={11} /> Admin Panel
+          </div>
+          <h1 className="font-growmajour text-3xl sm:text-4xl text-white">Admin Notifications</h1>
+          <p className="text-white/40 font-mooxy text-sm mt-2">
+            {total > 0
+              ? `${total} pending request${total > 1 ? "s" : ""} awaiting your action.`
+              : "No pending requests at this time."}
           </p>
         </div>
 
-        {/* Leaves Notifications */}
-        {leaves.length > 0 && (
-          <div className="flex flex-col gap-4 w-full">
-            {leaves.map((l) => (
-              <div
-                key={l._id}
-                className="w-full bg-slate-700 p-4 rounded-[20px] shadow-md"
-              >
-                <p className="font-mooxy text-[#999999] text-sm sm:text-base">
-                  Leave Request of{" "}
-                  <span className="text-white">
-                    {l.studentName} (Reg No: {l.studentId.registrationNumber})
-                  </span>{" "}
-                  (<span className="text-white">{l.subject}</span>) applied on{" "}
-                  <span className="text-white">
-                    {new Date(l.createdAt).toDateString()}
-                  </span>{" "}
-                  is <span className="text-white">{l.status}</span>.
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Certificates Notifications */}
-        {certificates.length > 0 && (
-          <div className="flex flex-col gap-4 w-full">
-            {certificates.map((c) => (
-              <div
-                key={c._id}
-                className="w-full bg-slate-700 p-4 rounded-[20px] shadow-md"
-              >
-                <p className="font-mooxy text-[#999999] text-sm sm:text-base">
-                  Certificate request of{" "}
-                  <span className="text-white">
-                    {c.CertificateType} Certificate
-                  </span>{" "}
-                  has been <span className="text-white">{c.status}</span> on{" "}
-                  <span className="text-white">
-                    {new Date(c.createdAt).toDateString()}
-                  </span>
-                  .
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Empty state */}
-        {leaves.length === 0 && certificates.length === 0 && (
-          <p className="text-center mt-8 text-[#777777]">No Notifications</p>
+        {leaves.length === 0 && certificates.length === 0 && facultyLeaves.length === 0 && departmetalLeaves.length === 0 && (
+          <div className="bg-white/[0.02] border border-white/6 rounded-2xl p-16 text-center">
+            <Bell size={40} className="text-white/10 mx-auto mb-4" />
+            <p className="text-white/30 font-mooxy text-sm">No pending notifications.</p>
+          </div>
+        )}
+
+        {/* Student Leave Requests */}
+        {leaves.length > 0 && (
+          <section className="mb-10">
+            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/5">
+              <Calendar size={17} className="text-indigo-400" />
+              <h2 className="font-growmajour text-lg text-white">Pending Student Leave Requests</h2>
+              <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mooxy">{leaves.length} pending</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {leaves.map((l) => (
+                <NotifCard key={l._id}>
+                  <p className="text-white font-mooxy text-sm leading-snug">
+                    <span className="text-indigo-300 font-semibold">{l.studentName}</span>
+                    <span className="text-white/50"> (Reg No: {l.studentId?.registrationNumber})</span>
+                    {" "}applied for leave — <span className="text-white/80">"{l.subject}"</span>
+                  </p>
+                  <p className="text-white/35 font-mooxy text-xs mt-1.5">
+                    Applied on {new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    {" · "}
+                    <span className="text-amber-400">pending</span>
+                  </p>
+                </NotifCard>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Certificate Requests */}
+        {certificates.length > 0 && (
+          <section className="mb-10">
+            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/5">
+              <FileText size={17} className="text-purple-400" />
+              <h2 className="font-growmajour text-lg text-white">Pending Certificate Requests</h2>
+              <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mooxy">{certificates.length} pending</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {certificates.map((c) => (
+                <NotifCard key={c._id}>
+                  <p className="text-white font-mooxy text-sm leading-snug">
+                    Certificate request for <span className="text-purple-300 font-semibold">{c.CertificateType} Certificate</span>
+                    {" "}is pending review.
+                  </p>
+                  <p className="text-white/35 font-mooxy text-xs mt-1.5">
+                    Applied on {new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    {" · "}
+                    <span className="text-amber-400">pending</span>
+                  </p>
+                </NotifCard>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Faculty Leave Requests */}
-        {faculty && (
-          <>
-            <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mt-12 mb-4 text-center">
-              Faculty Leave Requests
-            </h2>
+        {faculty && facultyLeaves.length > 0 && (
+          <section className="mb-10">
+            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/5">
+              <Users size={17} className="text-sky-400" />
+              <h2 className="font-growmajour text-lg text-white">Pending Faculty Leave Requests</h2>
+              <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mooxy">{facultyLeaves.length} pending</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {facultyLeaves.map((l) => (
+                <NotifCard key={l._id}>
+                  <p className="text-white font-mooxy text-sm leading-snug">
+                    <span className="text-sky-300 font-semibold">{l.admin?.name}</span>
+                    <span className="text-white/50"> (ID: {l.admin?.adminID})</span>
+                    {" "}applied for <span className="text-white/80">{l.type}</span> leave.
+                  </p>
+                  <p className="text-white/35 font-mooxy text-xs mt-1.5">
+                    Applied on {new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    {" · "}
+                    <span className="text-amber-400">pending</span>
+                  </p>
+                </NotifCard>
+              ))}
+            </div>
+          </section>
+        )}
 
-            {facultyLeaves.length > 0 && (
-              <div className="flex flex-col gap-4 w-full">
-                {facultyLeaves.map((l) => (
-                  <div
-                    key={l._id}
-                    className="w-full bg-slate-700 p-4 rounded-[20px] shadow-md"
-                  >
-                    <p className="font-mooxy text-[#999999] text-sm sm:text-base">
-                      Leave Request of{" "}
-                      <span className="text-white">
-                        {l.admin.name} (Admin ID: {l.admin.adminID})
-                      </span>{" "}
-                      (<span className="text-white">{l.type}</span>) applied on{" "}
-                      <span className="text-white">
-                        {new Date(l.createdAt).toDateString()}
-                      </span>{" "}
-                      is <span className="text-white">{l.status}</span>.
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Departmental Leaves */}
-            {departmetalLeaves.length > 0 && (
-              <div className="flex flex-col gap-4 w-full">
-                {departmetalLeaves.map((l) => (
-                  <div
-                    key={l._id}
-                    className="w-full bg-slate-700 p-4 rounded-[20px] shadow-md"
-                  >
-                    <p className="font-mooxy text-[#999999] text-sm sm:text-base">
-                      Leave Request of{" "}
-                      <span className="text-white">
-                        {l.admin.name} (Admin ID: {l.admin.adminID})
-                      </span>{" "}
-                      (<span className="text-white">{l.type}</span>) applied on{" "}
-                      <span className="text-white">
-                        {new Date(l.createdAt).toDateString()}
-                      </span>{" "}
-                      is <span className="text-white">{l.status}</span>.
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
+        {/* Departmental Admin Leaves */}
+        {departmetalLeaves.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/5">
+              <ShieldCheck size={17} className="text-green-400" />
+              <h2 className="font-growmajour text-lg text-white">Pending Departmental Admin Leaves</h2>
+              <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mooxy">{departmetalLeaves.length} pending</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {departmetalLeaves.map((l) => (
+                <NotifCard key={l._id}>
+                  <p className="text-white font-mooxy text-sm leading-snug">
+                    <span className="text-green-300 font-semibold">{l.admin?.name}</span>
+                    <span className="text-white/50"> (ID: {l.admin?.adminID})</span>
+                    {" "}applied for <span className="text-white/80">{l.type}</span> leave.
+                  </p>
+                  <p className="text-white/35 font-mooxy text-xs mt-1.5">
+                    Applied on {new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    {" · "}
+                    <span className="text-amber-400">pending</span>
+                  </p>
+                </NotifCard>
+              ))}
+            </div>
+          </section>
         )}
       </div>
-    </>
+    </div>
   );
 }
