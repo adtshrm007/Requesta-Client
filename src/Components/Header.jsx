@@ -1,115 +1,132 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Link as ScrollLink } from "react-scroll";
+import { Menu, X } from "lucide-react";
+import gsap from "gsap";
+
+const NAV_LINKS = ["Home", "Features", "About", "Contact"];
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const headerRef = useRef(null);
+  const logoRef = useRef(null);
+  const navRef = useRef(null);
+  const ctaRef = useRef(null);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.fromTo(logoRef.current, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.7 })
+      .fromTo(navRef.current, { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+      .fromTo(ctaRef.current, { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.6 }, "-=0.4");
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="header max-w-[1200px] w-full px-4 md:px-8 h-[64px] mx-auto flex items-center justify-between text-white relative">
-      {/* Logo */}
-      <Link to="/">
-        <motion.div
-          className="logo_name flex items-center font-growmajour text-[20px] md:text-[22px] cursor-pointer"
-          initial={{ x: -100 }}
-          animate={{ x: 0 }}
-          transition={{
-            repeat: Infinity,
-            repeatType: "reverse",
-            type: "spring",
-            stiffness: 100,
-            duration: 5,
-            ease: "easeInOut",
-          }}
-        >
-          <img src={logo} alt="logo" className="w-6 h-6 mr-2 relative bottom-1" />
-          <p>REQUESTA</p>
-        </motion.div>
-      </Link>
+    <header
+      ref={headerRef}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[#0B0F19]/80 backdrop-blur-xl border-b border-white/10 shadow-xl shadow-black/20"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 h-[68px] flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/">
+          <div ref={logoRef} className="flex items-center gap-2.5 cursor-pointer opacity-0">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center">
+              <img src={logo} alt="Requesta" className="w-5 h-5" />
+            </div>
+            <span className="font-growmajour text-[18px] bg-gradient-to-r from-white to-indigo-300 bg-clip-text text-transparent">
+              REQUESTA
+            </span>
+          </div>
+        </Link>
 
-      {/* Desktop Nav */}
-      <div className="hidden md:flex items-center justify-around gap-6 text-[#777777] font-[500] text-[14px] md:text-[15px] font-mooxy">
-        {["Home", "About", "Help", "Contact"].map((item, i) =>
-          item === "About" ? (
-            <ScrollLink key={i} to="about" smooth={true} duration={600} offset={-40}>
-              <motion.p
-                className="cursor-pointer"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{
-                  duration: 0.8,
-                  delay: 0.3,
-                  ease: [0, 0.71, 0.2, 1.01],
-                }}
+        {/* Desktop Nav */}
+        <nav ref={navRef} className="hidden md:flex items-center gap-1 opacity-0">
+          {NAV_LINKS.map((item) =>
+            item === "About" ? (
+              <ScrollLink key={item} to="about" smooth={true} duration={600} offset={-80}>
+                <button className="px-4 py-2 rounded-lg text-[14px] text-white/50 hover:text-white hover:bg-white/5 transition-all font-mooxy cursor-pointer">
+                  {item}
+                </button>
+              </ScrollLink>
+            ) : item === "Features" ? (
+              <ScrollLink key={item} to="features" smooth={true} duration={600} offset={-80}>
+                <button className="px-4 py-2 rounded-lg text-[14px] text-white/50 hover:text-white hover:bg-white/5 transition-all font-mooxy cursor-pointer">
+                  {item}
+                </button>
+              </ScrollLink>
+            ) : (
+              <button
+                key={item}
+                className="px-4 py-2 rounded-lg text-[14px] text-white/50 hover:text-white hover:bg-white/5 transition-all font-mooxy cursor-pointer"
               >
                 {item}
-              </motion.p>
-            </ScrollLink>
-          ) : (
-            <motion.p
-              key={i}
-              className="cursor-pointer"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{
-                duration: 0.8,
-                delay: 0.3,
-                ease: [0, 0.71, 0.2, 1.01],
-              }}
-            >
-              {item}
-            </motion.p>
-          )
-        )}
-      </div>
+              </button>
+            )
+          )}
+        </nav>
 
-      {/* Mobile Menu Button */}
-      <div className="md:hidden">
+        {/* CTA Buttons */}
+        <div ref={ctaRef} className="hidden md:flex items-center gap-2 opacity-0">
+          <Link to="/adminlogin">
+            <button className="px-4 py-2 rounded-xl text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-all font-mooxy border border-white/10">
+              Admin Login
+            </button>
+          </Link>
+          <Link to="/studentlogin">
+            <button className="px-4 py-2 rounded-xl text-[13px] bg-indigo-600 hover:bg-indigo-500 text-white font-mooxy transition-all shadow-lg shadow-indigo-500/20">
+              Student Login
+            </button>
+          </Link>
+        </div>
+
+        {/* Mobile Button */}
         <button
-          onClick={toggleMenu}
-          className="text-[#777777] text-2xl focus:outline-none"
+          className="md:hidden text-white/60 hover:text-white transition-colors"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Menu */}
       {menuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="absolute top-[64px] left-0 w-full bg-[#0D0D0D] flex flex-col items-center py-4 gap-4 text-[#777777] font-mooxy z-50"
-        >
-          <p className="cursor-pointer" onClick={toggleMenu}>
-            Home
-          </p>
-          <ScrollLink
-            to="about"
-            smooth={true}
-            duration={600}
-            offset={-40}
-            onClick={toggleMenu}
-          >
-            <p className="cursor-pointer">About</p>
-          </ScrollLink>
-          <p className="cursor-pointer" onClick={toggleMenu}>
-            Help
-          </p>
-          <p className="cursor-pointer" onClick={toggleMenu}>
-            Contact
-          </p>
-        </motion.div>
+        <div className="md:hidden bg-[#0D1117]/95 backdrop-blur-xl border-t border-white/5">
+          <div className="max-w-[1200px] mx-auto px-5 py-4 flex flex-col gap-1">
+            {NAV_LINKS.map((item) => (
+              <button
+                key={item}
+                className="w-full text-left px-4 py-3 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"
+                onClick={() => setMenuOpen(false)}
+              >
+                {item}
+              </button>
+            ))}
+            <hr className="border-white/5 my-2" />
+            <Link to="/adminlogin" onClick={() => setMenuOpen(false)}>
+              <button className="w-full text-left px-4 py-3 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy">
+                Admin Login
+              </button>
+            </Link>
+            <Link to="/studentlogin" onClick={() => setMenuOpen(false)}>
+              <button className="w-full px-4 py-3 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-mooxy text-center transition-all">
+                Student Login
+              </button>
+            </Link>
+          </div>
+        </div>
       )}
-    </div>
+    </header>
   );
 };
 

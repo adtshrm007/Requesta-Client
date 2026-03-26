@@ -141,13 +141,12 @@ export const AdminLeaves = () => {
                     <p className="text-gray-300 text-sm">
                       Status:
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}{" "}
                         {l.approvedBy && (

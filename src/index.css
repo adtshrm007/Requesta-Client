@@ -6,6 +6,7 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'Grow Majour';
   src: url('./assets/GROWMAJOUR.ttf') format('truetype');
@@ -19,18 +20,21 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'Cigutera';
   src: url('./assets/Ciguatera.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'Radon Regular';
   src: url('./assets/Radon.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
+
 @theme {
   --font-aboreto: Aboreto, sans-serif;
   --font-growmajour: Grow Majour, sans-serif;

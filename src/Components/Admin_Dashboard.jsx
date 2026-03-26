@@ -4,8 +4,7 @@ import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { getStudents } from "../utils/GETAllStudents";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 import { getFacultyLeaves } from "../utils/GETFacultyLeaves";
 import { getAdmins } from "../utils/GETOtherAdminsData";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +15,12 @@ import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import Loader from "./Loader";
-import { Menu, X } from "lucide-react";
+import gsap from "gsap";
+import {
+  Menu, X, Bell, User, Users, UserPlus, ShieldCheck, Calendar,
+  FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft
+} from "lucide-react";
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
@@ -30,8 +34,7 @@ export default function AdminDashboard() {
   const [totalPendingCertificates, setTotalPendingCertificates] = useState(0);
   const [totalApprovedCertificates, setTotalApprovedCertificates] = useState(0);
   const [totalRejectedCertificates, setTotalRejectedCertificates] = useState(0);
-  const [approvedByDepartmentalAdmin, setapprovedByDepartmentalAdmin] =
-    useState(0);
+  const [approvedByDepartmentalAdmin, setapprovedByDepartmentalAdmin] = useState(0);
   const [otherAdmins, setOtherAdmins] = useState(false);
   const [notifications, setNotifications] = useState(0);
   const [leaveRequest, setLeaveRequest] = useState(false);
@@ -46,40 +49,34 @@ export default function AdminDashboard() {
   const [facultyLeaves, setFacultyLeaves] = useState(0);
   const [approvedFacultyLeaves, setApprovedFacultyLeaves] = useState(0);
   const [rejectedFacultyLeaves, setRejectedFacultyLeaves] = useState(0);
-  const [pendingdepartmentalAdminLeave, setpendingDepartmentalAdminLeave] =
-    useState(0);
-  const [approveddepartmentalAdminLeave, setapprovedDepartmentalAdminLeave] =
-    useState(0);
-  const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] =
-    useState(0);
-  const [leavesForDepartmentalAdmin, setLeavesForDepartmentalAdmin] =
-    useState(0);
+  const [pendingdepartmentalAdminLeave, setpendingDepartmentalAdminLeave] = useState(0);
+  const [approveddepartmentalAdminLeave, setapprovedDepartmentalAdminLeave] = useState(0);
+  const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] = useState(0);
+  const [leavesForDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const navRef = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    gsap.fromTo(navRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" });
+    gsap.fromTo(contentRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, delay: 0.2, ease: "power3.out" });
+  }, []);
+
   function handleClickOnApplyForLeave() {
     setLeaveRequest(!leaveRequest);
     setHome(!home);
   }
-  const getAdminData = async () => {
-    const currentAdmin = await getAdminDashboard();
-    return currentAdmin;
-  };
+
   useEffect(() => {
     const fetchData = async () => {
       const otheradmins = await getAdmins();
-      const departmentalAdmins = await getDepartmentalAdmin();
-      if (otheradmins) {
-        setOtherAdmins(true);
-      }
-      if (departmentalAdmins) {
-        setDepartmentalAdmins(true);
-      }
-      const admin = await getAdminData();
-      if (admin && admin.name) {
-        setAdminName(admin.name);
-      }
-      if (admin && admin.role) {
-        setRole(admin.role);
-      }
+      const departmentalAdminsData = await getDepartmentalAdmin();
+      if (otheradmins) setOtherAdmins(true);
+      if (departmentalAdminsData) setDepartmentalAdmins(true);
+      const admin = await getAdminDashboard();
+      if (admin?.name) setAdminName(admin.name);
+      if (admin?.role) setRole(admin.role);
     };
     fetchData();
   }, [adminName]);
@@ -88,136 +85,60 @@ export default function AdminDashboard() {
     if (role === "Super Admin") {
       const leaves = await getAllLeaves();
       const certificates = await getAllCertificatesRequests();
-      const pendingLeaves = leaves.filter((l) => l.status === "pending").length;
       const adminApproved = await getSuperAdminLeaves();
       setapprovedByDepartmentalAdmin(adminApproved.length);
-      const approvedLeaves = leaves.filter(
-        (l) => l.status === "approved"
-      ).length;
-      const rejectedLeaves = leaves.filter(
-        (l) => l.status === "rejected"
-      ).length;
-      const pendingCertificates = certificates.filter(
-        (c) => c.status === "pending"
-      ).length;
-      const approvedCertificates = certificates.filter(
-        (c) => c.status === "approved"
-      ).length;
-      const rejectedCertificates = certificates.filter(
-        (c) => c.status === "rejected"
-      ).length;
       const departmentalLeaves = await getDepartmentalAdminLeave();
-      const pendingDepartmentalLeaves = departmentalLeaves.filter(
-        (l) => l.status === "pending"
-      ).length;
-      const approvedDepartmentalLeaves = departmentalLeaves.filter(
-        (l) => l.status === "approved"
-      ).length;
-      const rejectedDepartmentalLeaves = departmentalLeaves.filter(
-        (l) => l.status === "rejected"
-      ).length;
-      setpendingDepartmentalAdminLeave(pendingDepartmentalLeaves);
-      setapprovedDepartmentalAdminLeave(approvedDepartmentalLeaves);
-      setrejectedDepartmentalAdminLeave(rejectedDepartmentalLeaves);
-      setNotifications(
-        pendingLeaves + pendingCertificates + pendingDepartmentalLeaves
-      );
-      setTotalPendingLeaves(pendingLeaves);
-      setTotalApprovedLeaves(approvedLeaves);
-      setTotalRejectedLeaves(rejectedLeaves);
-      setTotalPendingCertificates(pendingCertificates);
-      setTotalApprovedCertificates(approvedCertificates);
-      setTotalRejectedCertificates(rejectedCertificates);
+      setpendingDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "pending").length);
+      setapprovedDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "approved").length);
+      setrejectedDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "rejected").length);
+      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length + departmentalLeaves.filter(l => l.status === "pending").length);
+      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
+      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
+      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
+      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
+      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
+      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
     }
-
     if (role === "Faculty") {
       const leaves = await getAllLeaves();
       const certificates = await getAllCertificatesRequests();
-      const pendingLeaves = leaves.filter((l) => l.status === "pending").length;
-      const approvedLeaves = leaves.filter(
-        (l) => l.status === "approved"
-      ).length;
-      const rejectedLeaves = leaves.filter(
-        (l) => l.status === "rejected"
-      ).length;
-      const pendingCertificates = certificates.filter(
-        (c) => c.status === "pending"
-      ).length;
-      const approvedCertificates = certificates.filter(
-        (c) => c.status === "approved"
-      ).length;
-      const rejectedCertificates = certificates.filter(
-        (c) => c.status === "rejected"
-      ).length;
-      setNotifications(pendingLeaves + pendingCertificates);
-      setTotalPendingLeaves(pendingLeaves);
-      setTotalApprovedLeaves(approvedLeaves);
-      setTotalRejectedLeaves(rejectedLeaves);
-      setTotalPendingCertificates(pendingCertificates);
-      setTotalApprovedCertificates(approvedCertificates);
-      setTotalRejectedCertificates(rejectedCertificates);
+      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length);
+      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
+      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
+      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
+      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
+      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
+      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
     }
-
     if (role === "Departmental Admin") {
       const leaves = await getAllLeaves();
       const certificates = await getAllCertificatesRequests();
       const approvedByFaculty = await getLeavesForDepartmentalAdmin();
       setLeavesForDepartmentalAdmin(approvedByFaculty.length);
-      const pendingLeaves = leaves.filter((l) => l.status === "pending").length;
-      const approvedLeaves = leaves.filter(
-        (l) => l.status === "approved"
-      ).length;
-      const rejectedLeaves = leaves.filter(
-        (l) => l.status === "rejected"
-      ).length;
-      const pendingCertificates = certificates.filter(
-        (c) => c.status === "pending"
-      ).length;
-      const approvedCertificates = certificates.filter(
-        (c) => c.status === "approved"
-      ).length;
-      const rejectedCertificates = certificates.filter(
-        (c) => c.status === "rejected"
-      ).length;
       const facultyleaves = await getFacultyLeaves();
-      const pendingFacultyLeaves = facultyleaves.filter(
-        (l) => l.status === "pending"
-      ).length;
-      const approvedFLeaves = facultyleaves.filter(
-        (l) => l.status === "approved"
-      ).length;
-      const rejectedFLeaves = facultyleaves.filter(
-        (l) => l.status === "rejected"
-      ).length;
+      const pendingFacultyLeaves = facultyleaves.filter(l => l.status === "pending").length;
       setFacultyLeaves(pendingFacultyLeaves);
-      setApprovedFacultyLeaves(approvedFLeaves);
-      setRejectedFacultyLeaves(rejectedFLeaves);
-      setTotalPendingLeaves(pendingLeaves);
-      setTotalApprovedLeaves(approvedLeaves);
-      setTotalRejectedLeaves(rejectedLeaves);
-      setTotalPendingCertificates(pendingCertificates);
-      setTotalApprovedCertificates(approvedCertificates);
-      setTotalRejectedCertificates(rejectedCertificates);
-      setNotifications(
-        pendingLeaves + pendingCertificates + pendingFacultyLeaves
-      );
+      setApprovedFacultyLeaves(facultyleaves.filter(l => l.status === "approved").length);
+      setRejectedFacultyLeaves(facultyleaves.filter(l => l.status === "rejected").length);
+      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
+      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
+      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
+      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
+      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
+      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
+      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length + pendingFacultyLeaves);
     }
     const leaves = await getAllLeaves();
     const certificates = await getAllCertificatesRequests();
-
     setTotalLeaves(leaves.length);
     setTotalCertificates(certificates.length);
-
-    if (leaves && Array.isArray(leaves)) {
-      setTotalLeaves(leaves.length);
-    }
   };
+
   const fetchTotalStudents = async () => {
     const students = await getStudents();
-    if (students && Array.isArray(students)) {
-      setTotalStudents(students.length);
-    }
+    if (students && Array.isArray(students)) setTotalStudents(students.length);
   };
+
   useEffect(() => {
     fetchTotalLeaves();
     fetchTotalStudents();
@@ -230,483 +151,271 @@ export default function AdminDashboard() {
     formData.append("type", type);
     formData.append("fromDate", fromDate);
     formData.append("toDate", toDate);
-
-    if (supportingDocument) {
-      formData.append("supportingDocument", supportingDocument);
-    }
-
+    if (supportingDocument) formData.append("supportingDocument", supportingDocument);
     try {
       const res = await submitAdminLeaveApplication(formData);
       setLoader(true);
       setLeaveRequest(false);
-
       if (res) {
         toast.success("Leave Application submitted successfully");
-        setType("");
-        setReason("");
-        setSupportingDocument(null);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        setType(""); setReason(""); setSupportingDocument(null);
+        setTimeout(() => window.location.reload(), 1000);
       }
-    } catch (err) {
-      console.error("Error submitting leave:", err);
+    } catch (err) { console.error(err); }
+  };
+
+  const inputClass = "w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all";
+
+  const buildStats = () => {
+    const base = [
+      { value: totalStudents, label: "Total Students", link: "/students", to: "", color: "indigo" },
+      { value: totalLeaves, label: "Total Leave Requests", link: "/notificationsAndrequests", to: "", color: "sky" },
+      { value: totalPendingLeaves, label: "Pending Leaves", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
+      { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
+      { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" },
+      { value: totalCertificates, label: "Total Certificates", link: "/notificationsAndrequests", to: "pending-certificates", color: "purple" },
+      { value: totalPendingCertificates, label: "Pending Certificates", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
+      { value: totalApprovedCertificates, label: "Approved Certificates", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
+      { value: totalRejectedCertificates, label: "Rejected Certificates", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" },
+    ];
+    if (role === "Departmental Admin") {
+      base.push(
+        { value: leavesForDepartmentalAdmin, label: "Faculty-Approved Leaves", link: "/notificationsAndrequests", to: "dept-leaves", color: "sky" },
+        { value: facultyLeaves, label: "Pending Faculty Leaves", link: "/notificationsAndrequests", to: "dept-leaves", color: "amber" },
+        { value: approvedFacultyLeaves, label: "Approved Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-approved-leaves", color: "green" },
+        { value: rejectedFacultyLeaves, label: "Rejected Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-rejected-leaves", color: "red" },
+      );
     }
+    if (role === "Super Admin") {
+      base.push(
+        { value: approvedByDepartmentalAdmin, label: "Dept. Admin Approved", link: "/notificationsAndrequests", to: "dept-leaves", color: "sky" },
+        { value: pendingdepartmentalAdminLeave, label: "Pending Dept. Admin Leaves", link: "/notificationsAndrequests", to: "pending-dept-leaves", color: "amber" },
+        { value: approveddepartmentalAdminLeave, label: "Approved Dept. Admin Leaves", link: "/notificationsAndrequests", to: "accepted-dept-leaves", color: "green" },
+        { value: rejecteddepartmentalAdminLeave, label: "Rejected Dept. Admin Leaves", link: "/notificationsAndrequests", to: "rejected-dept-leaves", color: "red" },
+      );
+    }
+    return base;
+  };
+
+  const colorMap = {
+    indigo: { bg: "bg-indigo-500/10", border: "border-indigo-500/20", text: "text-indigo-400", num: "text-indigo-300" },
+    sky: { bg: "bg-sky-500/10", border: "border-sky-500/20", text: "text-sky-400", num: "text-sky-300" },
+    purple: { bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-400", num: "text-purple-300" },
+    amber: { bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-400", num: "text-amber-300" },
+    green: { bg: "bg-green-500/10", border: "border-green-500/20", text: "text-green-400", num: "text-green-300" },
+    red: { bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-400", num: "text-red-300" },
   };
 
   return (
-    <>
-      <ToastContainer position="top-right" autoClose={3000} />
-      <div className="w-full max-w-full mx-auto px-4 py-4 text-white relative">
-      {/* Top bar */}
-      <div className="flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/">
-          <div className="flex items-center font-growmajour text-[22px] cursor-pointer">
-            <img src={logo} alt="logo" className="w-[25px] h-[25px] mr-2" />
-            <p>REQUESTA</p>
-          </div>
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827] flex flex-col">
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex flex-wrap justify-end gap-3 text-[#777777] font-mooxy text-[14px]">
-          <Link to="/notificationsforadmin">
-            <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer relative left-9">
-              Notifications
-            </p>
+      {/* Navbar */}
+      <nav ref={navRef} className="sticky top-0 z-50 border-b border-white/5 bg-[#0B0F19]/85 backdrop-blur-xl opacity-0">
+        <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between">
+          <Link to="/">
+            <div className="flex items-center gap-2.5 cursor-pointer">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
+                <img src={logo} alt="Requesta" className="w-5 h-5" />
+              </div>
+              <span className="font-growmajour text-[18px] bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">REQUESTA</span>
+            </div>
           </Link>
-          <div className="w-[25px] h-[25px] bg-slate-500 rounded-full flex items-center justify-center relative top-6 left--5">
-            <p className="text-white font-mooxy">{notifications}</p>
+
+          {/* Desktop */}
+          <div className="hidden md:flex items-center gap-1 flex-wrap justify-end">
+            <Link to="/notificationsforadmin">
+              <button className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy">
+                <Bell size={14} /> Notifications
+                {notifications > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] bg-purple-500 text-white text-[10px] font-mooxy flex items-center justify-center rounded-full px-0.5">{notifications}</span>
+                )}
+              </button>
+            </Link>
+            <Link to="/adminprofile">
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><User size={14} /> Profile</button>
+            </Link>
+            <Link to="/students">
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><Users size={14} /> Students</button>
+            </Link>
+            {(role === "Departmental Admin" || role === "Super Admin") && (
+              <Link to="/addadmin">
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><UserPlus size={14} /> Add Admin</button>
+              </Link>
+            )}
+            {(role === "Departmental Admin" || role === "Super Admin") && (
+              <Link to="/otherAdmins">
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><ShieldCheck size={14} /> Other Admins</button>
+              </Link>
+            )}
+            {(role === "Faculty" || role === "Departmental Admin") && (
+              <button
+                onClick={handleClickOnApplyForLeave}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm bg-purple-600 hover:bg-purple-500 text-white font-mooxy shadow-lg shadow-purple-500/20 transition-all"
+              >
+                {leaveRequest ? <><ArrowLeft size={14} /> Dashboard</> : <><Calendar size={14} /> Apply for Leave</>}
+              </button>
+            )}
+            {(role === "Faculty" || role === "Departmental Admin") && (
+              <Link to="/adminleaves">
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><FileText size={14} /> Leaves</button>
+              </Link>
+            )}
           </div>
-          <Link to="/adminprofile">
-            <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
-              Profile
-            </p>
-          </Link>
-          <Link to="/students">
-            <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-              Students
-            </p>
-          </Link>
-          {(role === "Departmental Admin" || role === "Super Admin") && (
-            <Link to="/addadmin">
-              <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer">
-                Add an admin
-              </p>
-            </Link>
-          )}
-          {(role === "Departmental Admin" || role === "Super Admin") && (
-            <Link to="/otherAdmins">
-              <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-                Other Admins
-              </p>
-            </Link>
-          )}
-          {(role === "Faculty" || role === "Departmental Admin") && (
-            <p
-              className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer"
-              onClick={handleClickOnApplyForLeave}
-            >
-              Apply for Leave
-            </p>
-          )}
-          {(role === "Faculty" || role === "Departmental Admin") && (
-            <Link to="/adminleaves">
-              <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-                Leaves
-              </p>
-            </Link>
-          )}
+
+          <button className="md:hidden text-white/60 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-        <div className="md:hidden">
-          {menuOpen ? (
-            <X size={28} className="cursor-pointer" onClick={() => setMenuOpen(false)} />
-          ) : (
-            <Menu size={28} className="cursor-pointer" onClick={() => setMenuOpen(true)} />
-          )}
-        </div>
-      </div>
-      <div
-        className={`absolute top-full left-0 w-full bg-[#111] flex flex-col items-center gap-4 py-6 shadow-lg transition-all duration-300 ease-in-out md:hidden z-50 ${
-          menuOpen ? "opacity-100 visible" : "opacity-0 invisible -translate-y-2"
-        }`}
-      >
-        <Link to="/notificationsforadmin" onClick={() => setMenuOpen(false)}>
-          <p className="bg-white text-black px-4 py-[6px] rounded-full">Notifications ({notifications})</p>
-        </Link>
-        <Link to="/adminprofile" onClick={() => setMenuOpen(false)}>
-          <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full">Profile</p>
-        </Link>
-        <Link to="/students" onClick={() => setMenuOpen(false)}>
-          <p className="bg-white text-black px-4 py-[6px] rounded-full">Students</p>
-        </Link>
-        {(role === "Departmental Admin" || role === "Super Admin") && (
-          <Link to="/addadmin" onClick={() => setMenuOpen(false)}>
-            <p className="bg-[#191919] text-white px-4 py-[6px] rounded-full">Add an admin</p>
-          </Link>
+
+        {menuOpen && (
+          <div className="md:hidden border-t border-white/5 bg-[#0D1117] px-5 py-3 flex flex-col gap-1">
+            {[
+              { to: "/notificationsforadmin", label: `Notifications (${notifications})`, icon: Bell },
+              { to: "/adminprofile", label: "Profile", icon: User },
+              { to: "/students", label: "Students", icon: Users },
+            ].map(({ to, label, icon: Icon }) => (
+              <Link key={to} to={to} onClick={() => setMenuOpen(false)}>
+                <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2">
+                  <Icon size={14} /> {label}
+                </button>
+              </Link>
+            ))}
+            {(role === "Departmental Admin" || role === "Super Admin") && (
+              <Link to="/addadmin" onClick={() => setMenuOpen(false)}>
+                <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2"><UserPlus size={14} /> Add Admin</button>
+              </Link>
+            )}
+            {(role === "Faculty" || role === "Departmental Admin") && (
+              <button onClick={() => { handleClickOnApplyForLeave(); setMenuOpen(false); }}
+                className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all font-mooxy flex items-center gap-2">
+                <Calendar size={14} /> Apply for Leave
+              </button>
+            )}
+            {(role === "Faculty" || role === "Departmental Admin") && (
+              <Link to="/adminleaves" onClick={() => setMenuOpen(false)}>
+                <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2"><FileText size={14} /> Leaves</button>
+              </Link>
+            )}
+          </div>
         )}
-        {(role === "Departmental Admin" || role === "Super Admin") && (
-          <Link to="/otherAdmins" onClick={() => setMenuOpen(false)}>
-            <p className="bg-white text-black px-4 py-[6px] rounded-full">Other Admins</p>
-          </Link>
+      </nav>
+
+      <div ref={contentRef} className="flex-1 opacity-0">
+        {/* Dashboard Home */}
+        {home && (
+          <div className="max-w-[1400px] mx-auto px-5 py-10">
+            {/* Welcome */}
+            <div className="mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
+                <ShieldCheck size={11} /> Admin Dashboard · {role}
+              </div>
+              <h1 className="font-growmajour text-3xl sm:text-4xl text-white">
+                Welcome, <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">{adminName || "Admin"}</span>
+              </h1>
+              <p className="text-white/40 font-mooxy text-sm mt-2">Manage all institutional requests from one place.</p>
+            </div>
+
+            {/* Quick action */}
+            <div className="flex flex-wrap gap-3 mb-10">
+              <Link to="/notificationsAndrequests">
+                <button className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-mooxy shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.02]">
+                  Notifications & Requests
+                  <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+              {notifications > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-sm font-mooxy">
+                  <Bell size={14} />
+                  {notifications} pending action{notifications > 1 ? "s" : ""} awaiting review
+                </div>
+              )}
+            </div>
+
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {buildStats().map((stat, i) => {
+                const c = colorMap[stat.color] || colorMap.indigo;
+                return (
+                  <div
+                    key={i}
+                    onClick={() => navigate(stat.link, { state: { target: stat.to } })}
+                    className={`group relative overflow-hidden bg-white/[0.03] hover:bg-white/[0.05] border border-white/8 hover:border-white/15 rounded-2xl p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg`}
+                  >
+                    <div className={`absolute top-0 right-0 w-16 h-16 ${c.bg} rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity`} />
+                    <p className={`font-growmajour text-4xl ${c.num} tabular-nums mb-2`}>{stat.value}</p>
+                    <div className={`w-8 h-[2px] ${c.bg} mb-3`} />
+                    <p className="text-white/40 font-mooxy text-xs leading-tight">{stat.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
-        {(role === "Faculty" || role === "Departmental Admin") && (
-          <p
-            className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer"
-            onClick={() => {
-              handleClickOnApplyForLeave();
-              setMenuOpen(false);
-            }}
-          >
-            Apply for Leave
-          </p>
+
+        {/* Admin Leave Request Form */}
+        {leaveRequest && (
+          <div className="max-w-[600px] mx-auto px-5 py-10">
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
+                <Calendar size={11} /> Admin Leave Request
+              </div>
+              <h1 className="font-growmajour text-3xl text-white">Apply for Leave</h1>
+              <p className="text-white/40 font-mooxy text-sm mt-1.5">Submit your leave application below</p>
+            </div>
+
+            <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+              <form className="flex flex-col gap-5 font-mooxy" encType="multipart/form-data">
+                <div>
+                  <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Type of Leave</label>
+                  <select className={`${inputClass} appearance-none cursor-pointer`} style={{ background: "rgba(255,255,255,0.04)" }} required onChange={(e) => setType(e.target.value)}>
+                    <option value="" className="bg-[#111827]">-- Select Leave Type --</option>
+                    <option value="Medical Leave" className="bg-[#111827]">Medical Leave</option>
+                    <option value="Official Leave" className="bg-[#111827]">Official Leave</option>
+                    <option value="Casual Leave" className="bg-[#111827]">Casual Leave</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Reason for Leave</label>
+                  <textarea className={`${inputClass} h-28 resize-none`} placeholder="Explain your reason..." required onChange={(e) => setReason(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">From Date</label>
+                    <input type="date" className={inputClass} onChange={(e) => setFromDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">To Date</label>
+                    <input type="date" className={inputClass} onChange={(e) => setToDate(e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Supporting Document (optional)</label>
+                  <label className="flex flex-col items-center justify-center gap-2 w-full h-20 bg-white/3 border border-dashed border-white/15 rounded-xl cursor-pointer hover:border-purple-500/40 hover:bg-purple-500/5 transition-all">
+                    <Upload size={16} className="text-white/30" />
+                    <span className="text-white/30 text-xs">{supportingDocument ? supportingDocument.name : "Click to upload"}</span>
+                    <input type="file" className="hidden" onChange={(e) => setSupportingDocument(e.target.files[0])} />
+                  </label>
+                </div>
+                <button
+                  type="submit"
+                  onClick={handleClickOnLeaveSubmit}
+                  className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-mooxy shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                >
+                  Submit Leave Request
+                </button>
+              </form>
+            </div>
+          </div>
         )}
-        {(role === "Faculty" || role === "Departmental Admin") && (
-          <Link to="/adminleaves" onClick={() => setMenuOpen(false)}>
-            <p className="bg-white text-black px-4 py-[6px] rounded-full">Leaves</p>
-          </Link>
+
+        {loader && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader />
+            <p className="text-white/40 font-mooxy text-sm">Processing…</p>
+          </div>
         )}
       </div>
     </div>
-
-      {home && (
-        <>
-          <div className="w-full max-w-[960px] mx-auto px-4 flex flex-col items-center justify-center text-center py-10">
-            <div className="text-white text-3xl sm:text-4xl md:text-5xl font-growmajour">
-              Welcome, {adminName}
-            </div>
-            <div className="text-[#777777] text-2xl sm:text-3xl md:text-4xl font-radonregular mb-5">
-              {role}
-            </div>
-            <div className="text-[#777777] text-2xl sm:text-3xl md:text-4xl font-radonregular mb-5">
-              Manage Leaves & Requests
-            </div>
-
-            <div className="flex justify-center items-center gap-5">
-              <Link to="/notificationsAndrequests">
-                <button className="bg-white w-[200px] sm:w-[220px] h-[36px] rounded-full text-[14px] sm:text-[15px] text-center cursor-pointer">
-                  Notifications & Requests
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="max-w-[1200px] w-full mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 py-10 font-mooxy">
-            {[
-              {
-                value: totalStudents,
-                label: "Total Students",
-                link: "/students",
-                to: "",
-              },
-              {
-                value: totalLeaves,
-                label: "Total Leave Requests",
-                link: "/notificationsAndrequests",
-                to: "",
-              },
-              {
-                value: totalPendingLeaves,
-                label: "Pending Leave Requests",
-                link: "/notificationsAndrequests",
-                to: "pending-leaves",
-              },
-              {
-                value: totalApprovedLeaves,
-                label: "Accepted Leave Requests",
-                link: "/notificationsAndrequests",
-                to: "accepted-leaves",
-              },
-              {
-                value: totalRejectedLeaves,
-                label: "Rejected Leave Requests",
-                link: "/notificationsAndrequests",
-                to: "rejected-leaves",
-              },
-              {
-                value: totalCertificates,
-                label: "Total Certificate Requests",
-                link: "/notificationsAndrequests",
-                to: "pending-certificates",
-              },
-              {
-                value: totalPendingCertificates,
-                label: "Pending Certificates Requests",
-                link: "/notificationsAndrequests",
-                to: "pending-certificates",
-              },
-              {
-                value: totalApprovedCertificates,
-                label: "Approved Certificates Requests",
-                link: "/notificationsAndrequests",
-                to: "approved-certificates",
-              },
-              {
-                value: totalRejectedCertificates,
-                label: "Rejected Certificates Requests",
-                link: "/notificationsAndrequests",
-                to: "rejected-certificates",
-              },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                onClick={() =>
-                  navigate(stat.link, { state: { target: stat.to } })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {stat.value}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-            {role === "Departmental Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {leavesForDepartmentalAdmin}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Leave Requests Approved by Faculty
-                </p>
-              </motion.div>
-            )}
-            {role === "Super Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {approvedByDepartmentalAdmin}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Leave Requests Approved by the Departmemtal Admin
-                </p>
-              </motion.div>
-            )}
-            {role === "Departmental Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {facultyLeaves}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Pending Leave Requests of Faculty
-                </p>
-              </motion.div>
-            )}
-            {role === "Departmental Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "faculty-approved-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {approvedFacultyLeaves}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Approved Leave Requests of Faculty
-                </p>
-              </motion.div>
-            )}
-            {role === "Departmental Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "faculty-rejected-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {rejectedFacultyLeaves}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Rejected Leave Requests of Faculty
-                </p>
-              </motion.div>
-            )}
-            {role === "Super Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "pending-dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {pendingdepartmentalAdminLeave}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Pending Leave Requests of Departmental Admins
-                </p>
-              </motion.div>
-            )}
-            {role === "Super Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "accepted-dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {approveddepartmentalAdminLeave}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Approved Leave Requests of Departmental Admins
-                </p>
-              </motion.div>
-            )}
-            {role === "Super Admin" && (
-              <motion.div
-                onClick={() =>
-                  navigate("/notificationsAndrequests", {
-                    state: { target: "rejected-dept-leaves" },
-                  })
-                }
-                whileHover={{ scale: 1.07 }}
-                whil={{ scale: 0.95 }}
-                className="bg-gradient-to-b from-[#1E1E1E] to-[#151515] rounded-2xl px-6 py-8 shadow-lg border border-gray-800 
-                 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-              >
-                <h3 className="text-5xl font-bold text-white tracking-tight">
-                  {rejecteddepartmentalAdminLeave}
-                </h3>
-                <div className="h-[2px] w-10 bg-gradient-to-r from-gray-500 to-transparent my-4 mx-auto"></div>
-                <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
-                  Rejected Leave Requests of Departmental Admins
-                </p>
-              </motion.div>
-            )}
-          </div>
-        </>
-      )}
-      {leaveRequest && (
-        <div className="min-h-screen bg-[#0D0D0D] text-white px-4 sm:px-6 py-12 flex flex-col gap-12 items-center font-sans">
-          <div className="bg-[#1A1A1A] p-6 sm:p-8 rounded-2xl w-full max-w-xl shadow-xl">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center font-radonregular">
-              Leave Application
-            </h2>
-            <form
-              className="flex flex-col gap-4 font-mooxy"
-              encType="multipart/form-data"
-            >
-              <label className="text-sm font-medium">
-                Type of Leave:
-                <select
-                  className="mt-1 p-3 w-full rounded-lg bg-[#2A2A2A] text-white"
-                  required
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  <option value="">-- Select Leave Type --</option>
-                  <option value="Medical Leave">Medical Leave</option>
-                  <option value="Official Leave">Official Leave</option>
-                  <option value="Casual Leave">Casual Leave</option>
-                </select>
-              </label>
-              <label className="text-sm font-medium">
-                Reason for Leave:
-                <textarea
-                  className="mt-1 p-3 w-full h-28 rounded-lg bg-[#2A2A2A] text-white focus:outline-none"
-                  placeholder="Explain your reason for leave..."
-                  required
-                  onChange={(e) => setReason(e.target.value)}
-                />
-              </label>
-              <label className="text-sm font-medium">
-                Upload Supporting Document(Upload an Image):
-                <input
-                  type="file"
-                  className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
-                  onChange={(e) => setSupportingDocument(e.target.files[0])}
-                />
-              </label>
-              <label className="text-sm font-medium">
-                From Date:
-                <input
-                  type="date"
-                  className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
-                  onChange={(e) => setFromDate(e.target.value)}
-                />
-              </label>
-              <label className="text-sm font-medium">
-                To Date:
-                <input
-                  type="date"
-                  className="mt-1 bg-[#2A2A2A] text-white p-2 rounded-lg w-full"
-                  onChange={(e) => setToDate(e.target.value)}
-                />
-              </label>
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 font-radonregular transition-all text-white font-semibold py-2 px-4 rounded-lg mt-4"
-                onClick={handleClickOnLeaveSubmit}
-              >
-                Submit Leave Request
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-      {loader && <Loader />}
-    </>
   );
 }

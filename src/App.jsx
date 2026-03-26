@@ -6,11 +6,11 @@ import Footer from "./Components/Footer";
 const App = () => {
   return (
     <>
-    <Header/>
-    <TagLine/>
-    <MainSection/>
-    <StartSection/>
-    <Footer/>
+      <Header />
+      <TagLine />
+      <MainSection />
+      <StartSection />
+      <Footer />
     </>
   )
 };

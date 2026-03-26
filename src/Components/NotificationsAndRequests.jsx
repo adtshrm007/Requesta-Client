@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Footer from "./Footer";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { motion } from "motion/react";
+import { Menu, X, ArrowLeft, Filter, Calendar, FileText, CheckCircle, XCircle, Clock, Upload, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { updateLeaveStatus } from "../utils/UpdateLeaveStatus";
@@ -515,121 +514,98 @@ export const NotificationsAndRequest = () => {
   }
 
   return (
-    <>
-      {/* Header */}
-      <ToastContainer position="top-right" autoClose={3000} />
-      <div className="w-full h-[64px] sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 text-white backdrop-blur-xl">
-        {/* Logo */}
-        <Link to="/">
-          <motion.div
-            className="flex items-center font-growmajour text-lg sm:text-[22px] cursor-pointer"
-            initial={{ x: -100 }}
-            animate={{ x: 0 }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "reverse",
-              type: "spring",
-              stiffness: 100,
-              duration: 5,
-              ease: "easeInOut",
-            }}
-          >
-            <img
-              src={logo}
-              alt="logo"
-              className="w-[22px] h-[22px] sm:w-[25px] sm:h-[25px] mr-2"
-            />
-            <p className="mt-1 sm:mt-2">REQUESTA</p>
-          </motion.div>
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827]">
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
 
-        {/* Desktop actions */}
-        <div className="hidden sm:flex items-center gap-4 text-[#777777] font-mooxy text-[15px]">
-          <Link to="/admindashboard">
-            <p className="bg-white text-black px-4 py-[6px] rounded-full cursor-pointer">
-              Back to Dashboard
-            </p>
+      {/* Sticky Navbar */}
+      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0B0F19]/85 backdrop-blur-xl">
+        <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between">
+          <Link to="/">
+            <div className="flex items-center gap-2.5 cursor-pointer">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
+                <img src={logo} alt="Requesta" className="w-5 h-5" />
+              </div>
+              <span className="font-growmajour text-[18px] bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">REQUESTA</span>
+            </div>
           </Link>
 
-          {/* Filters */}
-          <div className="relative">
-            <p
-              onClick={() => setShowFilters(!showFilters)}
-              className="bg-[#191919] text-white px-4 py-[6px] rounded-full cursor-pointer w-[150px] h-[36px] text-center"
-            >
-              Apply Filters
-            </p>
-
-            {showFilters && (
-              <div className="absolute top-10 right-0 w-[170px] bg-slate-700 rounded-lg shadow-lg p-2 flex flex-col gap-2 z-20">
-                <p
-                  className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded"
-                  onClick={handleClickOnLastWeekRequets}
-                >
-                  Last week requests
-                </p>
-                <p
-                  className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded"
-                  onClick={handleClickOnLastDayRequets}
-                >
-                  Last day requests
-                </p>
-                <p
-                  className="text-white cursor-pointer hover:bg-slate-600 px-2 py-1 rounded"
-                  onClick={handleClickOnLastMonthRequets}
-                >
-                  Last month requests
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          className="sm:hidden text-white"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-
-        {/* Mobile dropdown */}
-        {menuOpen && (
-          <div className="absolute top-16 left-0 w-full bg-[#191919] flex flex-col gap-2 p-4 sm:hidden z-20">
-            <Link to="/admindashboard" onClick={() => setMenuOpen(false)}>
-              <p className="bg-white text-black px-4 py-2 rounded-lg cursor-pointer text-center">
-                Back to Dashboard
-              </p>
+          <div className="hidden sm:flex items-center gap-2">
+            <Link to="/admindashboard">
+              <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all font-mooxy">
+                <ArrowLeft size={14} /> Dashboard
+              </button>
             </Link>
 
-            <div className="flex flex-col gap-2">
-              <p
-                className="bg-slate-700 text-white px-4 py-2 rounded-lg cursor-pointer text-center"
-                onClick={handleClickOnLastWeekRequets}
+            <div className="relative">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all font-mooxy"
               >
-                Last week requests
-              </p>
-              <p
-                className="bg-slate-700 text-white px-4 py-2 rounded-lg cursor-pointer text-center"
-                onClick={handleClickOnLastDayRequets}
-              >
-                Last day requests
-              </p>
-              <p
-                className="bg-slate-700 text-white px-4 py-2 rounded-lg cursor-pointer text-center"
-                onClick={handleClickOnLastMonthRequets}
-              >
-                Last month requests
-              </p>
+                <Filter size={14} /> Filters <ChevronDown size={12} className={`transition-transform ${showFilters ? "rotate-180" : ""}`} />
+              </button>
+              {showFilters && (
+                <div className="absolute top-full right-0 mt-2 w-44 bg-[#1a1f2e] border border-white/10 rounded-xl shadow-xl p-1.5 z-20 flex flex-col gap-0.5">
+                  {[
+                    { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
+                    { label: "Last 7 days", fn: handleClickOnLastWeekRequets },
+                    { label: "Last 30 days", fn: handleClickOnLastMonthRequets },
+                  ].map(({ label, fn }) => (
+                    <button
+                      key={label}
+                      onClick={() => { fn(); setShowFilters(false); }}
+                      className="w-full text-left px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/8 text-sm font-mooxy transition-all"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+
+          <button className="sm:hidden text-white/60 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+
+        {menuOpen && (
+          <div className="sm:hidden border-t border-white/5 bg-[#0D1117] px-5 py-3 flex flex-col gap-1">
+            <Link to="/admindashboard" onClick={() => setMenuOpen(false)}>
+              <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2">
+                <ArrowLeft size={14} /> Back to Dashboard
+              </button>
+            </Link>
+            {[
+              { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
+              { label: "Last 7 days", fn: handleClickOnLastWeekRequets },
+              { label: "Last 30 days", fn: handleClickOnLastMonthRequets },
+            ].map(({ label, fn }) => (
+              <button
+                key={label}
+                onClick={() => { fn(); setMenuOpen(false); }}
+                className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         )}
+      </nav>
+
+      {/* Page header */}
+      <div className="max-w-[1400px] mx-auto px-5 pt-10 pb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
+          <FileText size={11} /> Admin Panel
+        </div>
+        <h1 className="font-growmajour text-3xl text-white">Notifications &amp; Requests</h1>
+        <p className="text-white/40 font-mooxy text-sm mt-1.5">Review, approve, reject and forward all leave and certificate requests.</p>
       </div>
 
-      <div>
-        <h2 className="text-[#999999] font-radonregular underline text-[42px] mt-10 mb-4 text-left mx-5">
-          All Leave Requests
+      <div className="max-w-[1400px] mx-auto px-5 pb-16">
+        <h2 className="text-white/60 font-growmajour text-xl mt-4 mb-6 flex items-center gap-2 border-b border-white/5 pb-4">
+          <Calendar size={18} className="text-indigo-400" /> All Leave Requests
         </h2>
+
         {departmentalAdmin && (
           <div className="w-full max-w-[960px] h-auto mt-7 mb-10 px-4 mx-auto">
             <h2 className="text-white font-growmajour text-xl sm:text-2xl md:text-[28px] mb-4">
@@ -673,13 +649,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -759,13 +734,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1000,13 +974,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1089,13 +1062,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1261,13 +1233,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1435,13 +1406,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1541,13 +1511,12 @@ export const NotificationsAndRequest = () => {
                       <p className="text-gray-300 text-sm">
                         Status:{" "}
                         <span
-                          className={`ml-1 ${
-                            l.status === "approved"
+                          className={`ml-1 ${l.status === "approved"
                               ? "text-green-400"
                               : l.status === "rejected"
-                              ? "text-red-400"
-                              : "text-yellow-400"
-                          }`}
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                            }`}
                         >
                           {l.status}
                         </span>
@@ -1627,13 +1596,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -1797,13 +1765,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -1865,13 +1832,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -1933,13 +1899,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -2100,13 +2065,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -2159,13 +2123,12 @@ export const NotificationsAndRequest = () => {
                     <p className="text-gray-300 text-sm">
                       Status:{" "}
                       <span
-                        className={`ml-1 ${
-                          l.status === "approved"
+                        className={`ml-1 ${l.status === "approved"
                             ? "text-green-400"
                             : l.status === "rejected"
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                        }`}
+                              ? "text-red-400"
+                              : "text-yellow-400"
+                          }`}
                       >
                         {l.status}
                       </span>
@@ -2184,6 +2147,6 @@ export const NotificationsAndRequest = () => {
       </div>
 
       <Footer />
-    </>
+    </div>
   );
 };
