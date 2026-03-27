@@ -1,252 +1,111 @@
-# Role-Based Student ERP & Academic Workflow System
+# Requesta Client Application
 
-## 📌 Overview
+Welcome to the **Requesta Client**, a cutting-edge frontend portal for an institutional request management system. Built entirely from the ground up to digitize the manual process of requesting leaves and certificates, this client application focuses on delivering an incredibly seamless, interactive, and premium user experience out of the box.
 
-The **Role-Based Student ERP & Academic Workflow System** is a full-stack web application designed to digitize and streamline academic administrative workflows in educational institutions. The system replaces manual, paper-based processes such as leave approvals and certificate requests with a secure, role-driven, and transparent digital platform.
-
-This project demonstrates **real-world product architecture**, focusing on scalability, security, and clean separation of responsibilities across different user roles.
-
-🔗 **Live Demo:** https://requesta-client.vercel.app/
+The primary objective of the Requesta Client is to serve users of varying administrative levels (Students, Faculty, Departmental Admins, and Super Admins) through a highly dynamic and secure Single Page Application (SPA).
 
 ---
 
-## 🎯 Key Objectives
+## 🎨 Design Philosophy & UI/UX Experience
 
-- Digitize academic workflows end-to-end
-- Implement strict **role-based access control (RBAC)**
-- Provide real-time status tracking for requests
-- Ensure secure authentication and authorization
-- Build a scalable, production-ready MERN stack application
-
----
-
-## 👥 User Roles & Responsibilities
-
-### 1️⃣ Student
-
-- Submit leave requests and certificate requests
-- Upload supporting documents securely
-- Track request status in real time (Pending / Approved / Rejected)
-- View request history and responses
-
-### 2️⃣ Faculty / Mentor
-
-- Review student requests assigned to them
-- Approve or reject requests with remarks
-- Forward requests to higher authorities based on workflow hierarchy
-
-### 3️⃣ Admin / HOD / Authority
-
-- Final approval or rejection of requests
-- View all requests across departments
-- Manage users and enforce role permissions
-
-Each role has **strictly enforced permissions**—users can only access actions and data relevant to their role.
+Requesta completely deviates from traditional, clunky ERP systems. It utilizes a custom, dark-mode-first **SaaS Design System**:
+- **Glassmorphism Base:** Background blurs (`backdrop-blur-xl`), translucent surfacing (`bg-white/5`), and soft gradient meshes (`bg-gradient-to-br from-[#0B0F19]`) create depth without clutter.
+- **Fluid Micro-Interactions:** Using `gsap` (GreenSock) and `motion`, every dashboard mounts with a sophisticated fade-up animation. Buttons feature scaling properties on hover/click, and navigation menus gently slide into view.
+- **Modern Typography:** Custom geometric typography arrays combined with `lucide-react` provide a beautiful visual hierarchy.
+- **Color-Coded Badging:** Leaves and requests are tagged with explicit colored pills:
+  - 🟡 **PENDING** (Amber)
+  - 🟣 **FORWARDED** (Purple)
+  - 🟢 **APPROVED** (Green)
+  - 🔴 **REJECTED** (Red)
 
 ---
 
-## 🧠 System Architecture
+## 🚀 Technical Stack
 
-The system follows a **client–server architecture**:
-
-- **Frontend:** React.js (role-specific dashboards)
-- **Backend:** Node.js + Express.js (RESTful APIs)
-- **Database:** MongoDB (NoSQL, schema-based via Mongoose)
-- **Authentication:** JWT-based stateless authentication
-
-```
-Client (React) → REST API (Express) → MongoDB
-                ↑ JWT Authentication ↑
-```
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Core UI** | React 19 + Vite | React powers component rendering while Vite handles lightning-fast HMR and production builds. |
+| **Styling** | Tailwind CSS v4 | Utility-first CSS framework enabling inline styling of the glassmorphism and grid systems. |
+| **Routing** | React Router v7 | Manages client-side URL resolution and strict protected route encapsulation. |
+| **Animations** | GSAP 3.13 / Motion | Mount/Unmount animations, parallax background meshes, and sophisticated timeline staggers. |
+| **Data Fetching** | Axios | Configured to strictly intercept requests to attach HTTP `Bearer` tokens. |
+| **Icons & Alerts** | Lucide React / React-Toastify | Minimalist 24x24 icons for the UI and animated floating toasts for success/error alerts. |
+| **Document Viewing** | react-pdf | Allows in-browser rendering and previews of uploaded PDF certificates and supporting medical documents. |
 
 ---
 
-## 🔐 Authentication & Authorization
+## 🔐 Role-Based Dashboards & Workflows
 
-### Authentication
+A central aspect of Requesta is its ability to immediately parse authorization tokens and map out dedicated views dependent on the user's role.
 
-- Secure login using **JSON Web Tokens (JWT)**
-- Tokens issued upon successful login
-- Tokens validated on every protected API request
+### 1. The Student Interface
+- **Primary View:** Simple application forms for submitting leave requests (Medical, Casual) or formal certificates.
+- **Status Hub:** Students can view a real-time timeline of their request. They will see instantly if a faculty member has approved it, forwarded it to an admin, or rejected it.
+- **Notification Center:** Real-time bell alerts notifying students of administrative decisions.
 
-### Authorization (RBAC)
+### 2. The Faculty Interface
+- **Dual Capability:** Faculty can simultaneously *apply* for their own leaves and *manage* leaves submitted by Students.
+- **Leave Action Pipeline:** Faculty are the first point of contact for student leaves. If the leave requires a higher clearance, the faculty member clicks `Forward`, which escalates the request directly to the Department's Administrative dashboard.
 
-- Middleware-based role validation
-- Fine-grained access control per route
-- Prevents unauthorized data access and actions
+### 3. The Departmental Admin Interface
+- **Departmental God-View:** Sees *all* leaves generated by any student or faculty belonging to their academic department.
+- **Action Hub:** Administers final approvals on anything that has been forwarded by faculty, or direct-approvals from faculty leaves.
+- **Analytics View:** Generates aggregate visual components mapping approval rates vs. rejection rates inside their local sphere.
 
-Example:
-
-- Students cannot approve requests
-- Faculty cannot access admin-only endpoints
-
----
-
-## 🔄 Academic Workflow Management
-
-### Leave Request Workflow
-
-1. Student submits leave request
-2. Request assigned to Faculty/Mentor
-3. Faculty reviews and forwards or rejects
-4. Admin/HOD gives final approval
-5. Status updates reflected in real time
-
-### Certificate Request Workflow
-
-1. Student submits certificate request with documents
-2. Multi-level approval based on institution hierarchy
-3. Secure storage and verification of uploaded files
-
-All workflows are **hierarchical and configurable**, mimicking real academic approval chains.
+### 4. The Super Admin Console
+- **Institutional Omniscience:** This user views data generated by the *entire* campus/institution.
+- **Certificate Handling:** Only the Super Admin possesses the final clearance to authorize and digitally issue Institutional Certificates.
+- **Global Metrics:** Tracks the absolute number of leaves and requests processing across the entire platform in real-time.
 
 ---
 
-## 📊 Role-Based Dashboards
+## 🏗️ Directory Roadmap
 
-Each user sees a **custom dashboard** based on their role:
+A detailed look into the `/src` folder structure:
 
-### Student Dashboard
-
-- New request submission forms
-- Status tracker
-- Request history
-
-### Faculty Dashboard
-
-- Pending approvals list
-- Action buttons (Approve / Reject / Forward)
-- Remarks and audit trail
-
-### Admin Dashboard
-
-- Global request overview
-- Final decision controls
-- System-wide visibility
-
-Dashboards update dynamically to reflect real-time request changes.
-
----
-
-## 📁 Document Upload & Validation
-
-- Secure file uploads for certificates and proof documents
-- Server-side validation for file type and size
-- Files linked to specific requests
-- Prevents unauthorized access to sensitive documents
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-
-- React.js
-- Role-based UI rendering
-- Axios for API communication
-
-### Backend
-
-- Node.js
-- Express.js
-- RESTful API architecture
-
-### Database
-
-- MongoDB
-- Mongoose ODM
-
-### Security
-
-- JSON Web Tokens (JWT)
-- Role-Based Access Control (RBAC)
-
----
-
-## 📦 API Design
-
-- Clean RESTful endpoints
-- Separate routes for auth, users, and requests
-- Middleware for authentication and role validation
-
-Example API Flow:
-
-- `POST /auth/login`
-- `POST /requests/create`
-- `PUT /requests/:id/approve`
-- `GET /requests/my-requests`
-
----
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-
-- Node.js
-- MongoDB
-- npm / yarn
-
-### Backend Setup
-
-```bash
-cd backend
-npm install
-npm run dev
+```text
+src/
+├── assets/                  # Brand logos, mesh gradient backgrounds
+├── Components/              # The React Core
+│   ├── Admin_Dashboard.jsx  # Dynamic component pivoting on "Faculty", "Dept Admin", "Super"
+│   ├── Student_Dashboard.jsx# Dedicated modular portal for students
+│   ├── Loader.jsx           # Custom animated SVG loading spinner
+│   ├── FormComponents/      # Segmented files for certificate vs. leave forms
+├── utils/                   # Headless Data & Business Logic Layer
+│   ├── GETAllStudents.js    # Axios wrapper -> Fetches student data
+│   ├── POSTLeaveApplication.js # Handles multi-part FormData uploading for leaves
+│   └── (Multiple utility files mapping directly to backend routes)
+├── App.jsx                  # React Router Configuration & Private Route Wrappers
+├── main.jsx                 # Entry execution & StrictMode wrapper
 ```
 
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-Create a `.env` file with:
-
-```
-JWT_SECRET=your_secret_key
-MONGO_URI=your_mongodb_uri
-```
+### The `utils/` Architecture
+By abstracting Axios requests into completely independent functions (`GET...`, `POST...`), React components remain incredibly lean. They only invoke an async function and wait for the Promise. This guarantees single-responsibility: components only handle rendering; utils only handle data fetching.
 
 ---
 
-## 🧪 Features Implemented
+## 🛠️ Setting up the Client Environment
 
-- ✔ Role-based authentication & authorization
-- ✔ Multi-level approval workflows
-- ✔ Real-time request tracking
-- ✔ Secure document uploads
-- ✔ Scalable backend architecture
+Ensure you have Node.js 18+ installed on your local machine.
 
----
+1. **Clone & Install Dependencies**
+   ```bash
+   git clone <repository_url>
+   cd client/Requesta-Client
+   npm install
+   ```
 
-## 📈 Future Enhancements
+2. **Environment Variables**
+   Ensure the frontend knows where the backend lives. (Usually defined in `.env.local` if custom, otherwise it utilizes hardcoded paths or `localhost:5000` via VITE_API config).
 
-- Notifications via email / WhatsApp
-- Analytics dashboard for admins
-- Integration with college ERP systems
-- Audit logs and reporting
+3. **Spin up Development Mode**
+   ```bash
+   npm run dev
+   ```
+   *Vite will instantly map the server to `localhost:5173`. Hot Module Replacement (HMR) is active.*
 
----
-
-## 🎓 What This Project Demonstrates
-
-- Real-world MERN stack development
-- Secure backend design
-- RBAC and workflow-based systems
-- Production-focused thinking, not demo-level code
-
----
-
-## 📬 Contact
-
-If you’d like to discuss this project or collaborate:
-
-**Aditya**
-GitHub: http://github.com/adtshrm007
-LinkedIn:https://www.linkedin.com/in/aditya-sharma-836856315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
-
----
-
-⭐ If you find this project useful, consider starring the repository!
+4. **Production Build**
+   ```bash
+   npm run build
+   ```
+   *Compiles all JSX and CSS into highly optimized, minified static files located inside a `/dist` output folder ready for deployment (e.g. Vercel/Netlify).*
