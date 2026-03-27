@@ -102,7 +102,7 @@ const SectionHeading = ({ icon: Icon, title, count, color = "indigo", id }) => {
 
 // ─── Leave card ──────────────────────────────────────────────────────────────
 const LeaveCard = ({
-  l, remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm,
+  l, role, remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm,
   onAccept, onReject, onForward, onAcceptAdmin, onRejectAdmin,
   showAcceptReject, showForwardReject, isAdminType = false,
 }) => (
@@ -226,8 +226,8 @@ const LeaveCard = ({
 );
 
 // ─── Certificate card — Super Admin only (Approve + Reject, NO Forward) ───────
-const CertCard = ({
-  c, remark, setRemark, remarkBox, setRemarkBox,
+const CertificateCard = ({
+  c, role, remark, setRemark, remarkBox, setRemarkBox,
   certificate, setCertificate, onAccept, onReject,
   showActions,
 }) => (
