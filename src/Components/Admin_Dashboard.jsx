@@ -29,6 +29,10 @@ export default function AdminDashboard() {
   const [totalLeaves, setTotalLeaves] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalCertificates, setTotalCertificates] = useState(0);
+  const [studentLeavesCount, setStudentLeavesCount] = useState(0);
+  const [facultyLeavesCount, setFacultyLeavesCount] = useState(0);
+  const [deptAdminLeavesCount, setDeptAdminLeavesCount] = useState(0);
+  const [certificateRequestsCount, setCertificateRequestsCount] = useState(0);
   const [totalPendingLeaves, setTotalPendingLeaves] = useState(0);
   const [totalApprovedLeaves, setTotalApprovedLeaves] = useState(0);
   const [totalRejectedLeaves, setTotalRejectedLeaves] = useState(0);
@@ -106,12 +110,19 @@ export default function AdminDashboard() {
         setTotalApprovedLeaves(stats.approvedLeaves || 0);
         setTotalRejectedLeaves(stats.rejectedLeaves || 0);
         setNotifications(stats.pendingLeaves || 0);
+        setFacultyLeaves(stats.totalFacultyLeaves || 0);
+        setApprovedFacultyLeaves(stats.approvedFacultyLeaves || 0);
+        setRejectedFacultyLeaves(stats.rejectedFacultyLeaves || 0);
       } else if (role === "Super Admin") {
         setTotalCertificates(stats.totalRequests || 0);
         setTotalPendingCertificates(stats.pendingRequests || 0);
         setTotalApprovedCertificates(stats.approvedRequests || 0);
         setTotalRejectedCertificates(stats.rejectedRequests || 0);
         setNotifications(stats.pendingRequests || 0);
+        setStudentLeavesCount(stats.totalStudentLeaves || 0);
+        setFacultyLeavesCount(stats.totalFacultyLeaves || 0);
+        setDeptAdminLeavesCount(stats.totalDeptAdminLeaves || 0);
+        setCertificateRequestsCount(stats.totalCertificateRequests || 0);
       }
     } catch (err) {
       console.error("Failed to fetch dashboard stats", err);
@@ -164,7 +175,10 @@ export default function AdminDashboard() {
         { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
         { value: forwardedLeaves, label: "Forwarded Leaves", link: "/notificationsAndrequests", to: "forwarded-leaves", color: "purple" },
         { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
-        { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" }
+        { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" },
+        { value: facultyLeaves, label: "Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
+        { value: approvedFacultyLeaves, label: "Approved Faculty Leaves", link: "/notificationsAndrequests", to: "approved-faculty-leaves", color: "green" },
+        { value: rejectedFacultyLeaves, label: "Rejected Faculty Leaves", link: "/notificationsAndrequests", to: "rejected-faculty-leaves", color: "red" }
       ];
     }
     
@@ -173,7 +187,11 @@ export default function AdminDashboard() {
         { value: totalCertificates, label: "Total Certificates & Admin Leaves", link: "/notificationsAndrequests", to: "pending-certificates", color: "purple" },
         { value: totalPendingCertificates, label: "Pending Requests", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
         { value: totalApprovedCertificates, label: "Approved Requests", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
-        { value: totalRejectedCertificates, label: "Rejected Requests", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" }
+        { value: totalRejectedCertificates, label: "Rejected Requests", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" },
+        { value: studentLeavesCount, label: "Student Leaves", link: "/notificationsAndrequests", to: "student-leaves", color: "sky" },
+        { value: facultyLeavesCount, label: "Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
+        { value: deptAdminLeavesCount, label: "Dept Admin Leaves", link: "/notificationsAndrequests", to: "dept-admin-leaves", color: "amber" },
+        { value: certificateRequestsCount, label: "Certificate Requests", link: "/notificationsAndrequests", to: "certificate-requests", color: "purple" }
       ];
     }
     
