@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   const [approveddepartmentalAdminLeave, setapprovedDepartmentalAdminLeave] = useState(0);
   const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] = useState(0);
   const [leavesForDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState(0);
+  const [forwardedLeaves, setForwardedLeaves] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [analytics, setAnalytics] = useState(null);
 
@@ -101,6 +102,7 @@ export default function AdminDashboard() {
       } else if (role === "Departmental Admin") {
         setTotalLeaves(stats.totalLeaves || 0);
         setTotalPendingLeaves(stats.pendingLeaves || 0);
+        setForwardedLeaves(stats.forwardedLeaves || 0);
         setTotalApprovedLeaves(stats.approvedLeaves || 0);
         setTotalRejectedLeaves(stats.rejectedLeaves || 0);
         setNotifications(stats.pendingLeaves || 0);
@@ -160,6 +162,7 @@ export default function AdminDashboard() {
       return [
         { value: totalLeaves, label: "Total Leave Requests", link: "/notificationsAndrequests", to: "", color: "sky" },
         { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
+        { value: forwardedLeaves, label: "Forwarded Leaves", link: "/notificationsAndrequests", to: "forwarded-leaves", color: "purple" },
         { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
         { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" }
       ];
