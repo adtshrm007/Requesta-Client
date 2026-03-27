@@ -16,6 +16,8 @@ export const getAdminDashboard = async () => {
     console.error("Dashboard fetch error:", err?.response?.data || err.message);
     throw err;
   }
+};
+
 export const getAdminDashboardStats = async () => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
