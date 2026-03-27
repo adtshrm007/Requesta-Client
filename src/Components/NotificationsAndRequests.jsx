@@ -815,6 +815,7 @@ export const NotificationsAndRequest = () => {
                 <LeaveCard
                   key={l._id}
                   l={l}
+                  role={userRole}
                   {...sharedLeaveProps}
                   onAccept={handleApproveStudentLeave}
                   onReject={handleRejectStudentLeave}
@@ -841,6 +842,7 @@ export const NotificationsAndRequest = () => {
                 <LeaveCard
                   key={l._id}
                   l={l}
+                  role={userRole}
                   {...sharedLeaveProps}
                   onAccept={handleApproveStudentLeave}
                   onReject={handleRejectStudentLeave}
@@ -890,6 +892,7 @@ export const NotificationsAndRequest = () => {
                     <LeaveCard
                       key={l._id}
                       l={l}
+                      role={userRole}
                       {...sharedLeaveProps}
                       onAccept={handleApproveStudentLeave}
                       onReject={handleRejectStudentLeave}
@@ -940,6 +943,7 @@ export const NotificationsAndRequest = () => {
                     <LeaveCard
                       key={l._id}
                       l={l}
+                      role={userRole}
                       {...sharedLeaveProps}
                       onAccept={handleApproveStudentLeave}
                       onReject={handleRejectStudentLeave}
@@ -995,7 +999,7 @@ export const NotificationsAndRequest = () => {
                       onAccept={handleApproveCertificate}
                       onReject={handleRejectCertificate}
                       showActions
-                      role={role}
+                      role={userRole}
                     />
                   ))}
                 </div>
