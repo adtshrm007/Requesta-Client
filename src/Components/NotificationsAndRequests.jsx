@@ -21,6 +21,40 @@ import { getAdmins } from "../utils/GETOtherAdminsData";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
+import ActivityTimeline from "./ActivityTimeline";
+import { getLeaveAuditLogs, getAdminLeaveAuditLogs, getCertificateAuditLogs } from "../utils/GETAuditLogs";
+
+// ─── Timeline Wrapper ────────────────────────────────────────────────────────
+const TimelineBox = ({ requestId, requestType }) => {
+  const [open, setOpen] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchLogs = async () => {
+    if (open) { setOpen(false); return; }
+    setLoading(true);
+    setOpen(true);
+    const token = localStorage.getItem("adminToken");
+    let data = [];
+    if (requestType === "LEAVE") data = await getLeaveAuditLogs(requestId, token);
+    else if (requestType === "ADMIN_LEAVE") data = await getAdminLeaveAuditLogs(requestId, token);
+    else if (requestType === "CERTIFICATE") data = await getCertificateAuditLogs(requestId, token);
+    setLogs(data);
+    setLoading(false);
+  };
+
+  return (
+    <div className="mt-3">
+      <button 
+        onClick={fetchLogs}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all"
+      >
+        <Clock size={12} /> {open ? "Hide Timeline" : "View Timeline"}
+      </button>
+      {open && <ActivityTimeline logs={logs} loading={loading} />}
+    </div>
+  );
+};
 
 // ─── Design tokens ──────────────────────────────────────────────────────────
 const statusConfig = {
@@ -152,6 +186,8 @@ const LeaveCard = ({
           Confirm Action
         </button>
       )}
+
+      <TimelineBox requestId={l._id} requestType={isAdminType ? "ADMIN_LEAVE" : "LEAVE"} />
     </div>
 
     {/* Action footer */}
@@ -290,6 +326,8 @@ const CertCard = ({
           )}
         </>
       )}
+
+      <TimelineBox requestId={c._id} requestType="CERTIFICATE" />
     </div>
 
     {showActions && (
@@ -352,6 +390,7 @@ const InfoCard = ({ l, isAdminType = false }) => (
         <ExternalLink size={11} /> View Document
       </a>
     )}
+    <TimelineBox requestId={l._id} requestType={isAdminType ? "ADMIN_LEAVE" : "LEAVE"} />
   </div>
 );
 
@@ -380,6 +419,7 @@ const CertInfoCard = ({ c }) => (
         <ExternalLink size={11} /> View Certificate
       </a>
     )}
+    <TimelineBox requestId={c._id} requestType="CERTIFICATE" />
   </div>
 );
 

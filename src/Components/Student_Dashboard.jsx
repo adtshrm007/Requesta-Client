@@ -12,6 +12,7 @@ import { showAllCertificates } from "../utils/GETCertificatesForAStudent";
 import { Menu, X, Bell, User, Plus, FileText, Calendar, Download, ChevronDown, ChevronUp, Upload, ArrowLeft } from "lucide-react";
 import Loader from "./Loader";
 import gsap from "gsap";
+import AIAssistantPanel from "./AIAssistantPanel";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -344,6 +345,16 @@ const StudentDashboard = () => {
                     <p className="text-white/35 font-mooxy text-xs">Submit a leave request</p>
                   </div>
                 </div>
+                
+                <AIAssistantPanel 
+                  token={localStorage.getItem("studentToken")} 
+                  type="LEAVE" 
+                  onApply={(result) => {
+                    setSubject(result.title);
+                    setReason(result.description);
+                  }}
+                />
+
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnLeaveSubmit} encType="multipart/form-data">
                   <div>
                     <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Subject / Leave Days</label>
@@ -392,6 +403,17 @@ const StudentDashboard = () => {
                     <p className="text-white/35 font-mooxy text-xs">Request a certificate</p>
                   </div>
                 </div>
+
+                <AIAssistantPanel 
+                  token={localStorage.getItem("studentToken")} 
+                  type="CERTIFICATE" 
+                  onApply={(result) => {
+                    setPurpose(result.title);
+                    // The certificate form doesn't have a large description field currently,
+                    // but we set the purpose. The AI can still give suggestions.
+                  }}
+                />
+
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnCertificateSubmit} encType="multipart/form-data">
                   <div>
                     <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Purpose</label>

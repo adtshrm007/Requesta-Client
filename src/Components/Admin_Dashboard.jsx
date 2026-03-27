@@ -14,11 +14,12 @@ import { submitAdminLeaveApplication } from "../utils/POSTAdminLeaveApplication"
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
+import { getAnalyticsSummary } from "../utils/GETAnalytics";
 import Loader from "./Loader";
 import gsap from "gsap";
 import {
   Menu, X, Bell, User, Users, UserPlus, ShieldCheck, Calendar,
-  FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft
+  FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft, BarChart2, Activity, PieChart
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
   const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] = useState(0);
   const [leavesForDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
 
   const navRef = useRef(null);
   const contentRef = useRef(null);
@@ -76,7 +78,13 @@ export default function AdminDashboard() {
       if (departmentalAdminsData) setDepartmentalAdmins(true);
       const admin = await getAdminDashboard();
       if (admin?.name) setAdminName(admin.name);
-      if (admin?.role) setRole(admin.role);
+      if (admin?.role) {
+        setRole(admin.role);
+        if (admin.role === "Super Admin" || admin.role === "Departmental Admin") {
+          const stats = await getAnalyticsSummary(localStorage.getItem("adminToken"));
+          setAnalytics(stats);
+        }
+      }
     };
     fetchData();
   }, [adminName]);
@@ -350,6 +358,60 @@ export default function AdminDashboard() {
                 );
               })}
             </div>
+
+            {/* Analytics Section (Super/Dept Admin only) */}
+            {analytics && (
+              <div className="mt-12 pt-10 border-t border-white/5">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <BarChart2 size={18} className="text-purple-400" />
+                  </div>
+                  <div>
+                    <h2 className="font-growmajour text-xl text-white">Department Analytics</h2>
+                    <p className="text-white/40 font-mooxy text-xs">Overview of request processing activity</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <Activity size={20} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/40 font-mooxy text-[11px] uppercase tracking-wider mb-1">Total Processed</p>
+                      <p className="text-white font-growmajour text-2xl">{analytics.totalRequests}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <PieChart size={20} className="text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/40 font-mooxy text-[11px] uppercase tracking-wider mb-1">Approval Rate</p>
+                      <div className="flex items-end gap-2">
+                        <p className="text-green-400 font-growmajour text-2xl">{analytics.approvalRate}%</p>
+                        <p className="text-white/30 font-mooxy text-xs mb-1">({analytics.approvedRequests})</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                      <Activity size={20} className="text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/40 font-mooxy text-[11px] uppercase tracking-wider mb-1">Rejection Rate</p>
+                      <div className="flex items-end gap-2">
+                        <p className="text-red-400 font-growmajour text-2xl">{analytics.rejectionRate}%</p>
+                        <p className="text-white/30 font-mooxy text-xs mb-1">({analytics.rejectedRequests})</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         )}
 
