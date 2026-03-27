@@ -58,6 +58,14 @@ const StudentDashboard = () => {
 
   const handleClickOnLeaveSubmit = async (e) => {
     e.preventDefault();
+    if (!subject.trim() || subject.trim().length < 3) {
+      toast.error("Subject must be at least 3 characters.");
+      return;
+    }
+    if (!reason.trim() || reason.trim().length < 10) {
+      toast.error("Reason must be at least 10 characters.");
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
     formData.append("subject", subject);
@@ -65,12 +73,25 @@ const StudentDashboard = () => {
     if (supportingDocument) formData.append("supportingDocument", supportingDocument);
     try {
       const res = await submitLeaves(formData);
-      if (res.data) {
-        toast.success("Leave submitted successfully");
-        setSubject(""); setReason(""); setSupportingDocument(null);
-        setTimeout(() => window.location.reload(), 1000);
+      // Show any non-blocking warnings from the server
+      if (res.warnings && res.warnings.length > 0) {
+        res.warnings.forEach((w) => toast.warn(w));
       }
-    } catch (err) { console.error(err); toast.error(err); }
+      toast.success("Leave submitted successfully");
+      setSubject(""); setReason(""); setSupportingDocument(null);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      setLoading(false);
+      // Show the server-side validation message if available
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.errors?.[0];
+      const serverErrors = err?.response?.data?.errors;
+      if (serverErrors && serverErrors.length > 0) {
+        serverErrors.forEach((e) => toast.error(e));
+      } else {
+        toast.error(serverMsg || "Failed to submit leave. Please try again.");
+      }
+      console.error("Leave submission error:", err?.response?.data || err.message);
+    }
   };
 
   async function handleClickOnCertificateSubmit(e) {
