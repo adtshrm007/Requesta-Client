@@ -5,14 +5,15 @@ export const getAdminLeaves = async () => {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.get(
       "https://requesta-server-3.onrender.com/api/adminLeave/getLeave",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-    return response.data
+    // backend wraps this in { data: [] }
+    const payload = response.data;
+    if (payload && Array.isArray(payload.data)) return payload.data;
+    if (Array.isArray(payload)) return payload;
+    return [];
   } catch (err) {
-    console.error(err);
+    console.error("getAdminLeaves error:", err?.response?.data || err.message);
+    return [];
   }
 };

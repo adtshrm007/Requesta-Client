@@ -14,6 +14,7 @@ export const getDepartmentalAdmin = async () => {
 
     return response.data;
   } catch (err) {
-    return err;
+    console.error("Error fetching departmental admin:", err?.response?.data || err.message);
+    return [];
   }
 };

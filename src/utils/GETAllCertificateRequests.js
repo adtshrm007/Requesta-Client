@@ -16,7 +16,8 @@ export const getAllCertificatesRequests=async()=>{
 
     }
     catch(err){
-        return err;
+        console.error("Error fetching certificates:", err?.response?.data || err.message);
+        return [];
     }
 
 }

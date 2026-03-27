@@ -13,6 +13,7 @@ export const getAllLeaves=async()=>{
 
     }
     catch(err){
-        return err;
+        console.error("Error fetching all leaves:", err?.response?.data || err.message);
+        return [];
     }
 }

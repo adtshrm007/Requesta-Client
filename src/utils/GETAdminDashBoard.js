@@ -13,6 +13,7 @@ export const getAdminDashboard = async () => {
     );
     return response.data.data;
   } catch (err) {
-    return err;
+    console.error("Dashboard fetch error:", err?.response?.data || err.message);
+    throw err;
   }
 };

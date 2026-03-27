@@ -1,21 +1,20 @@
 import axios from "axios";
-import { toast } from "react-toastify";
-export const updateAdmin = async (adminData) => {
+
+export const updateAdmin = async (updateData) => {
   try {
     const accessToken = localStorage.getItem("adminaccessToken");
     const response = await axios.put(
       "https://requesta-server-3.onrender.com/api/adminregister/update",
-      adminData,
+      updateData,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    toast.success("Admin Profile updated successfully!");
-    return response.data.data
+    return response.data;
   } catch (err) {
-    toast.error("This email is already registered");
-    return err;
+    console.error("Update admin error:", err?.response?.data || err.message);
+    throw err;
   }
 };

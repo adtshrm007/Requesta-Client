@@ -2,19 +2,13 @@ import axios from "axios";
 export const getLeaves = async () => {
   try {
     const accessToken = localStorage.getItem("accessToken");
-    const showLeaves = await axios.get(
+    const response = await axios.get(
       "https://requesta-server-3.onrender.com/api/studentregister/getLeaves",
-      {
-        headers:{
-            Authorization:`Bearer ${accessToken}`
-        }
-      }
-      
-
-    )
-    return showLeaves.data
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    return Array.isArray(response.data) ? response.data : [];
   } catch (err) {
-    
-    return err;
+    console.error("getLeaves error:", err?.response?.data || err.message);
+    return [];
   }
 };

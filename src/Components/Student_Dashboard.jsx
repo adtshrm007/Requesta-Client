@@ -117,11 +117,11 @@ const StudentDashboard = () => {
         const now = new Date();
         const oneDay = 1000 * 60 * 60 * 24;
         const [res1, res2] = await Promise.all([getLeaves(), showAllCertificates()]);
-        const r1 = res1.filter(i => (i.status === "approved" || i.status === "rejected") && now - new Date(i.updatedAt) < oneDay);
-        const r2 = res2.filter(i => (i.status === "approved" || i.status === "rejected") && now - new Date(i.updatedAt) < oneDay);
+        const r1 = Array.isArray(res1) ? res1.filter(i => (i.status === "approved" || i.status === "rejected") && now - new Date(i.updatedAt) < oneDay) : [];
+        const r2 = Array.isArray(res2) ? res2.filter(i => (i.status === "approved" || i.status === "rejected") && now - new Date(i.updatedAt) < oneDay) : [];
         setNotifications(r1.length + r2.length);
-        setLeave(res1);
-        setCertificates(res2);
+        if (Array.isArray(res1)) setLeave(res1);
+        if (Array.isArray(res2)) setCertificates(res2);
       } catch (err) { console.error(err); }
     };
     notification();

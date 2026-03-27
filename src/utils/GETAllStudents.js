@@ -11,6 +11,7 @@ export const getStudents = async () => {
     );
     return response.data;
   } catch (err) {
-    return err;
+    console.error("Error fetching students:", err?.response?.data || err.message);
+    return [];
   }
 };
