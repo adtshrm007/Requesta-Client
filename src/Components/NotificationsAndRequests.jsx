@@ -992,7 +992,7 @@ export const NotificationsAndRequest = () => {
               {pendingCertificates.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3">
                   {pendingCertificates.map((c) => (
-                    <CertCard
+                    <CertificateCard
                       key={c._id}
                       c={c}
                       {...sharedCertProps}
