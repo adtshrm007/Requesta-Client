@@ -60,11 +60,21 @@ const statusConfig = {
   pending:   { label: "Pending",   cls: "text-amber-400 bg-amber-400/10 border-amber-400/25",  icon: Clock },
   approved:  { label: "Approved",  cls: "text-green-400 bg-green-400/10 border-green-400/25",  icon: CheckCircle },
   rejected:  { label: "Rejected",  cls: "text-red-400 bg-red-400/10 border-red-400/25",         icon: XCircle },
-  forwarded: { label: "Forwarded", cls: "text-sky-400 bg-sky-400/10 border-sky-400/25",         icon: UserCheck },
 };
-const StatusPill = ({ status }) => {
-  const cfg = statusConfig[status] || statusConfig.pending;
+const StatusPill = ({ status, role }) => {
+  // strict rule mapping per implementation plan
+  let displayStatus = status.toLowerCase();
+  
+  if (displayStatus === "forwarded") {
+    // If Dept Admin is viewing a forwarded request, it's effectively "Pending" for them
+    if (role === "Departmental Admin") {
+      displayStatus = "pending";
+    }
+  }
+
+  const cfg = statusConfig[displayStatus] || statusConfig.pending;
   const Icon = cfg.icon;
+  
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mooxy border ${cfg.cls}`}>
       <Icon size={11} /> {cfg.label}
@@ -106,7 +116,7 @@ const LeaveCard = ({
                 ? `${l.admin?.name}`
                 : (l.studentName || l.studentId?.name || "Student")}
             </p>
-            <StatusPill status={l.status} />
+            <StatusPill status={l.status} role={role} />
           </div>
           <p className="text-white/35 font-mooxy text-xs">
             {isAdminType
@@ -229,7 +239,7 @@ const CertCard = ({
             <p className="text-white font-mooxy font-semibold text-sm">
               {c.student?.name || "Student"}
             </p>
-            <StatusPill status={c.status} />
+            <StatusPill status={c.status} role={role} />
           </div>
           <p className="text-white/35 font-mooxy text-xs">
             Reg No: {c.student?.registrationNumber || "N/A"}
@@ -985,6 +995,7 @@ export const NotificationsAndRequest = () => {
                       onAccept={handleApproveCertificate}
                       onReject={handleRejectCertificate}
                       showActions
+                      role={role}
                     />
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 import logo from "../assets/logo.svg.png";
 import { Link } from "react-router-dom";
-import { getAdminDashboard } from "../utils/GETAdminDashBoard";
+import { getAdminDashboard, getAdminDashboardStats } from "../utils/GETAdminDashBoard";
 import { getAllLeaves } from "../utils/GETAllLeaves";
 import { getStudents } from "../utils/GETAllStudents";
 import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
@@ -90,56 +90,30 @@ export default function AdminDashboard() {
   }, [adminName]);
 
   const fetchTotalLeaves = async () => {
-    if (role === "Super Admin") {
-      const leaves = await getAllLeaves();
-      const certificates = await getAllCertificatesRequests();
-      const adminApproved = await getSuperAdminLeaves();
-      setapprovedByDepartmentalAdmin(adminApproved.length);
-      const departmentalLeaves = await getDepartmentalAdminLeave();
-      setpendingDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "pending").length);
-      setapprovedDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "approved").length);
-      setrejectedDepartmentalAdminLeave(departmentalLeaves.filter(l => l.status === "rejected").length);
-      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length + departmentalLeaves.filter(l => l.status === "pending").length);
-      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
-      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
-      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
-      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
-      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
-      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
+    try {
+      if (!role) return;
+      const stats = await getAdminDashboardStats();
+      
+      if (role === "Faculty") {
+        setTotalStudents(stats.totalStudents || 0);
+        setTotalPendingLeaves(stats.pendingLeaves || 0);
+        setNotifications(stats.pendingLeaves || 0);
+      } else if (role === "Departmental Admin") {
+        setTotalLeaves(stats.totalLeaves || 0);
+        setTotalPendingLeaves(stats.pendingLeaves || 0);
+        setTotalApprovedLeaves(stats.approvedLeaves || 0);
+        setTotalRejectedLeaves(stats.rejectedLeaves || 0);
+        setNotifications(stats.pendingLeaves || 0);
+      } else if (role === "Super Admin") {
+        setTotalCertificates(stats.totalRequests || 0);
+        setTotalPendingCertificates(stats.pendingRequests || 0);
+        setTotalApprovedCertificates(stats.approvedRequests || 0);
+        setTotalRejectedCertificates(stats.rejectedRequests || 0);
+        setNotifications(stats.pendingRequests || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard stats", err);
     }
-    if (role === "Faculty") {
-      const leaves = await getAllLeaves();
-      const certificates = await getAllCertificatesRequests();
-      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length);
-      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
-      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
-      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
-      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
-      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
-      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
-    }
-    if (role === "Departmental Admin") {
-      const leaves = await getAllLeaves();
-      const certificates = await getAllCertificatesRequests();
-      const approvedByFaculty = await getLeavesForDepartmentalAdmin();
-      setLeavesForDepartmentalAdmin(approvedByFaculty.length);
-      const facultyleaves = await getFacultyLeaves();
-      const pendingFacultyLeaves = facultyleaves.filter(l => l.status === "pending").length;
-      setFacultyLeaves(pendingFacultyLeaves);
-      setApprovedFacultyLeaves(facultyleaves.filter(l => l.status === "approved").length);
-      setRejectedFacultyLeaves(facultyleaves.filter(l => l.status === "rejected").length);
-      setTotalPendingLeaves(leaves.filter(l => l.status === "pending").length);
-      setTotalApprovedLeaves(leaves.filter(l => l.status === "approved").length);
-      setTotalRejectedLeaves(leaves.filter(l => l.status === "rejected").length);
-      setTotalPendingCertificates(certificates.filter(c => c.status === "pending").length);
-      setTotalApprovedCertificates(certificates.filter(c => c.status === "approved").length);
-      setTotalRejectedCertificates(certificates.filter(c => c.status === "rejected").length);
-      setNotifications(leaves.filter(l => l.status === "pending").length + certificates.filter(c => c.status === "pending").length + pendingFacultyLeaves);
-    }
-    const leaves = await getAllLeaves();
-    const certificates = await getAllCertificatesRequests();
-    setTotalLeaves(leaves.length);
-    setTotalCertificates(certificates.length);
   };
 
   const fetchTotalStudents = async () => {
@@ -175,34 +149,32 @@ export default function AdminDashboard() {
   const inputClass = "w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all";
 
   const buildStats = () => {
-    const base = [
-      { value: totalStudents, label: "Total Students", link: "/students", to: "", color: "indigo" },
-      { value: totalLeaves, label: "Total Leave Requests", link: "/notificationsAndrequests", to: "", color: "sky" },
-      { value: totalPendingLeaves, label: "Pending Leaves", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
-      { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
-      { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" },
-      { value: totalCertificates, label: "Total Certificates", link: "/notificationsAndrequests", to: "pending-certificates", color: "purple" },
-      { value: totalPendingCertificates, label: "Pending Certificates", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
-      { value: totalApprovedCertificates, label: "Approved Certificates", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
-      { value: totalRejectedCertificates, label: "Rejected Certificates", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" },
-    ];
+    if (role === "Faculty") {
+      return [
+        { value: totalStudents, label: "Total Students", link: "/students", to: "", color: "indigo" },
+        { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" }
+      ];
+    }
+    
     if (role === "Departmental Admin") {
-      base.push(
-        { value: leavesForDepartmentalAdmin, label: "Faculty-Approved Leaves", link: "/notificationsAndrequests", to: "dept-leaves", color: "sky" },
-        { value: facultyLeaves, label: "Pending Faculty Leaves", link: "/notificationsAndrequests", to: "dept-leaves", color: "amber" },
-        { value: approvedFacultyLeaves, label: "Approved Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-approved-leaves", color: "green" },
-        { value: rejectedFacultyLeaves, label: "Rejected Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-rejected-leaves", color: "red" },
-      );
+      return [
+        { value: totalLeaves, label: "Total Leave Requests", link: "/notificationsAndrequests", to: "", color: "sky" },
+        { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
+        { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
+        { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" }
+      ];
     }
+    
     if (role === "Super Admin") {
-      base.push(
-        { value: approvedByDepartmentalAdmin, label: "Dept. Admin Approved", link: "/notificationsAndrequests", to: "dept-leaves", color: "sky" },
-        { value: pendingdepartmentalAdminLeave, label: "Pending Dept. Admin Leaves", link: "/notificationsAndrequests", to: "pending-dept-leaves", color: "amber" },
-        { value: approveddepartmentalAdminLeave, label: "Approved Dept. Admin Leaves", link: "/notificationsAndrequests", to: "accepted-dept-leaves", color: "green" },
-        { value: rejecteddepartmentalAdminLeave, label: "Rejected Dept. Admin Leaves", link: "/notificationsAndrequests", to: "rejected-dept-leaves", color: "red" },
-      );
+      return [
+        { value: totalCertificates, label: "Total Certificates & Admin Leaves", link: "/notificationsAndrequests", to: "pending-certificates", color: "purple" },
+        { value: totalPendingCertificates, label: "Pending Requests", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
+        { value: totalApprovedCertificates, label: "Approved Requests", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
+        { value: totalRejectedCertificates, label: "Rejected Requests", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" }
+      ];
     }
-    return base;
+    
+    return [];
   };
 
   const colorMap = {
