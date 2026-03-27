@@ -17,10 +17,9 @@ import { ToastContainer, toast } from "react-toastify";
 import { updateAdminLeaves } from "../utils/UPDATEAdminLeaves";
 import { getSuperAdminLeaves } from "../utils/GETLeavesForSuperAdmin";
 import { getFacultyLeaves } from "../utils/GETFacultyLeaves";
-import { getAdmins } from "../utils/GETOtherAdminsData";
-import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
-import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
+import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
+import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import ActivityTimeline from "./ActivityTimeline";
 import { getLeaveAuditLogs, getAdminLeaveAuditLogs, getCertificateAuditLogs } from "../utils/GETAuditLogs";
 
@@ -45,7 +44,7 @@ const TimelineBox = ({ requestId, requestType }) => {
 
   return (
     <div className="mt-3">
-      <button 
+      <button
         onClick={fetchLogs}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all"
       >
@@ -73,10 +72,8 @@ const StatusPill = ({ status }) => {
   );
 };
 
-// Shared input classes
 const inputCls = "w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all";
 
-// ─── Section heading ─────────────────────────────────────────────────────────
 const SectionHeading = ({ icon: Icon, title, count, color = "indigo", id }) => {
   const colors = {
     indigo: "text-indigo-400", sky: "text-sky-400", purple: "text-purple-400",
@@ -101,13 +98,12 @@ const LeaveCard = ({
 }) => (
   <div className="bg-white/[0.03] border border-white/8 hover:border-white/12 rounded-2xl overflow-hidden transition-all">
     <div className="p-5">
-      {/* Header row */}
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <p className="text-white font-mooxy font-semibold text-sm">
               {isAdminType
-                ? `${l.admin?.name}` 
+                ? `${l.admin?.name}`
                 : (l.studentName || l.studentId?.name || "Student")}
             </p>
             <StatusPill status={l.status} />
@@ -123,7 +119,6 @@ const LeaveCard = ({
         </p>
       </div>
 
-      {/* Details grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
         <div>
           <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-0.5">Subject / Type</p>
@@ -147,7 +142,6 @@ const LeaveCard = ({
         )}
       </div>
 
-      {/* Supporting doc */}
       {l.supportingDocument && (
         <a
           href={l.supportingDocument}
@@ -159,7 +153,6 @@ const LeaveCard = ({
         </a>
       )}
 
-      {/* Remark toggle + textarea */}
       <button
         onClick={() => setRemarkBox(remarkBox === l._id ? null : l._id)}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-mooxy transition-all mb-3"
@@ -170,36 +163,27 @@ const LeaveCard = ({
       {remarkBox === l._id && (
         <textarea
           rows={2}
-          placeholder="Enter remark before approving / rejecting…"
+          placeholder="Enter remark before taking action…"
           value={remark[l._id] || ""}
           onChange={(e) => setRemark((prev) => ({ ...prev, [l._id]: e.target.value }))}
           className={`${inputCls} resize-none mb-3`}
         />
       )}
 
-      {/* Confirm */}
-      {confirm === l._id && (
-        <button
-          onClick={handleConfirm}
-          className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-mooxy transition-all mb-3"
-        >
-          Confirm Action
-        </button>
-      )}
-
       <TimelineBox requestId={l._id} requestType={isAdminType ? "ADMIN_LEAVE" : "LEAVE"} />
     </div>
 
-    {/* Action footer */}
+    {/* Action footer — role-gated buttons */}
     {(showAcceptReject || showForwardReject) && (
       <div className="border-t border-white/5 px-5 py-3 flex flex-wrap gap-2 bg-white/[0.015]">
+        {/* Dept Admin / Super Admin: Approve + Reject */}
         {showAcceptReject && (
           <>
             <button
               onClick={() => isAdminType ? onAcceptAdmin(l._id) : onAccept(l._id)}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-green-500/15 hover:bg-green-500/25 border border-green-500/30 text-green-300 text-xs font-mooxy transition-all"
             >
-              <CheckCircle size={12} /> Accept
+              <CheckCircle size={12} /> Approve
             </button>
             <button
               onClick={() => isAdminType ? onRejectAdmin(l._id) : onReject(l._id)}
@@ -209,6 +193,7 @@ const LeaveCard = ({
             </button>
           </>
         )}
+        {/* Faculty: Forward + Reject (NO approve) */}
         {showForwardReject && (
           <>
             <button
@@ -230,10 +215,10 @@ const LeaveCard = ({
   </div>
 );
 
-// ─── Certificate card ─────────────────────────────────────────────────────────
+// ─── Certificate card — Super Admin only (Approve + Reject, NO Forward) ───────
 const CertCard = ({
-  c, remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm,
-  certificate, setCertificate, onAccept, onReject, onForward,
+  c, remark, setRemark, remarkBox, setRemarkBox,
+  certificate, setCertificate, onAccept, onReject,
   showActions,
 }) => (
   <div className="bg-white/[0.03] border border-white/8 hover:border-white/12 rounded-2xl overflow-hidden transition-all">
@@ -242,12 +227,12 @@ const CertCard = ({
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <p className="text-white font-mooxy font-semibold text-sm">
-              {c.studentName || c.studentId?.name || "Student"}
+              {c.student?.name || "Student"}
             </p>
             <StatusPill status={c.status} />
           </div>
           <p className="text-white/35 font-mooxy text-xs">
-            Reg No: {c.studentId?.registrationNumber || "N/A"}
+            Reg No: {c.student?.registrationNumber || "N/A"}
           </p>
         </div>
         <p className="text-white/25 font-mooxy text-xs">
@@ -315,21 +300,13 @@ const CertCard = ({
               />
             </label>
           </div>
-
-          {confirm === c._id && (
-            <button
-              onClick={handleConfirm}
-              className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-mooxy transition-all mb-3"
-            >
-              Confirm Action
-            </button>
-          )}
         </>
       )}
 
       <TimelineBox requestId={c._id} requestType="CERTIFICATE" />
     </div>
 
+    {/* Certificate actions: Approve + Reject only — no Forward for certificates */}
     {showActions && (
       <div className="border-t border-white/5 px-5 py-3 flex flex-wrap gap-2 bg-white/[0.015]">
         <button
@@ -337,12 +314,6 @@ const CertCard = ({
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-green-500/15 hover:bg-green-500/25 border border-green-500/30 text-green-300 text-xs font-mooxy transition-all"
         >
           <CheckCircle size={12} /> Approve
-        </button>
-        <button
-          onClick={() => onForward(c._id)}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-mooxy transition-all"
-        >
-          <UserCheck size={12} /> Forward
         </button>
         <button
           onClick={() => onReject(c._id)}
@@ -363,7 +334,7 @@ const EmptyState = ({ label }) => (
   </div>
 );
 
-// ─── Read-only info card (approved / rejected sections) ───────────────────────
+// ─── Read-only info card ───────────────────────────────────────────────────────
 const InfoCard = ({ l, isAdminType = false }) => (
   <div className="bg-white/[0.02] border border-white/6 rounded-2xl p-5 hover:border-white/10 transition-all">
     <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
@@ -400,7 +371,7 @@ const CertInfoCard = ({ c }) => (
     <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
       <div className="flex items-center gap-2 flex-wrap">
         <p className="text-white/70 font-mooxy text-sm font-semibold">
-          {c.studentName || c.studentId?.name || "Student"} — {c.studentId?.registrationNumber || ""}
+          {c.student?.name || "Student"} — {c.student?.registrationNumber || ""}
         </p>
         <StatusPill status={c.status} />
       </div>
@@ -427,6 +398,7 @@ const CertInfoCard = ({ c }) => (
 export const NotificationsAndRequest = () => {
   const location = useLocation();
 
+  // ── Scroll to section on mount if target is set ──────────────────────────
   useEffect(() => {
     if (location.state?.target) {
       const scrollToSection = () => {
@@ -441,236 +413,306 @@ export const NotificationsAndRequest = () => {
     }
   }, [location]);
 
-  const [pendingleaves, setPendingLeaves] = useState([]);
+  // ── User role — sourced from dashboard API call (not inferred from other responses) ──
+  const [userRole, setUserRole] = useState(null);
+  const [loadingRole, setLoadingRole] = useState(true);
+
+  // ── Student leaves ────────────────────────────────────────────────────────
+  const [pendingLeaves, setPendingLeaves] = useState([]);
   const [acceptedLeaves, setAcceptedLeaves] = useState([]);
   const [rejectedLeaves, setRejectedLeaves] = useState([]);
-  const [pendingCertificates, setPendingCertificates] = useState([]);
-  const [acceptedCertificates, setAcceptedCertificates] = useState([]);
-  const [rejectedCertificates, setRejectedCertificates] = useState([]);
-  const [supportingDocument, setSupportingDocument] = useState([]);
+  const [forwardedLeaves, setForwardedLeaves] = useState([]);
+
+  // ── Faculty leaves (for DeptAdmin) ───────────────────────────────────────
   const [pendingFacultyLeaves, setPendingFacultyLeaves] = useState([]);
   const [acceptedFacultyLeaves, setAcceptedFacultyLeaves] = useState([]);
   const [rejectedFacultyLeaves, setRejectedFacultyLeaves] = useState([]);
+
+  // ── Dept Admin leaves (for Super Admin) ──────────────────────────────────
+  const [pendingDeptAdminLeaves, setPendingDeptAdminLeaves] = useState([]);
+  const [approvedDeptAdminLeaves, setApprovedDeptAdminLeaves] = useState([]);
+  const [rejectedDeptAdminLeaves, setRejectedDeptAdminLeaves] = useState([]);
+
+  // ── Certificates ──────────────────────────────────────────────────────────
+  const [pendingCertificates, setPendingCertificates] = useState([]);
+  const [acceptedCertificates, setAcceptedCertificates] = useState([]);
+  const [rejectedCertificates, setRejectedCertificates] = useState([]);
+
+  // ── UI state ──────────────────────────────────────────────────────────────
   const [remarkBox, setRemarkBox] = useState(null);
   const [remark, setRemark] = useState({});
-  const [confirm, setConfirm] = useState(false);
   const [certificate, setCertificate] = useState({});
   const [showFilters, setShowFilters] = useState(false);
-  const [otherAdmins, setOtherAdmins] = useState(false);
-  const [departmentalAdmin, setDepartmentalAdmin] = useState(false);
-  const [departmentalAdminApproved, setDepartmentalAdminApproved] = useState([]);
-  const [approvedByFaculty, setApprovedByFaculty] = useState([]);
-  const [leavesOfDepartmentalAdmin, setLeavesForDepartmentalAdmin] = useState([]);
-  const [approvedByDepartmentalAdmin, setapprovedByDepartmentalAdmin] = useState([]);
-  const [rejecteddepartmentalAdminLeave, setrejectedDepartmentalAdminLeave] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  function handleClickOnConfirm() {
-    console.log(remark);
-    setTimeout(() => { window.location.reload(); }, 1000);
-  }
-
+  // ─── Step 1: Fetch the logged-in admin's role ────────────────────────────
   useEffect(() => {
-    const fetchData = async () => {
-      const otheradmins = await getAdmins();
-      const departmental = await getDepartmentalAdmin();
-      if (otheradmins) setOtherAdmins(true);
-      if (departmental.data) {
-        setDepartmentalAdmin(true);
-        const adminApproved = await getSuperAdminLeaves();
-        setDepartmentalAdminApproved(adminApproved);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchLeaves = async () => {
-      const res = await getAllLeaves();
-      const res1 = await getFacultyLeaves();
-      const res2 = await getLeavesForDepartmentalAdmin();
-      const res3 = await getDepartmentalAdminLeave();
-      if (res3) {
-        setLeavesForDepartmentalAdmin(res3.filter((leave) => leave.status === "pending"));
-        setapprovedByDepartmentalAdmin(res3.filter((leave) => leave.status === "approved"));
-        setrejectedDepartmentalAdminLeave(res3.filter((leave) => leave.status === "rejected"));
-      }
-      if (res2) setApprovedByFaculty(res2);
-      if (res) {
-        setPendingLeaves(res.filter((leave) => leave.status === "pending"));
-        setAcceptedLeaves(res.filter((leave) => leave.status === "approved"));
-        setRejectedLeaves(res.filter((leave) => leave.status === "rejected"));
-        setSupportingDocument(res.supportingDocument);
-      }
-      if (res1) {
-        setPendingFacultyLeaves(res1.filter((leave) => leave.status === "pending"));
-        setAcceptedFacultyLeaves(res1.filter((leave) => leave.status === "approved"));
-        setRejectedFacultyLeaves(res1.filter((leave) => leave.status === "rejected"));
-      }
-    };
-    fetchLeaves();
-  }, []);
-
-  useEffect(() => {
-    const fetchCertificates = async () => {
+    const fetchRole = async () => {
       try {
-        const res = await getAllCertificatesRequests();
-        if (res) {
-          setPendingCertificates(res.filter((cert) => cert.status === "pending"));
-          setAcceptedCertificates(res.filter((cert) => cert.status === "approved"));
-          setRejectedCertificates(res.filter((cert) => cert.status === "rejected"));
-        }
-      } catch (err) { console.error("Error fetching certificates:", err); }
+        const data = await getAdminDashboard();
+        if (data?.role) setUserRole(data.role);
+      } catch (err) {
+        console.error("Failed to fetch admin role:", err);
+      } finally {
+        setLoadingRole(false);
+      }
     };
-    fetchCertificates();
+    fetchRole();
   }, []);
 
-  const handleClickOnAccept = (leaveId) => {
-    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
-    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "approved", remark: remark[leaveId] } : l));
-    setConfirm(confirm === leaveId ? null : leaveId);
-    updateLeaveStatus(leaveId, "approved", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
-    });
+  // ─── Step 2: Fetch data based on role ───────────────────────────────────
+  useEffect(() => {
+    if (!userRole) return; // Don't fetch until role is known
+
+    const fetchData = async () => {
+      try {
+        if (userRole === "Faculty") {
+          // Faculty sees only student leaves assigned to them (currentHandlerRole = FACULTY)
+          const res = await getAllLeaves();
+          if (Array.isArray(res)) {
+            setPendingLeaves(res.filter((l) => l.status === "pending"));
+            setRejectedLeaves(res.filter((l) => l.status === "rejected")); // Faculty's own rejected
+          }
+
+        } else if (userRole === "Departmental Admin") {
+          // DeptAdmin sees ALL student leaves
+          const studentLeaves = await getLeavesForDepartmentalAdmin();
+          if (Array.isArray(studentLeaves)) {
+            setPendingLeaves(studentLeaves.filter((l) => l.status === "pending"));
+            setForwardedLeaves(studentLeaves.filter((l) => l.status === "forwarded"));
+            setAcceptedLeaves(studentLeaves.filter((l) => l.status === "approved"));
+            setRejectedLeaves(studentLeaves.filter((l) => l.status === "rejected"));
+          }
+          // DeptAdmin sees faculty leaves assigned to them
+          const facultyLeaves = await getFacultyLeaves();
+          if (Array.isArray(facultyLeaves)) {
+            setPendingFacultyLeaves(facultyLeaves.filter((l) => l.status === "pending"));
+            setAcceptedFacultyLeaves(facultyLeaves.filter((l) => l.status === "approved"));
+            setRejectedFacultyLeaves(facultyLeaves.filter((l) => l.status === "rejected"));
+          }
+
+        } else if (userRole === "Super Admin") {
+          // Super Admin sees all student leaves (read-only)
+          const studentLeaves = await getSuperAdminLeaves();
+          if (Array.isArray(studentLeaves)) {
+            setPendingLeaves(studentLeaves.filter((l) => l.status === "pending"));
+            setForwardedLeaves(studentLeaves.filter((l) => l.status === "forwarded"));
+            setAcceptedLeaves(studentLeaves.filter((l) => l.status === "approved"));
+            setRejectedLeaves(studentLeaves.filter((l) => l.status === "rejected"));
+          }
+          // Super Admin acts on DeptAdmin leaves
+          const deptAdminLeaves = await getDepartmentalAdminLeave();
+          if (Array.isArray(deptAdminLeaves)) {
+            setPendingDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "pending"));
+            setApprovedDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "approved"));
+            setRejectedDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "rejected"));
+          }
+          // Super Admin sees all certificates
+          const certRes = await getAllCertificatesRequests();
+          if (Array.isArray(certRes)) {
+            setPendingCertificates(certRes.filter((c) => c.status === "pending"));
+            setAcceptedCertificates(certRes.filter((c) => c.status === "approved"));
+            setRejectedCertificates(certRes.filter((c) => c.status === "rejected"));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+
+    fetchData();
+  }, [userRole]);
+
+  // ─── Refresh all data (post-action) ─────────────────────────────────────
+  const refreshData = async () => {
+    if (!userRole) return;
+    try {
+      if (userRole === "Faculty") {
+        const res = await getAllLeaves();
+        if (Array.isArray(res)) {
+          setPendingLeaves(res.filter((l) => l.status === "pending"));
+          setRejectedLeaves(res.filter((l) => l.status === "rejected"));
+        }
+      } else if (userRole === "Departmental Admin") {
+        const studentLeaves = await getLeavesForDepartmentalAdmin();
+        if (Array.isArray(studentLeaves)) {
+          setPendingLeaves(studentLeaves.filter((l) => l.status === "pending"));
+          setForwardedLeaves(studentLeaves.filter((l) => l.status === "forwarded"));
+          setAcceptedLeaves(studentLeaves.filter((l) => l.status === "approved"));
+          setRejectedLeaves(studentLeaves.filter((l) => l.status === "rejected"));
+        }
+        const facultyLeaves = await getFacultyLeaves();
+        if (Array.isArray(facultyLeaves)) {
+          setPendingFacultyLeaves(facultyLeaves.filter((l) => l.status === "pending"));
+          setAcceptedFacultyLeaves(facultyLeaves.filter((l) => l.status === "approved"));
+          setRejectedFacultyLeaves(facultyLeaves.filter((l) => l.status === "rejected"));
+        }
+      } else if (userRole === "Super Admin") {
+        const deptAdminLeaves = await getDepartmentalAdminLeave();
+        if (Array.isArray(deptAdminLeaves)) {
+          setPendingDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "pending"));
+          setApprovedDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "approved"));
+          setRejectedDeptAdminLeaves(deptAdminLeaves.filter((l) => l.status === "rejected"));
+        }
+        const certRes = await getAllCertificatesRequests();
+        if (Array.isArray(certRes)) {
+          setPendingCertificates(certRes.filter((c) => c.status === "pending"));
+          setAcceptedCertificates(certRes.filter((c) => c.status === "approved"));
+          setRejectedCertificates(certRes.filter((c) => c.status === "rejected"));
+        }
+      }
+    } catch (err) {
+      console.error("Error refreshing data:", err);
+    }
   };
 
-  const handleClickOnAcceptAdminLeave = (leaveId) => {
-    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
-    setPendingFacultyLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "approved", remark: remark[leaveId] } : l));
-    setConfirm(confirm === leaveId ? null : leaveId);
-    updateAdminLeaves(leaveId, "approved", remark[leaveId]).catch(() => {
-      setPendingFacultyLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
-    });
+  // ─── Action handlers — student leaves ────────────────────────────────────
+  const handleForward = async (leaveId) => {
+    if (!remark[leaveId]) { toast.error("Enter a remark first!"); return; }
+    const res = await updateLeaveStatus(leaveId, "forwarded", remark[leaveId]);
+    if (res) {
+      toast.success("Leave forwarded to Departmental Admin");
+      setPendingLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      setForwardedLeaves((prev) => [...prev, { ...prev.find(l => l._id === leaveId), status: "forwarded" }]);
+      setRemark((prev) => { const n = { ...prev }; delete n[leaveId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to forward leave. Please try again.");
+    }
   };
 
-  const handleClickOnRejectAdminLeave = (leaveId) => {
-    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
-    setPendingFacultyLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "rejected", remark: remark[leaveId] } : l));
-    setConfirm(confirm === leaveId ? null : leaveId);
-    updateAdminLeaves(leaveId, "rejected", remark[leaveId]).catch(() => {
-      setPendingFacultyLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
-    });
+  const handleRejectStudentLeave = async (leaveId) => {
+    if (!remark[leaveId]) { toast.error("Enter a remark first!"); return; }
+    const res = await updateLeaveStatus(leaveId, "rejected", remark[leaveId]);
+    if (res) {
+      toast.success("Leave rejected");
+      setPendingLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      setForwardedLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[leaveId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to reject leave. Please try again.");
+    }
   };
 
-  const handleClickOnReject = (leaveId) => {
-    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
-    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "rejected", remark: remark[leaveId] } : l));
-    setConfirm(confirm === leaveId ? null : leaveId);
-    updateLeaveStatus(leaveId, "rejected", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
-    });
+  const handleApproveStudentLeave = async (leaveId) => {
+    if (!remark[leaveId]) { toast.error("Enter a remark first!"); return; }
+    const res = await updateLeaveStatus(leaveId, "approved", remark[leaveId]);
+    if (res) {
+      toast.success("Leave approved");
+      setPendingLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      setForwardedLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[leaveId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to approve leave. Please try again.");
+    }
   };
 
-  const handleClickOnAcceptCertificate = (certId) => {
-    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
-    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
+  // ─── Action handlers — admin leaves (Faculty + DeptAdmin) ────────────────
+  const handleApproveAdminLeave = async (leaveId) => {
+    if (!remark[leaveId]) { toast.error("Enter a remark first!"); return; }
+    const res = await updateAdminLeaves(leaveId, "approved", remark[leaveId]);
+    if (res) {
+      toast.success("Leave approved");
+      setPendingFacultyLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      setPendingDeptAdminLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[leaveId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to approve leave. Please try again.");
+    }
+  };
+
+  const handleRejectAdminLeave = async (leaveId) => {
+    if (!remark[leaveId]) { toast.error("Enter a remark first!"); return; }
+    const res = await updateAdminLeaves(leaveId, "rejected", remark[leaveId]);
+    if (res) {
+      toast.success("Leave rejected");
+      setPendingFacultyLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      setPendingDeptAdminLeaves((prev) => prev.filter((l) => l._id !== leaveId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[leaveId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to reject leave. Please try again.");
+    }
+  };
+
+  // ─── Action handlers — certificates ──────────────────────────────────────
+  const handleApproveCertificate = async (certId) => {
+    if (!remark[certId]) { toast.error("Enter a remark first!"); return; }
+    if (!certificate[certId]) { toast.error("Please upload the certificate document"); return; }
     const formData = new FormData();
     formData.append("certId", certId);
     formData.append("status", "approved");
     formData.append("remark", remark[certId]);
     formData.append("addCertificate", certificate[certId]);
-    setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c)));
-    setConfirm(confirm === certId ? null : certId);
-    updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c)));
-    });
+    const res = await updateCertificateStatus(formData);
+    if (res) {
+      toast.success("Certificate approved");
+      setPendingCertificates((prev) => prev.filter((c) => c._id !== certId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[certId]; return n; });
+      setCertificate((prev) => { const n = { ...prev }; delete n[certId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to approve certificate. Please try again.");
+    }
   };
 
-  const handleClickOnForwardLeaveApplication = (leaveId) => {
-    if (!remark[leaveId]) { toast.error("Enter the remark first!!!"); return; }
-    setPendingLeaves((prev) => prev.map((l) => l._id === leaveId ? { ...l, status: "forwarded", remark: remark[leaveId] } : l));
-    setConfirm(confirm === leaveId ? null : leaveId);
-    updateLeaveStatus(leaveId, "forwarded", remark[leaveId]).catch(() => {
-      setPendingLeaves((prev) => prev.map((l) => (l._id === leaveId ? { ...l, status: "pending" } : l)));
-    });
-  };
-
-  const handleClickOnRejectCertificate = (certId) => {
-    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
-    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
+  const handleRejectCertificate = async (certId) => {
+    if (!remark[certId]) { toast.error("Enter a remark first!"); return; }
     const formData = new FormData();
     formData.append("certId", certId);
     formData.append("status", "rejected");
     formData.append("remark", remark[certId]);
-    formData.append("addCertificate", certificate[certId]);
-    setPendingCertificates((prev) => prev.map((c) => c._id === certId ? { ...c, status: "rejected", remark: remark[certId] } : c));
-    setConfirm(confirm === certId ? null : certId);
-    updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) => prev.map((c) => c._id === certId ? { ...c, status: "pending", remark: remark[certId] } : c));
-    });
+    if (certificate[certId]) formData.append("addCertificate", certificate[certId]);
+    const res = await updateCertificateStatus(formData);
+    if (res) {
+      toast.success("Certificate rejected");
+      setPendingCertificates((prev) => prev.filter((c) => c._id !== certId));
+      await refreshData();
+      setRemark((prev) => { const n = { ...prev }; delete n[certId]; return n; });
+      setRemarkBox(null);
+    } else {
+      toast.error("Failed to reject certificate. Please try again.");
+    }
   };
 
-  const handleClickOnForwardCertificate = (certId) => {
-    if (!remark[certId]) { toast.error("Enter the remark first!!!"); return; }
-    if (!certificate[certId]) { toast.error("Add a certificate"); return; }
-    const formData = new FormData();
-    formData.append("certId", certId);
-    formData.append("status", "forwarded");
-    formData.append("remark", remark[certId]);
-    formData.append("addCertificate", certificate[certId]);
-    setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "approved" } : c)));
-    setConfirm(confirm === certId ? null : certId);
-    updateCertificateStatus(formData).catch(() => {
-      setPendingCertificates((prev) => prev.map((c) => (c._id === certId ? { ...c, status: "pending" } : c)));
-    });
-  };
-
+  // ─── Time-based filter ────────────────────────────────────────────────────
   const now = new Date();
-  const oneDay = 1000 * 60 * 60 * 24;
-  const oneWeek = oneDay * 7;
-  const oneMonth = oneWeek * 4;
+  const filterByTime = (arr, ms) => arr.filter((item) => now - new Date(item.createdAt) < ms);
 
-  async function handleClickOnLastDayRequets() {
-    const res1 = await getAllLeaves();
-    if (res1) {
-      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneDay));
-      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneDay));
-      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneDay));
-      setSupportingDocument(res1.supportingDocument);
-    }
-    const res2 = await getAllCertificatesRequests();
-    if (res2) {
-      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneDay));
-      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneDay));
-      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneDay));
-    }
+  const applyTimeFilter = (ms) => {
+    setPendingLeaves((prev) => filterByTime(prev, ms));
+    setAcceptedLeaves((prev) => filterByTime(prev, ms));
+    setRejectedLeaves((prev) => filterByTime(prev, ms));
+    setForwardedLeaves((prev) => filterByTime(prev, ms));
+    setPendingCertificates((prev) => filterByTime(prev, ms));
+    setAcceptedCertificates((prev) => filterByTime(prev, ms));
+    setRejectedCertificates((prev) => filterByTime(prev, ms));
+  };
+
+  // Shared props for cards
+  const sharedLeaveProps = { remark, setRemark, remarkBox, setRemarkBox, confirm: null, handleConfirm: () => {} };
+  const sharedCertProps = { remark, setRemark, remarkBox, setRemarkBox, certificate, setCertificate };
+
+  // ─── Role-based flags ─────────────────────────────────────────────────────
+  const isFaculty = userRole === "Faculty";
+  const isDeptAdmin = userRole === "Departmental Admin";
+  const isSuperAdmin = userRole === "Super Admin";
+
+  if (loadingRole) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827] flex items-center justify-center">
+        <p className="text-white/40 font-mooxy text-sm">Loading…</p>
+      </div>
+    );
   }
-
-  async function handleClickOnLastWeekRequets() {
-    const res1 = await getAllLeaves();
-    if (res1) {
-      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneWeek));
-      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneWeek));
-      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneWeek));
-      setSupportingDocument(res1.supportingDocument);
-    }
-    const res2 = await getAllCertificatesRequests();
-    if (res2) {
-      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneWeek));
-      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneWeek));
-      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneWeek));
-    }
-  }
-
-  async function handleClickOnLastMonthRequets() {
-    const res1 = await getAllLeaves();
-    if (res1) {
-      setPendingLeaves(res1.filter((leave) => leave.status === "pending" && now - new Date(leave.createdAt) < oneMonth));
-      setAcceptedLeaves(res1.filter((leave) => leave.status === "approved" && now - new Date(leave.createdAt) < oneMonth));
-      setRejectedLeaves(res1.filter((leave) => leave.status === "rejected" && now - new Date(leave.createdAt) < oneMonth));
-      setSupportingDocument(res1.supportingDocument);
-    }
-    const res2 = await getAllCertificatesRequests();
-    if (res2) {
-      setPendingCertificates(res2.filter((cert) => cert.status === "pending" && now - new Date(cert.createdAt) < oneMonth));
-      setAcceptedCertificates(res2.filter((cert) => cert.status === "approved" && now - new Date(cert.createdAt) < oneMonth));
-      setRejectedCertificates(res2.filter((cert) => cert.status === "rejected" && now - new Date(cert.createdAt) < oneMonth));
-    }
-  }
-
-  // Shared card props
-  const sharedLeaveProps = { remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm: handleClickOnConfirm };
-  const sharedCertProps = { remark, setRemark, remarkBox, setRemarkBox, confirm, handleConfirm: handleClickOnConfirm, certificate, setCertificate };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827]">
@@ -694,6 +736,10 @@ export const NotificationsAndRequest = () => {
                 <ArrowLeft size={14} /> Dashboard
               </button>
             </Link>
+            {/* Role badge */}
+            <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy">
+              {userRole}
+            </div>
             <div className="relative">
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -704,11 +750,11 @@ export const NotificationsAndRequest = () => {
               {showFilters && (
                 <div className="absolute top-full right-0 mt-2 w-44 bg-[#1a1f2e] border border-white/10 rounded-xl shadow-xl p-1.5 z-20 flex flex-col gap-0.5">
                   {[
-                    { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
-                    { label: "Last 7 days",   fn: handleClickOnLastWeekRequets },
-                    { label: "Last 30 days",  fn: handleClickOnLastMonthRequets },
-                  ].map(({ label, fn }) => (
-                    <button key={label} onClick={() => { fn(); setShowFilters(false); }}
+                    { label: "Last 24 hours", ms: 1000 * 60 * 60 * 24 },
+                    { label: "Last 7 days",   ms: 1000 * 60 * 60 * 24 * 7 },
+                    { label: "Last 30 days",  ms: 1000 * 60 * 60 * 24 * 30 },
+                  ].map(({ label, ms }) => (
+                    <button key={label} onClick={() => { applyTimeFilter(ms); setShowFilters(false); }}
                       className="w-full text-left px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/8 text-sm font-mooxy transition-all">
                       {label}
                     </button>
@@ -730,23 +776,12 @@ export const NotificationsAndRequest = () => {
                 <ArrowLeft size={14} /> Back to Dashboard
               </button>
             </Link>
-            {[
-              { label: "Last 24 hours", fn: handleClickOnLastDayRequets },
-              { label: "Last 7 days",   fn: handleClickOnLastWeekRequets },
-              { label: "Last 30 days",  fn: handleClickOnLastMonthRequets },
-            ].map(({ label, fn }) => (
-              <button key={label} onClick={() => { fn(); setMenuOpen(false); }}
-                className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy">
-                {label}
-              </button>
-            ))}
           </div>
         )}
       </nav>
 
-      {/* ─── Page Content ──────────────────────────────────────────────── */}
+      {/* ─── Page Content ────────────────────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-5 pb-20">
-        {/* Page header */}
         <div className="pt-10 pb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mooxy mb-3">
             <FileText size={11} /> Admin Panel
@@ -755,200 +790,226 @@ export const NotificationsAndRequest = () => {
           <p className="text-white/40 font-mooxy text-sm mt-1.5">Review, approve, reject and forward all leave and certificate requests.</p>
         </div>
 
-        {/* ── LEAVE REQUESTS ─────────────────────────────────────────── */}
-        <SectionHeading icon={Calendar} title="All Leave Requests" color="indigo" />
+        {/* ════════════════ STUDENT LEAVE REQUESTS ════════════════════════ */}
+        <SectionHeading icon={Calendar} title="Student Leave Requests" color="indigo" id="student-leaves" />
 
-        {/* Departmental Admin: Faculty-approved leaves */}
-        {departmentalAdmin && approvedByFaculty.length > 0 && (
-          <div className="mb-8" id="dept-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Faculty-Approved Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {approvedByFaculty.map((l) => <InfoCard key={l._id || l.studentId?._id} l={l} />)}
-            </div>
-          </div>
-        )}
-
-        {/* Pending dept admin leaves (for super admin) */}
-        {departmentalAdmin && leavesOfDepartmentalAdmin.length > 0 && (
-          <div className="mb-8" id="pending-dept-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Pending Departmental Admin Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {leavesOfDepartmentalAdmin.map((l) => (
-                <LeaveCard
-                  key={l._id || l.admin?._id}
-                  l={l}
-                  {...sharedLeaveProps}
-                  onAccept={handleClickOnAccept}
-                  onReject={handleClickOnReject}
-                  onAcceptAdmin={handleClickOnAcceptAdminLeave}
-                  onRejectAdmin={handleClickOnRejectAdminLeave}
-                  onForward={handleClickOnForwardLeaveApplication}
-                  showAcceptReject={!!(otherAdmins || departmentalAdmin)}
-                  showForwardReject={!(otherAdmins || departmentalAdmin)}
-                  isAdminType
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Accepted dept admin leaves */}
-        {departmentalAdmin && approvedByDepartmentalAdmin.length > 0 && (
-          <div className="mb-8" id="accepted-dept-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Departmental Admin Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {approvedByDepartmentalAdmin.map((l) => <InfoCard key={l._id || l.admin?._id} l={l} isAdminType />)}
-            </div>
-          </div>
-        )}
-
-        {/* Rejected dept admin leaves */}
-        {departmentalAdmin && rejecteddepartmentalAdminLeave.length > 0 && (
-          <div className="mb-8" id="rejected-dept-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Departmental Admin Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {rejecteddepartmentalAdminLeave.map((l) => <InfoCard key={l._id || l.admin?._id} l={l} isAdminType />)}
-            </div>
-          </div>
-        )}
-
-        {/* Pending student leaves */}
+        {/* Pending Student Leaves */}
         <div className="mb-8" id="pending-leaves">
           <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
-            Pending Student Leaves
-            {pendingleaves.length > 0 && <span className="ml-2 text-amber-400">({pendingleaves.length})</span>}
+            Pending
+            {pendingLeaves.length > 0 && <span className="ml-2 text-amber-400">({pendingLeaves.length})</span>}
           </p>
-          {pendingleaves.length > 0 ? (
+          {pendingLeaves.length > 0 ? (
             <div className="grid grid-cols-1 gap-3">
-              {pendingleaves.map((l) => (
+              {pendingLeaves.map((l) => (
                 <LeaveCard
                   key={l._id}
                   l={l}
                   {...sharedLeaveProps}
-                  onAccept={handleClickOnAccept}
-                  onReject={handleClickOnReject}
-                  onAcceptAdmin={handleClickOnAcceptAdminLeave}
-                  onRejectAdmin={handleClickOnRejectAdminLeave}
-                  onForward={handleClickOnForwardLeaveApplication}
-                  showAcceptReject={!!(otherAdmins || departmentalAdmin)}
-                  showForwardReject={!(otherAdmins || departmentalAdmin)}
+                  onAccept={handleApproveStudentLeave}
+                  onReject={handleRejectStudentLeave}
+                  onForward={handleForward}
+                  onAcceptAdmin={handleApproveAdminLeave}
+                  onRejectAdmin={handleRejectAdminLeave}
+                  // DeptAdmin: Approve + Reject; Faculty: Forward + Reject; SuperAdmin: read-only
+                  showAcceptReject={isDeptAdmin}
+                  showForwardReject={isFaculty}
                 />
               ))}
             </div>
           ) : <EmptyState label="No pending leave requests." />}
         </div>
 
-        {/* Accepted student leaves */}
-        <div className="mb-8" id="accepted-leaves">
-          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Student Leaves</p>
-          {acceptedLeaves.length > 0 ? (
+        {/* Forwarded Student Leaves (DeptAdmin/SuperAdmin can see) */}
+        {(isDeptAdmin || isSuperAdmin) && forwardedLeaves.length > 0 && (
+          <div className="mb-8" id="forwarded-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+              Forwarded by Faculty <span className="ml-2 text-sky-400">({forwardedLeaves.length})</span>
+            </p>
             <div className="grid grid-cols-1 gap-3">
-              {acceptedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
-            </div>
-          ) : <EmptyState label="No approved leaves yet." />}
-        </div>
-
-        {/* Rejected student leaves */}
-        <div className="mb-10" id="rejected-leaves">
-          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Student Leaves</p>
-          {rejectedLeaves.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3">
-              {rejectedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
-            </div>
-          ) : <EmptyState label="No rejected leaves." />}
-        </div>
-
-        {/* Faculty leaves */}
-        {pendingFacultyLeaves.length > 0 && (
-          <>
-            <SectionHeading icon={Users} title="Faculty Leave Requests" color="sky" />
-            <div className="mb-8" id="faculty-pending-leaves">
-              <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
-                Pending Faculty Leaves <span className="text-amber-400">({pendingFacultyLeaves.length})</span>
-              </p>
-              <div className="grid grid-cols-1 gap-3">
-                {pendingFacultyLeaves.map((l) => (
-                  <LeaveCard
-                    key={l._id}
-                    l={l}
-                    {...sharedLeaveProps}
-                    onAccept={handleClickOnAccept}
-                    onReject={handleClickOnReject}
-                    onAcceptAdmin={handleClickOnAcceptAdminLeave}
-                    onRejectAdmin={handleClickOnRejectAdminLeave}
-                    onForward={handleClickOnForwardLeaveApplication}
-                    showAcceptReject
-                    isAdminType
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {acceptedFacultyLeaves.length > 0 && (
-          <div className="mb-8" id="faculty-approved-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Faculty Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {acceptedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
-            </div>
-          </div>
-        )}
-
-        {rejectedFacultyLeaves.length > 0 && (
-          <div className="mb-10" id="faculty-rejected-leaves">
-            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Faculty Leaves</p>
-            <div className="grid grid-cols-1 gap-3">
-              {rejectedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
-            </div>
-          </div>
-        )}
-
-        {/* ── CERTIFICATE REQUESTS ───────────────────────────────────── */}
-        <SectionHeading icon={FileText} title="Certificate Requests" color="purple" />
-
-        {/* Pending certificates */}
-        <div className="mb-8" id="pending-certificates">
-          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
-            Pending Certificates
-            {pendingCertificates.length > 0 && <span className="ml-2 text-amber-400">({pendingCertificates.length})</span>}
-          </p>
-          {pendingCertificates.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3">
-              {pendingCertificates.map((c) => (
-                <CertCard
-                  key={c._id}
-                  c={c}
-                  {...sharedCertProps}
-                  onAccept={handleClickOnAcceptCertificate}
-                  onReject={handleClickOnRejectCertificate}
-                  onForward={handleClickOnForwardCertificate}
-                  showActions
+              {forwardedLeaves.map((l) => (
+                <LeaveCard
+                  key={l._id}
+                  l={l}
+                  {...sharedLeaveProps}
+                  onAccept={handleApproveStudentLeave}
+                  onReject={handleRejectStudentLeave}
+                  onForward={handleForward}
+                  onAcceptAdmin={handleApproveAdminLeave}
+                  onRejectAdmin={handleRejectAdminLeave}
+                  showAcceptReject={isDeptAdmin}  // Only DeptAdmin can act; SuperAdmin views only
+                  showForwardReject={false}
                 />
               ))}
             </div>
-          ) : <EmptyState label="No pending certificate requests." />}
-        </div>
+          </div>
+        )}
 
-        {/* Approved certificates */}
-        <div className="mb-8" id="approved-certificates">
-          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Certificates</p>
-          {acceptedCertificates.length > 0 ? (
+        {/* Approved Student Leaves */}
+        {acceptedLeaves.length > 0 && (
+          <div className="mb-8" id="accepted-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved</p>
             <div className="grid grid-cols-1 gap-3">
-              {acceptedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
+              {acceptedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
             </div>
-          ) : <EmptyState label="No approved certificates yet." />}
-        </div>
+          </div>
+        )}
 
-        {/* Rejected certificates */}
-        <div className="mb-8" id="rejected-certificates">
-          <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Certificates</p>
-          {rejectedCertificates.length > 0 ? (
+        {/* Rejected Student Leaves */}
+        {rejectedLeaves.length > 0 && (
+          <div className="mb-10" id="rejected-leaves">
+            <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected</p>
             <div className="grid grid-cols-1 gap-3">
-              {rejectedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
+              {rejectedLeaves.map((l) => <InfoCard key={l._id} l={l} />)}
             </div>
-          ) : <EmptyState label="No rejected certificates." />}
-        </div>
+          </div>
+        )}
+
+        {/* ════════════════ FACULTY LEAVE REQUESTS (DeptAdmin only) ═══════ */}
+        {isDeptAdmin && (
+          <>
+            <SectionHeading icon={Users} title="Faculty Leave Requests" color="sky" id="faculty-leaves" />
+
+            {pendingFacultyLeaves.length > 0 ? (
+              <div className="mb-8" id="faculty-pending-leaves">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+                  Pending <span className="text-amber-400">({pendingFacultyLeaves.length})</span>
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  {pendingFacultyLeaves.map((l) => (
+                    <LeaveCard
+                      key={l._id}
+                      l={l}
+                      {...sharedLeaveProps}
+                      onAccept={handleApproveStudentLeave}
+                      onReject={handleRejectStudentLeave}
+                      onForward={handleForward}
+                      onAcceptAdmin={handleApproveAdminLeave}
+                      onRejectAdmin={handleRejectAdminLeave}
+                      showAcceptReject       // DeptAdmin approves/rejects faculty leave
+                      showForwardReject={false}
+                      isAdminType
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : <EmptyState label="No pending faculty leave requests." />}
+
+            {acceptedFacultyLeaves.length > 0 && (
+              <div className="mb-8" id="faculty-approved-leaves">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {acceptedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+                </div>
+              </div>
+            )}
+
+            {rejectedFacultyLeaves.length > 0 && (
+              <div className="mb-10" id="faculty-rejected-leaves">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {rejectedFacultyLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ════════════════ DEPT ADMIN LEAVES (Super Admin only) ══════════ */}
+        {isSuperAdmin && (
+          <>
+            <SectionHeading icon={ShieldCheck} title="Departmental Admin Leave Requests" color="amber" id="deptadmin-leaves" />
+
+            {pendingDeptAdminLeaves.length > 0 ? (
+              <div className="mb-8" id="deptadmin-pending-leaves">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+                  Pending Action <span className="text-amber-400">({pendingDeptAdminLeaves.length})</span>
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  {pendingDeptAdminLeaves.map((l) => (
+                    <LeaveCard
+                      key={l._id}
+                      l={l}
+                      {...sharedLeaveProps}
+                      onAccept={handleApproveStudentLeave}
+                      onReject={handleRejectStudentLeave}
+                      onForward={handleForward}
+                      onAcceptAdmin={handleApproveAdminLeave}
+                      onRejectAdmin={handleRejectAdminLeave}
+                      showAcceptReject       // Super Admin approves/rejects dept admin leave
+                      showForwardReject={false}
+                      isAdminType
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : <EmptyState label="No pending departmental admin leave requests." />}
+
+            {approvedDeptAdminLeaves.length > 0 && (
+              <div className="mb-8">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved Dept Admin Leaves</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {approvedDeptAdminLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+                </div>
+              </div>
+            )}
+
+            {rejectedDeptAdminLeaves.length > 0 && (
+              <div className="mb-10">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected Dept Admin Leaves</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {rejectedDeptAdminLeaves.map((l) => <InfoCard key={l._id} l={l} isAdminType />)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ════════════════ CERTIFICATE REQUESTS (Super Admin only) ════════ */}
+        {isSuperAdmin && (
+          <>
+            <SectionHeading icon={FileText} title="Certificate Requests" color="purple" id="certificate-requests" />
+
+            <div className="mb-8" id="pending-certificates">
+              <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">
+                Pending
+                {pendingCertificates.length > 0 && <span className="ml-2 text-amber-400">({pendingCertificates.length})</span>}
+              </p>
+              {pendingCertificates.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {pendingCertificates.map((c) => (
+                    <CertCard
+                      key={c._id}
+                      c={c}
+                      {...sharedCertProps}
+                      onAccept={handleApproveCertificate}
+                      onReject={handleRejectCertificate}
+                      showActions
+                    />
+                  ))}
+                </div>
+              ) : <EmptyState label="No pending certificate requests." />}
+            </div>
+
+            {acceptedCertificates.length > 0 && (
+              <div className="mb-8" id="approved-certificates">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Approved</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {acceptedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
+                </div>
+              </div>
+            )}
+
+            {rejectedCertificates.length > 0 && (
+              <div className="mb-8" id="rejected-certificates">
+                <p className="text-white/40 font-mooxy text-xs uppercase tracking-wider mb-3">Rejected</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {rejectedCertificates.map((c) => <CertInfoCard key={c._id} c={c} />)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <Footer />
