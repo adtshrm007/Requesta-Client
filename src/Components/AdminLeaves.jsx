@@ -35,10 +35,10 @@ export const AdminLeaves = () => {
     const getLeaves = async () => {
       const res = await getAdminLeaves();
       console.log(res);
-      if (res && Array.isArray(res.data)) {
-        setLeave(res.data);
+      if (Array.isArray(res)) {
+        setLeave(res);
         const now = new Date();
-        const notifs = res.data.filter(
+        const notifs = res.filter(
           (item) =>
             (item.status === "approved" || item.status === "rejected") &&
             now - new Date(item.updatedAt) < oneDay

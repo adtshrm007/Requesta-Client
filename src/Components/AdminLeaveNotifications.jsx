@@ -20,10 +20,10 @@ export default function AdminLeaveNotifications() {
   useEffect(() => {
     const fetchLeaves = async () => {
       const res = await getAdminLeaves();
-      if (res && Array.isArray(res.data)) {
+      if (Array.isArray(res)) {
         const now = new Date();
         const oneDay = 1000 * 60 * 60 * 24;
-        const r = res.data.filter(
+        const r = res.filter(
           (item) =>
             (item.status === "approved" || item.status === "rejected") &&
             now - new Date(item.updatedAt) < oneDay
