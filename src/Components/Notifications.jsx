@@ -25,6 +25,8 @@ export default function Notifications() {
   async function showLeaves() {
     try {
       const res = await getLeaves();
+      if (!Array.isArray(res)) return;
+      
       const now = new Date();
       const oneDay = 1000 * 60 * 60 * 24;
       const r = res.filter(
@@ -40,6 +42,8 @@ export default function Notifications() {
   async function showCertificates() {
     try {
       const res = await showAllCertificates();
+      if (!Array.isArray(res)) return;
+      
       const now = new Date();
       const oneDay = 1000 * 60 * 60 * 24;
       const r = res.filter(

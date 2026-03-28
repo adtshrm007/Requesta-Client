@@ -20,7 +20,7 @@ export default function AdminLeaveNotifications() {
   useEffect(() => {
     const fetchLeaves = async () => {
       const res = await getAdminLeaves();
-      if (res) {
+      if (res && Array.isArray(res.data)) {
         const now = new Date();
         const oneDay = 1000 * 60 * 60 * 24;
         const r = res.data.filter(

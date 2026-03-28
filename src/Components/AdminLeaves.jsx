@@ -35,7 +35,7 @@ export const AdminLeaves = () => {
     const getLeaves = async () => {
       const res = await getAdminLeaves();
       console.log(res);
-      if (res) {
+      if (res && Array.isArray(res.data)) {
         setLeave(res.data);
         const now = new Date();
         const notifs = res.data.filter(
