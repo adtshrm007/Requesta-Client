@@ -5,6 +5,9 @@ import { getAllCertificatesRequests } from "../utils/GETAllCertificateRequests";
 import { useState, useEffect, useRef } from "react";
 import { getFacultyLeaves } from "../utils/GETFacultyLeaves";
 import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
+import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
+import { getSuperAdminLeaves } from "../utils/GETLeavesForSuperAdmin";
+import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import { Bell, Calendar, FileText, User, ArrowLeft, Users, ShieldCheck, Menu, X, Clock } from "lucide-react";
 import gsap from "gsap";
 
@@ -19,47 +22,45 @@ export default function NotificationsForAdmin() {
   const navRef = useRef(null);
   const contentRef = useRef(null);
 
+  const [role, setRole] = useState(null);
+
   useEffect(() => {
     gsap.fromTo(navRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" });
     gsap.fromTo(contentRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, delay: 0.2, ease: "power3.out" });
-  }, []);
 
-  async function showLeaves() {
-    try {
-      const res = await getAllLeaves();
-      setLeaves(res.filter((item) => item.status === "pending"));
-    } catch (err) { console.log(err); }
-  }
+    const fetchRoleAndData = async () => {
+      try {
+        const adminData = await getAdminDashboard();
+        if (adminData?.role) {
+          setRole(adminData.role);
+          const currentRole = adminData.role;
 
-  async function showFacultyLeaves() {
-    try {
-      const facultyleaves = await getFacultyLeaves();
-      const r = facultyleaves.filter((item) => item.status === "pending");
-      if (r.length > 0) setFaculty(true);
-      setFacultyLeaves(r);
-    } catch (err) { console.log(err); }
-  }
+          if (currentRole === "Faculty") {
+            const res = await getAllLeaves();
+            if (Array.isArray(res)) setLeaves(res.filter(i => i.status === "pending"));
+          } else if (currentRole === "Departmental Admin") {
+            const studentLeaves = await getLeavesForDepartmentalAdmin();
+            if (Array.isArray(studentLeaves)) setLeaves(studentLeaves.filter(i => i.status === "pending" || i.status === "forwarded"));
+            
+            const pFacultyLeaves = await getFacultyLeaves();
+            if (Array.isArray(pFacultyLeaves)) {
+              const pendingF = pFacultyLeaves.filter(i => i.status === "pending");
+              setFacultyLeaves(pendingF);
+              if (pendingF.length > 0) setFaculty(true);
+            }
+          } else if (currentRole === "Super Admin") {
+            const certs = await getAllCertificatesRequests();
+            if (Array.isArray(certs)) setCertificates(certs.filter(i => i.status === "pending"));
 
-  async function showDepartmentalLeaves() {
-    try {
-      const fleaves = await getDepartmentalAdminLeave();
-      console.log(fleaves);
-      setDepartmentalLeaves(fleaves.filter((item) => item.status === "pending"));
-    } catch (err) { console.log(err); }
-  }
-
-  async function showCertificates() {
-    try {
-      const res = await getAllCertificatesRequests();
-      setCertificates(res.filter((item) => item.status === "pending"));
-    } catch (err) { console.log(err); }
-  }
-
-  useEffect(() => {
-    showLeaves();
-    showCertificates();
-    showFacultyLeaves();
-    showDepartmentalLeaves();
+            const dLeaves = await getDepartmentalAdminLeave();
+            if (Array.isArray(dLeaves)) setDepartmentalLeaves(dLeaves.filter(i => i.status === "pending"));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+    fetchRoleAndData();
   }, []);
 
   const total = leaves.length + certificates.length + facultyLeaves.length + departmetalLeaves.length;

@@ -19,8 +19,9 @@ import Loader from "./Loader";
 import gsap from "gsap";
 import {
   Menu, X, Bell, User, Users, UserPlus, ShieldCheck, Calendar,
-  FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft, BarChart2, Activity, PieChart
+  FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft, BarChart2, Activity, PieChart as PieChartIcon
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -207,6 +208,39 @@ export default function AdminDashboard() {
     red: { bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-400", num: "text-red-300" },
   };
 
+  // Prepare chart data based on role
+  const pieData = role === "Departmental Admin" ? [
+    { name: 'Approved', value: totalApprovedLeaves + approvedFacultyLeaves, color: '#10B981' },
+    { name: 'Rejected', value: totalRejectedLeaves + rejectedFacultyLeaves, color: '#EF4444' },
+    { name: 'Pending', value: totalPendingLeaves + (notifications - totalPendingLeaves), color: '#F59E0B' }
+  ] : role === "Super Admin" ? [
+    { name: 'Approved', value: analytics?.approvedRequests || 0, color: '#10B981' },
+    { name: 'Rejected', value: analytics?.rejectedRequests || 0, color: '#EF4444' },
+    { name: 'Pending', value: analytics?.pendingRequests || 0, color: '#F59E0B' }
+  ] : [];
+
+  const barData = role === "Departmental Admin" ? [
+    { name: 'Student Leaves', count: totalLeaves },
+    { name: 'Faculty Leaves', count: facultyLeaves }
+  ] : role === "Super Admin" ? [
+    { name: 'Student', count: studentLeavesCount },
+    { name: 'Faculty', count: facultyLeavesCount },
+    { name: 'Dept Admin', count: deptAdminLeavesCount },
+    { name: 'Certificates', count: certificateRequestsCount }
+  ] : [];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-[#1a1f2e] border border-white/10 p-3 rounded-lg shadow-xl outline-none">
+          <p className="text-white/60 font-mooxy text-xs mb-1">{label || payload[0].name}</p>
+          <p className="text-white font-growmajour text-lg">{payload[0].value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0B0F19] via-[#0D1117] to-[#111827] flex flex-col">
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
@@ -378,7 +412,7 @@ export default function AdminDashboard() {
 
                   <div className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <PieChart size={20} className="text-green-400" />
+                      <PieChartIcon size={20} className="text-green-400" />
                     </div>
                     <div>
                       <p className="text-white/40 font-mooxy text-[11px] uppercase tracking-wider mb-1">Approval Rate</p>
@@ -399,6 +433,57 @@ export default function AdminDashboard() {
                         <p className="text-red-400 font-growmajour text-2xl">{analytics.rejectionRate}%</p>
                         <p className="text-white/30 font-mooxy text-xs mb-1">({analytics.rejectedRequests})</p>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Graph Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+                  <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+                    <h3 className="text-white font-growmajour text-lg mb-6">Request Distribution</h3>
+                    <div className="h-64 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} tickLine={false} axisLine={false} />
+                          <YAxis stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} tickLine={false} axisLine={false} />
+                          <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
+                          <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+                    <h3 className="text-white font-growmajour text-lg mb-6">Status Overview</h3>
+                    <div className="h-64 w-full flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieData.filter(d => d.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            {pieData.filter(d => d.value > 0).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip content={<CustomTooltip />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex items-center justify-center gap-6 mt-2">
+                      {pieData.map((d, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{backgroundColor: d.color}}></div>
+                          <span className="text-white/50 text-xs font-mooxy">{d.name}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
