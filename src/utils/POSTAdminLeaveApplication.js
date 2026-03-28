@@ -9,7 +9,6 @@ export const submitAdminLeaveApplication = async (leavedata) => {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "multipart/form-data",
         },
       }
     );

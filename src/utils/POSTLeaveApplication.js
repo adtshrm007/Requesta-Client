@@ -8,7 +8,6 @@ export const submitLeaves = async (leavedata) => {
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "multipart/form-data",
       },
     }
   );

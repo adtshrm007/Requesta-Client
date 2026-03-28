@@ -9,7 +9,6 @@ export const updateCertificateStatus = async (formData) => {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "multipart/form-data",
         },
       }
     );
