@@ -88,7 +88,7 @@ export default function AdminDashboard() {
       if (admin?.role) {
         setRole(admin.role);
         if (admin.role === "Super Admin" || admin.role === "Departmental Admin") {
-          const stats = await getAnalyticsSummary(localStorage.getItem("adminToken"));
+          const stats = await getAnalyticsSummary(localStorage.getItem("adminaccessToken"));
           setAnalytics(stats);
         }
       }
@@ -503,7 +503,7 @@ export default function AdminDashboard() {
 
             {/* AI System Insights (Super/Dept Admin only) */}
             {(role === "Departmental Admin" || role === "Super Admin") && (
-              <SystemInsightsPanel token={localStorage.getItem("adminToken")} />
+              <SystemInsightsPanel token={localStorage.getItem("adminaccessToken")} />
             )}
 
           </div>

@@ -369,7 +369,7 @@ const StudentDashboard = () => {
                 </div>
                 
                 <AIAssistantPanel 
-                  token={localStorage.getItem("studentToken")} 
+                  token={localStorage.getItem("accessToken")} 
                   type="LEAVE" 
                   onApply={(result) => {
                     setSubject(result.title);
@@ -378,7 +378,7 @@ const StudentDashboard = () => {
                 />
                 
                 <AIValidatorPanel 
-                  token={localStorage.getItem("studentToken")}
+                  token={localStorage.getItem("accessToken")}
                   type="LEAVE"
                   getText={() => reason}
                   onApply={(newText) => setReason(newText)}
@@ -434,7 +434,7 @@ const StudentDashboard = () => {
                 </div>
 
                 <AIAssistantPanel 
-                  token={localStorage.getItem("studentToken")} 
+                  token={localStorage.getItem("accessToken")} 
                   type="CERTIFICATE" 
                   onApply={(result) => {
                     setPurpose(result.title);
@@ -444,7 +444,7 @@ const StudentDashboard = () => {
                 />
 
                 <AIValidatorPanel 
-                  token={localStorage.getItem("studentToken")}
+                  token={localStorage.getItem("accessToken")}
                   type="CERTIFICATE"
                   getText={() => purpose}
                   onApply={(newText) => setPurpose(newText)}

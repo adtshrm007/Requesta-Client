@@ -25,7 +25,7 @@ export default function AnalyticsDashboard() {
 
   useEffect(() => {
     const fetchAnalytics = async () => {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminaccessToken");
       if (!token) {
         navigate("/adminlogin");
         return;

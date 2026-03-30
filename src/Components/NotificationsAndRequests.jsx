@@ -35,7 +35,7 @@ const TimelineBox = ({ requestId, requestType }) => {
     if (open) { setOpen(false); return; }
     setLoading(true);
     setOpen(true);
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("adminaccessToken");
     let data = [];
     if (requestType === "LEAVE") data = await getLeaveAuditLogs(requestId, token);
     else if (requestType === "ADMIN_LEAVE") data = await getAdminLeaveAuditLogs(requestId, token);
@@ -119,7 +119,7 @@ const LeaveCard = ({
                 : (l.studentName || l.studentId?.name || "Student")}
               
               {!isAdminType && l.studentId?._id && (
-                <FraudBadge studentId={l.studentId._id} token={localStorage.getItem("adminToken")} expanded={false} />
+                <FraudBadge studentId={l.studentId._id} token={localStorage.getItem("adminaccessToken")} expanded={false} />
               )}
             </p>
             <StatusPill status={l.status} role={role} />
@@ -188,7 +188,7 @@ const LeaveCard = ({
 
       {(showAcceptReject || showForwardReject) && (
         <ApprovalAISuggestion 
-          token={localStorage.getItem("adminToken")}
+          token={localStorage.getItem("adminaccessToken")}
           reason={l.Reason || l.reason}
           duration={l.fromDate ? `${new Date(l.fromDate).toLocaleDateString()} to ${l.toDate ? new Date(l.toDate).toLocaleDateString() : "Present"}` : ""}
           userHistory={null} // Can be extended to fetch user history if needed
@@ -254,7 +254,7 @@ const CertificateCard = ({
             <p className="text-white font-mooxy font-semibold text-sm flex items-center gap-2">
               {c.student?.name || "Student"}
               {c.student?._id && (
-                <FraudBadge studentId={c.student._id} token={localStorage.getItem("adminToken")} expanded={false} />
+                <FraudBadge studentId={c.student._id} token={localStorage.getItem("adminaccessToken")} expanded={false} />
               )}
             </p>
             <StatusPill status={c.status} role={role} />
@@ -333,7 +333,7 @@ const CertificateCard = ({
 
       {showActions && (
         <ApprovalAISuggestion 
-          token={localStorage.getItem("adminToken")}
+          token={localStorage.getItem("adminaccessToken")}
           reason={`Certificate Request: ${c.CertificateType} - ${c.purpose}`}
           duration="N/A"
           userHistory={null}
