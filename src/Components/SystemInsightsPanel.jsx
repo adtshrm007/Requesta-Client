@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Sparkles, TrendingUp, AlertTriangle, Lightbulb, RefreshCw, Loader2, ArrowRight, CheckCircle } from "lucide-react";
+import {
+  Sparkles,
+  TrendingUp,
+  AlertTriangle,
+  Lightbulb,
+  RefreshCw,
+  Loader2,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 import { getSystemInsights } from "../utils/GETSystemInsights";
 
 /**
@@ -38,7 +47,9 @@ const SystemInsightsPanel = ({ token }) => {
               <Sparkles size={20} className="text-indigo-400" />
             </div>
             <div>
-              <h2 className="font-growmajour text-2xl text-white">AI System Insights</h2>
+              <h2 className="font-growmajour text-2xl text-white">
+                AI System Insights
+              </h2>
               <p className="text-indigo-300/60 font-mooxy text-xs mt-0.5">
                 Automated analysis of the last 30 days
               </p>
@@ -50,7 +61,11 @@ const SystemInsightsPanel = ({ token }) => {
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm font-mooxy transition-all disabled:opacity-50 w-fit"
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+            {loading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <RefreshCw size={14} />
+            )}
             Refresh Insights
           </button>
         </div>
@@ -76,17 +91,25 @@ const SystemInsightsPanel = ({ token }) => {
                 <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center">
                   <TrendingUp size={16} className="text-sky-400" />
                 </div>
-                <h3 className="text-sky-100 font-mooxy font-semibold text-sm uppercase tracking-wider">Observed Trends</h3>
+                <h3 className="text-sky-100 font-mooxy font-semibold text-sm uppercase tracking-wider">
+                  Observed Trends
+                </h3>
               </div>
               <ul className="flex flex-col gap-3">
                 {data.trends?.length > 0 ? (
                   data.trends.map((t, i) => (
-                    <li key={i} className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed">
-                      <span className="text-sky-500 mt-1 flex-shrink-0">›</span> {t}
+                    <li
+                      key={i}
+                      className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed"
+                    >
+                      <span className="text-sky-500 mt-1 flex-shrink-0">›</span>{" "}
+                      {t}
                     </li>
                   ))
                 ) : (
-                  <p className="text-white/30 text-xs italic">No significant trends detected.</p>
+                  <p className="text-white/30 text-xs italic">
+                    No significant trends detected.
+                  </p>
                 )}
               </ul>
             </div>
@@ -97,19 +120,27 @@ const SystemInsightsPanel = ({ token }) => {
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                   <AlertTriangle size={16} className="text-red-400" />
                 </div>
-                <h3 className="text-red-100 font-mooxy font-semibold text-sm uppercase tracking-wider">Actionable Alerts</h3>
+                <h3 className="text-red-100 font-mooxy font-semibold text-sm uppercase tracking-wider">
+                  Actionable Alerts
+                </h3>
               </div>
               <ul className="flex flex-col gap-3">
                 {data.alerts?.length > 0 ? (
                   data.alerts.map((a, i) => (
-                    <li key={i} className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed">
-                      <span className="text-red-500 mt-1 flex-shrink-0">›</span> {a}
+                    <li
+                      key={i}
+                      className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed"
+                    >
+                      <span className="text-red-500 mt-1 flex-shrink-0">›</span>{" "}
+                      {a}
                     </li>
                   ))
                 ) : (
                   <div className="flex items-center gap-2 mt-2">
                     <CheckCircle size={14} className="text-emerald-500" />
-                    <p className="text-white/40 text-sm font-mooxy">All systems nominal. No alerts.</p>
+                    <p className="text-white/40 text-sm font-mooxy">
+                      All systems nominal. No alerts.
+                    </p>
                   </div>
                 )}
               </ul>
@@ -121,17 +152,36 @@ const SystemInsightsPanel = ({ token }) => {
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
                   <Lightbulb size={16} className="text-amber-400" />
                 </div>
-                <h3 className="text-amber-100 font-mooxy font-semibold text-sm uppercase tracking-wider">AI Suggestions</h3>
+                <h3 className="text-amber-100 font-mooxy font-semibold text-sm uppercase tracking-wider">
+                  AI Suggestions
+                </h3>
               </div>
               <ul className="flex flex-col gap-3">
                 {data.suggestions?.length > 0 ? (
                   data.suggestions.map((s, i) => (
-                    <li key={i} className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed">
-                      <span className="text-amber-500 mt-1 flex-shrink-0">›</span> {s}
+                    <li
+                      key={i}
+                      className="flex flex-col gap-1 text-white/60 font-mooxy text-sm leading-relaxed"
+                    >
+                      <div className="flex gap-2">
+                        <span className="text-amber-500 mt-1 flex-shrink-0">
+                          ›
+                        </span>
+                        <span>{typeof s === "string" ? s : s.suggestion}</span>
+                      </div>
+
+                      {/* Optional reason (if object) */}
+                      {typeof s === "object" && s.reason && (
+                        <span className="text-white/30 text-xs pl-5">
+                          {s.reason}
+                        </span>
+                      )}
                     </li>
                   ))
                 ) : (
-                  <p className="text-white/30 text-xs italic">No suggestions available.</p>
+                  <p className="text-white/30 text-xs italic">
+                    No suggestions available.
+                  </p>
                 )}
               </ul>
             </div>
