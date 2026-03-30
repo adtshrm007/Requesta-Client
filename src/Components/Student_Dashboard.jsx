@@ -372,16 +372,21 @@ const StudentDashboard = () => {
                   token={localStorage.getItem("accessToken")} 
                   type="LEAVE" 
                   onApply={(result) => {
-                    setSubject(result.title);
-                    setReason(result.description);
+                    setSubject(result.subject);
+                    setReason(result.body);
                   }}
                 />
                 
                 <AIValidatorPanel 
                   token={localStorage.getItem("accessToken")}
                   type="LEAVE"
-                  getText={() => reason}
-                  onApply={(newText) => setReason(newText)}
+                  subject={subject}
+                  reason={reason}
+                  hasDocument={!!supportingDocument}
+                  onApply={(improved) => {
+                    setSubject(improved.subject);
+                    setReason(improved.reason);
+                  }}
                 />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnLeaveSubmit} encType="multipart/form-data">
@@ -437,17 +442,17 @@ const StudentDashboard = () => {
                   token={localStorage.getItem("accessToken")} 
                   type="CERTIFICATE" 
                   onApply={(result) => {
-                    setPurpose(result.title);
-                    // The certificate form doesn't have a large description field currently,
-                    // but we set the purpose. The AI can still give suggestions.
+                    setPurpose(result.subject);
                   }}
                 />
 
                 <AIValidatorPanel 
                   token={localStorage.getItem("accessToken")}
                   type="CERTIFICATE"
-                  getText={() => purpose}
-                  onApply={(newText) => setPurpose(newText)}
+                  subject={purpose}
+                  reason={purpose}
+                  hasDocument={!!supportingDocument}
+                  onApply={(improved) => setPurpose(improved.reason)}
                 />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnCertificateSubmit} encType="multipart/form-data">

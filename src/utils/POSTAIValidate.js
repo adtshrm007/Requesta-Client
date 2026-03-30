@@ -2,12 +2,11 @@ const BASE_URL = "https://requesta-server-3.onrender.com";
 
 /**
  * POST /api/ai/validate-request
- * @param {string} text    - The request text to validate
- * @param {string} type    - "LEAVE" | "CERTIFICATE"
+ * @param {{ subject, reason, hasDocument, type }} payload
  * @param {string} token   - Auth token (student or admin)
- * @returns {{ validity, issues[], suggestedRewrite } | null}
+ * @returns {{ validity, issues[], missingElements[], suggestions[], improvedVersion: { subject, reason } } | null}
  */
-export const validateAIRequest = async (text, type = "LEAVE", token) => {
+export const validateAIRequest = async (payload, token) => {
   try {
     const res = await fetch(`${BASE_URL}/api/ai/validate-request`, {
       method: "POST",
@@ -15,7 +14,7 @@ export const validateAIRequest = async (text, type = "LEAVE", token) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ text, type }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
