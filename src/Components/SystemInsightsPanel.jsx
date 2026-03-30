@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sparkles, TrendingUp, AlertTriangle, Lightbulb, RefreshCw, Loader2, ArrowRight } from "lucide-react";
+import { Sparkles, TrendingUp, AlertTriangle, Lightbulb, RefreshCw, Loader2, ArrowRight, CheckCircle } from "lucide-react";
 import { getSystemInsights } from "../utils/GETSystemInsights";
 
 /**
