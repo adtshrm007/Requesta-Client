@@ -59,6 +59,20 @@ A central aspect of Requesta is its ability to immediately parse authorization t
 
 ---
 
+## 🤖 AI-Powered Workflow Intelligence
+
+Requesta now ships with advanced, context-aware AI modules integrated directly into the front-end components, powered by Google Gemini:
+
+### Student Tools
+- **AI Validator Panel:** Before a student clicks 'Submit', they can validate their form text. The UI produces explicit "Actionable Changes" if the request is vague or informal, ensuring zero delays due to poor communication.
+- **AI Request Assistant:** A generative AI interface built directly into the Leave/Certificate request form that fully formats professional requests from casual prompts (e.g., "Requesting 2 days leave for sister's wedding").
+
+### Administrative Tools
+- **Approval AI Suggestion:** Located on Admin request cards, this tool analyzes the student's reason, dates, history, and uploaded PDF documents. It explicitly tags requests as "Approve", "Reject", or "Review" based on institutional logic.
+- **System Insights Panel:** A high-level AI analyst available to Departmental and Super Admins. It displays real-time generated trends, operational alerts, and workflow optimization suggestions based on the live data within the MongoDB aggregations.
+
+---
+
 ## 🏗️ Directory Roadmap
 
 A detailed look into the `/src` folder structure:
