@@ -29,7 +29,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
     setResult(null);
 
     try {
-      const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+      const BASE_URL = "https://requesta-server-3.onrender.com";
       const res = await fetch(`${BASE_URL}/api/ai/generate-request`, {
         method: "POST",
         headers: {
@@ -45,6 +45,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
         setError("AI assistant is not available. Please fill in the details manually.");
       }
     } catch (err) {
+      console.error(err);
       setError("Could not reach AI service. Please fill in the form manually.");
     } finally {
       setLoading(false);
