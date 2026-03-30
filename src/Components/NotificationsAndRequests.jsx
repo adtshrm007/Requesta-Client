@@ -22,6 +22,8 @@ import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmental
 import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import ActivityTimeline from "./ActivityTimeline";
 import { getLeaveAuditLogs, getAdminLeaveAuditLogs, getCertificateAuditLogs } from "../utils/GETAuditLogs";
+import ApprovalAISuggestion from "./ApprovalAISuggestion";
+import FraudBadge from "./FraudBadge";
 
 // ─── Timeline Wrapper ────────────────────────────────────────────────────────
 const TimelineBox = ({ requestId, requestType }) => {
@@ -111,10 +113,14 @@ const LeaveCard = ({
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <p className="text-white font-mooxy font-semibold text-sm">
+            <p className="text-white font-mooxy font-semibold text-sm flex items-center gap-2">
               {isAdminType
                 ? `${l.admin?.name}`
                 : (l.studentName || l.studentId?.name || "Student")}
+              
+              {!isAdminType && l.studentId?._id && (
+                <FraudBadge studentId={l.studentId._id} token={localStorage.getItem("adminToken")} expanded={false} />
+              )}
             </p>
             <StatusPill status={l.status} role={role} />
           </div>
@@ -180,6 +186,15 @@ const LeaveCard = ({
         />
       )}
 
+      {(showAcceptReject || showForwardReject) && (
+        <ApprovalAISuggestion 
+          token={localStorage.getItem("adminToken")}
+          reason={l.Reason || l.reason}
+          duration={l.fromDate ? `${new Date(l.fromDate).toLocaleDateString()} to ${l.toDate ? new Date(l.toDate).toLocaleDateString() : "Present"}` : ""}
+          userHistory={null} // Can be extended to fetch user history if needed
+        />
+      )}
+
       <TimelineBox requestId={l._id} requestType={isAdminType ? "ADMIN_LEAVE" : "LEAVE"} />
     </div>
 
@@ -236,8 +251,11 @@ const CertificateCard = ({
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <p className="text-white font-mooxy font-semibold text-sm">
+            <p className="text-white font-mooxy font-semibold text-sm flex items-center gap-2">
               {c.student?.name || "Student"}
+              {c.student?._id && (
+                <FraudBadge studentId={c.student._id} token={localStorage.getItem("adminToken")} expanded={false} />
+              )}
             </p>
             <StatusPill status={c.status} role={role} />
           </div>
@@ -311,6 +329,15 @@ const CertificateCard = ({
             </label>
           </div>
         </>
+      )}
+
+      {showActions && (
+        <ApprovalAISuggestion 
+          token={localStorage.getItem("adminToken")}
+          reason={`Certificate Request: ${c.CertificateType} - ${c.purpose}`}
+          duration="N/A"
+          userHistory={null}
+        />
       )}
 
       <TimelineBox requestId={c._id} requestType="CERTIFICATE" />

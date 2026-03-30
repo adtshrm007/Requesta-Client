@@ -13,6 +13,7 @@ import { Menu, X, Bell, User, Plus, FileText, Calendar, Download, ChevronDown, C
 import Loader from "./Loader";
 import gsap from "gsap";
 import AIAssistantPanel from "./AIAssistantPanel";
+import AIValidatorPanel from "./AIValidatorPanel";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -375,6 +376,13 @@ const StudentDashboard = () => {
                     setReason(result.description);
                   }}
                 />
+                
+                <AIValidatorPanel 
+                  token={localStorage.getItem("studentToken")}
+                  type="LEAVE"
+                  getText={() => reason}
+                  onApply={(newText) => setReason(newText)}
+                />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnLeaveSubmit} encType="multipart/form-data">
                   <div>
@@ -433,6 +441,13 @@ const StudentDashboard = () => {
                     // The certificate form doesn't have a large description field currently,
                     // but we set the purpose. The AI can still give suggestions.
                   }}
+                />
+
+                <AIValidatorPanel 
+                  token={localStorage.getItem("studentToken")}
+                  type="CERTIFICATE"
+                  getText={() => purpose}
+                  onApply={(newText) => setPurpose(newText)}
                 />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnCertificateSubmit} encType="multipart/form-data">

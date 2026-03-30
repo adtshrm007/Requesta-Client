@@ -22,6 +22,7 @@ import {
   FileText, ArrowRight, Upload, ChevronDown, Plus, ArrowLeft, BarChart2, Activity, PieChart as PieChartIcon
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import SystemInsightsPanel from "./SystemInsightsPanel";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -274,6 +275,11 @@ export default function AdminDashboard() {
               <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><Users size={14} /> Students</button>
             </Link>
             {(role === "Departmental Admin" || role === "Super Admin") && (
+              <Link to="/analytics">
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><BarChart2 size={14} /> Analytics</button>
+              </Link>
+            )}
+            {(role === "Departmental Admin" || role === "Super Admin") && (
               <Link to="/addadmin">
                 <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy"><UserPlus size={14} /> Add Admin</button>
               </Link>
@@ -316,6 +322,11 @@ export default function AdminDashboard() {
                 </button>
               </Link>
             ))}
+            {(role === "Departmental Admin" || role === "Super Admin") && (
+              <Link to="/analytics" onClick={() => setMenuOpen(false)}>
+                <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2"><BarChart2 size={14} /> Analytics</button>
+              </Link>
+            )}
             {(role === "Departmental Admin" || role === "Super Admin") && (
               <Link to="/addadmin" onClick={() => setMenuOpen(false)}>
                 <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all font-mooxy flex items-center gap-2"><UserPlus size={14} /> Add Admin</button>
@@ -490,10 +501,16 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* AI System Insights (Super/Dept Admin only) */}
+            {(role === "Departmental Admin" || role === "Super Admin") && (
+              <SystemInsightsPanel token={localStorage.getItem("adminToken")} />
+            )}
+
           </div>
         )}
 
         {/* Admin Leave Request Form */}
+
         {leaveRequest && (
           <div className="max-w-[600px] mx-auto px-5 py-10">
             <div className="mb-8">

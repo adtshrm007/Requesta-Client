@@ -18,6 +18,7 @@ import ChangePassword from './Components/ChangePassword';
 import { NotificationsAndRequest } from './Components/NotificationsAndRequests';
 import { AdminLeaves } from './Components/AdminLeaves';
 import AdminLeaveNotifications from './Components/AdminLeaveNotifications';
+import AnalyticsDashboard from './Components/AnalyticsDashboard';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 const root = document.getElementById('root');
@@ -44,6 +45,7 @@ app.render(
       <Route path="/otherAdmins" element={<OtherAdmins/>}/>
       <Route path="/adminleaves" element={<AdminLeaves/>}/>
       <Route path="/adminleavenotifications" element={<AdminLeaveNotifications/>}/>
+      <Route path="/analytics" element={<AnalyticsDashboard/>}/>
     </Routes>
   </BrowserRouter>
 );
