@@ -29,7 +29,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
     setResult(null);
 
     try {
-      const BASE_URL = "http://localhost:3000";
+      const BASE_URL = "https://requesta-server-3.onrender.com";
       const res = await fetch(`${BASE_URL}/api/ai/generate-request`, {
         method: "POST",
         headers: {

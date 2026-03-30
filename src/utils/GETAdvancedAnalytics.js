@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "https://requesta-server-3.onrender.com";
 
 /**
  * GET /api/analytics/advanced
