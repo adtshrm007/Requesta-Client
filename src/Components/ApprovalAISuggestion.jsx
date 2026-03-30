@@ -17,7 +17,7 @@ const confidenceColors = {
 /**
  * ApprovalAISuggestion — advisory panel for admins inside Leave/Certificate cards.
  */
-const ApprovalAISuggestion = ({ token, reason, duration, userHistory }) => {
+const ApprovalAISuggestion = ({ token, reason, duration, userHistory, hasDocument = false }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -30,9 +30,10 @@ const ApprovalAISuggestion = ({ token, reason, duration, userHistory }) => {
     setError(null);
     
     const payload = {
-      reason: reason || "No reason provided",
+      reason: reason || "",
       duration: duration || "Not specified",
-      userHistory
+      userHistory,
+      hasDocument,
     };
 
     const data = await getApprovalSuggestion(payload, token);

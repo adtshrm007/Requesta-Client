@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   ShieldCheck, ShieldAlert, ShieldOff, Loader2, AlertCircle,
-  CheckCircle, XCircle, ChevronDown, ChevronUp, Sparkles, RefreshCw
+  CheckCircle, XCircle, ChevronDown, ChevronUp, Sparkles, RefreshCw, ArrowRight
 } from "lucide-react";
 import { validateAIRequest } from "../utils/POSTAIValidate";
 
@@ -156,13 +156,29 @@ const AIValidatorPanel = ({ token, type = "LEAVE", getText, onApply }) => {
                 {result.issues && result.issues.length > 0 && (
                   <div className="mb-4">
                     <p className="text-white/40 font-mooxy text-[11px] uppercase tracking-wider mb-2">
-                      Issues Found
+                       Why this needs improvement
                     </p>
                     <ul className="flex flex-col gap-1.5">
                       {result.issues.map((issue, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400/60 mt-1.5 flex-shrink-0" />
-                          <p className="text-amber-200/70 font-mooxy text-xs leading-relaxed">{issue}</p>
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 mt-1.5 flex-shrink-0" />
+                          <p className="text-red-200/70 font-mooxy text-xs leading-relaxed">{issue}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Actionable Changes */}
+                {result.actionableChanges && result.actionableChanges.length > 0 && (
+                  <div className="mb-4 bg-sky-500/10 border border-sky-500/20 p-3 rounded-xl">
+                    <p className="text-sky-300 font-mooxy text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <ArrowRight size={12} className="text-sky-400" /> What to Change
+                    </p>
+                    <ul className="flex flex-col gap-2">
+                      {result.actionableChanges.map((change, i) => (
+                        <li key={`action-${i}`} className="flex items-start gap-2 text-sky-100 font-mooxy text-xs leading-relaxed">
+                          <span className="text-sky-400 flex-shrink-0">•</span> {change}
                         </li>
                       ))}
                     </ul>

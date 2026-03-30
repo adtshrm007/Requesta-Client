@@ -2,7 +2,7 @@ const BASE_URL = "https://requesta-server-3.onrender.com";
 
 /**
  * POST /api/ai/approval-suggestion
- * @param {{ reason, duration, userHistory }} payload
+ * @param {{ reason, duration, userHistory, hasDocument }} payload
  * @param {string} token - Admin auth token
  * @returns {{ decision, confidence, reasoning } | null}
  */

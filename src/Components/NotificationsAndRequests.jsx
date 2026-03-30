@@ -192,6 +192,7 @@ const LeaveCard = ({
           reason={l.Reason || l.reason}
           duration={l.fromDate ? `${new Date(l.fromDate).toLocaleDateString()} to ${l.toDate ? new Date(l.toDate).toLocaleDateString() : "Present"}` : ""}
           userHistory={null} // Can be extended to fetch user history if needed
+          hasDocument={!!l.supportingDocument}
         />
       )}
 
@@ -337,6 +338,7 @@ const CertificateCard = ({
           reason={`Certificate Request: ${c.CertificateType} - ${c.purpose}`}
           duration="N/A"
           userHistory={null}
+          hasDocument={!!c.supportingDocument}
         />
       )}
 
