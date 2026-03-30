@@ -1,4 +1,4 @@
-const BASE_URL = "https://requesta-server-3.onrender.com";
+const BASE_URL = "http://localhost:3000";
 
 /**
  * POST /api/ai/validate-request
