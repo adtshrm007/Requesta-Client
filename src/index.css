@@ -49,3 +49,64 @@
   --font-ciguatera: Ciguatera, sans-serif;
   --font-radonregular: Radon Regular, sans-serif;
 }
+
+/* ── Custom Toast Implementation (Requesta Premium Upgrade) ───────────────────── */
+.Toastify__toast {
+  background: rgba(11, 15, 25, 0.7) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.5) !important;
+  padding: 12px 18px !important;
+  min-height: 60px !important;
+  overflow: hidden !important;
+}
+
+.Toastify__toast-body {
+  font-family: 'Mooxy', sans-serif !important;
+  font-size: 13.5px !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  padding: 0 !important;
+  margin: 0 8px !important;
+}
+
+/* Status-Specific Glass Borders */
+.Toastify__toast--success {
+  border: 1px solid rgba(52, 211, 153, 0.2) !important;
+  background: linear-gradient(to right, rgba(11, 15, 25, 0.8), rgba(52, 211, 153, 0.03)) !important;
+}
+.Toastify__toast--error {
+  border: 1px solid rgba(248, 113, 113, 0.2) !important;
+  background: linear-gradient(to right, rgba(11, 15, 25, 0.8), rgba(248, 113, 113, 0.03)) !important;
+}
+.Toastify__toast--warning {
+  border: 1px solid rgba(251, 191, 36, 0.2) !important;
+  background: linear-gradient(to right, rgba(11, 15, 25, 0.8), rgba(251, 191, 36, 0.03)) !important;
+}
+.Toastify__toast--info {
+  border: 1px solid rgba(129, 140, 248, 0.2) !important;
+  background: linear-gradient(to right, rgba(11, 15, 25, 0.8), rgba(129, 140, 248, 0.03)) !important;
+}
+
+/* Custom Progress Bar - Using Requesta's Brand Gradient */
+.Toastify__progress-bar {
+  background: linear-gradient(90deg, #6366f1 0%, #a855f7 50%, #6366f1 100%) !important;
+  height: 3px !important;
+  opacity: 0.8 !important;
+}
+
+/* Styled Close Button */
+.Toastify__close-button {
+  color: white !important;
+  opacity: 0.4 !important;
+  transition: opacity 0.2s ease !important;
+}
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+/* Typography refinement for title */
+.Toastify__toast-body > div:last-child {
+  line-height: 1.5 !important;
+}
