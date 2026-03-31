@@ -463,6 +463,7 @@ const StudentDashboard = () => {
                       className={inputClass}
                       placeholder="Purpose of applying for the certificate..."
                       required
+                      value={purpose}
                       onChange={(e) => setPurpose(e.target.value)}
                     />
                   </div>
@@ -472,6 +473,7 @@ const StudentDashboard = () => {
                       className={`${inputClass} appearance-none cursor-pointer`}
                       style={{ background: "rgba(255,255,255,0.04)" }}
                       required
+                      value={certificateType}
                       onChange={(e) => setCertificateType(e.target.value)}
                     >
                       <option value="" className="bg-[#111827]">-- Select Document Type --</option>

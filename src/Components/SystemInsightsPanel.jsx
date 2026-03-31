@@ -103,7 +103,7 @@ const SystemInsightsPanel = ({ token }) => {
                       className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed"
                     >
                       <span className="text-sky-500 mt-1 flex-shrink-0">›</span>{" "}
-                      {typeof t === "string" ? t : JSON.stringify(t)}
+                      {t}
                     </li>
                   ))
                 ) : (
@@ -132,7 +132,7 @@ const SystemInsightsPanel = ({ token }) => {
                       className="flex gap-2 text-white/60 font-mooxy text-sm leading-relaxed"
                     >
                       <span className="text-red-500 mt-1 flex-shrink-0">›</span>{" "}
-                      {typeof a === "string" ? a : JSON.stringify(a)}
+                      {a}
                     </li>
                   ))
                 ) : (
