@@ -443,6 +443,7 @@ const StudentDashboard = () => {
                   type="CERTIFICATE" 
                   onApply={(result) => {
                     setPurpose(result.subject);
+                    setCertificateType(result.body); // Populate the formal request
                   }}
                 />
 
@@ -450,38 +451,35 @@ const StudentDashboard = () => {
                   token={localStorage.getItem("accessToken")}
                   type="CERTIFICATE"
                   subject={purpose}
-                  reason={purpose}
+                  reason={certificateType} // Now validating the formal request
                   hasDocument={!!supportingDocument}
-                  onApply={(improved) => setPurpose(improved.reason)}
+                  onApply={(improved) => {
+                    setPurpose(improved.subject);
+                    setCertificateType(improved.reason);
+                  }}
                 />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnCertificateSubmit} encType="multipart/form-data">
                   <div>
-                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Purpose</label>
+                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Purpose / Certificate Title</label>
                     <input
                       type="text"
                       className={inputClass}
-                      placeholder="Purpose of applying for the certificate..."
+                      placeholder="e.g. Request for Bonafide Certificate"
                       required
                       value={purpose}
                       onChange={(e) => setPurpose(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Type of Document</label>
-                    <select
-                      className={`${inputClass} appearance-none cursor-pointer`}
-                      style={{ background: "rgba(255,255,255,0.04)" }}
+                    <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Formal Request Details</label>
+                    <textarea
+                      className={`${inputClass} h-28 resize-none`}
+                      placeholder="Enter the formal request details or generate with AI..."
                       required
                       value={certificateType}
                       onChange={(e) => setCertificateType(e.target.value)}
-                    >
-                      <option value="" className="bg-[#111827]">-- Select Document Type --</option>
-                      <option value="Bonafide" className="bg-[#111827]">Bonafide</option>
-                      <option value="Character" className="bg-[#111827]">Character Certificate</option>
-                      <option value="Transfer" className="bg-[#111827]">Transfer Certificate</option>
-                      <option value="Custom" className="bg-[#111827]">Custom Request</option>
-                    </select>
+                    />
                   </div>
                   <div>
                     <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Upload Required Document (optional)</label>
