@@ -17,7 +17,7 @@ const confidenceColors = {
 /**
  * ApprovalAISuggestion — advisory panel for admins inside Leave/Certificate cards.
  */
-const ApprovalAISuggestion = ({ token, reason, duration, userHistory, hasDocument = false }) => {
+const ApprovalAISuggestion = ({ token, type = "LEAVE", reason, duration, userHistory, hasDocument = false, onApplyRemark }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -30,6 +30,7 @@ const ApprovalAISuggestion = ({ token, reason, duration, userHistory, hasDocumen
     setError(null);
     
     const payload = {
+      type, // Pass it to the backend
       reason: reason || "",
       duration: duration || "Not specified",
       userHistory,
@@ -84,7 +85,7 @@ const ApprovalAISuggestion = ({ token, reason, duration, userHistory, hasDocumen
               <span className="text-white/40 font-mooxy text-[10px] uppercase tracking-wider">
                 AI Suggestion
               </span>
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mooxy border ${cfg.colorClass}`}>
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mooxy border ${cfg.cls || cfg.colorClass}`}>
                 <Icon size={10} /> {result.decision}
               </span>
             </div>
@@ -92,9 +93,32 @@ const ApprovalAISuggestion = ({ token, reason, duration, userHistory, hasDocumen
               Confidence: <span className={confidenceColors[result.confidence] || "text-white/60"}>{result.confidence}</span>
             </div>
           </div>
-          <p className="text-white/70 font-mooxy text-xs leading-relaxed">
-            {result.reasoning}
-          </p>
+          
+          <div className="mb-3">
+             <p className="text-purple-300/50 text-[10px] uppercase tracking-widest mb-1.5 font-mooxy">Reasoning for Admin</p>
+             <p className="text-white/70 font-mooxy text-[11px] leading-relaxed bg-white/5 p-2.5 rounded-lg border border-white/5">
+               {result.reasoning}
+             </p>
+          </div>
+
+          {result.suggestedRemark && (
+            <div className="mt-3 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-green-400/50 text-[10px] uppercase tracking-widest font-mooxy">Suggested Remark for Student</p>
+                {onApplyRemark && (
+                  <button 
+                    onClick={() => onApplyRemark(result.suggestedRemark)}
+                    className="text-[9px] text-green-400 hover:text-green-300 font-mooxy uppercase tracking-wider bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 hover:bg-green-500/20 transition-all"
+                  >
+                    Apply Remark
+                  </button>
+                )}
+              </div>
+              <p className="text-green-100/80 font-mooxy text-xs leading-relaxed italic bg-green-500/5 p-2.5 rounded-lg border border-green-500/10">
+                "{result.suggestedRemark}"
+              </p>
+            </div>
+          )}
         </div>
       );
     }

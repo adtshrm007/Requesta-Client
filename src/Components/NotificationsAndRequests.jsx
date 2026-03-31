@@ -189,10 +189,15 @@ const LeaveCard = ({
       {(showAcceptReject || showForwardReject) && (
         <ApprovalAISuggestion 
           token={localStorage.getItem("adminaccessToken")}
+          type={isAdminType ? "FACULTY_LEAVE" : "STUDENT_LEAVE"}
           reason={l.Reason || l.reason}
           duration={l.fromDate ? `${new Date(l.fromDate).toLocaleDateString()} to ${l.toDate ? new Date(l.toDate).toLocaleDateString() : "Present"}` : ""}
-          userHistory={null} // Can be extended to fetch user history if needed
+          userHistory={null}
           hasDocument={!!l.supportingDocument}
+          onApplyRemark={(text) => {
+            setRemark((prev) => ({ ...prev, [l._id]: text }));
+            setRemarkBox(l._id);
+          }}
         />
       )}
 
@@ -335,10 +340,15 @@ const CertificateCard = ({
       {showActions && (
         <ApprovalAISuggestion 
           token={localStorage.getItem("adminaccessToken")}
+          type="CERTIFICATE"
           reason={`Certificate Request: ${c.CertificateType} - ${c.purpose}`}
           duration="N/A"
           userHistory={null}
           hasDocument={!!c.supportingDocument}
+          onApplyRemark={(text) => {
+            setRemark((prev) => ({ ...prev, [c._id]: text }));
+            setRemarkBox(c._id);
+          }}
         />
       )}
 
