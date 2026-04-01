@@ -2,7 +2,10 @@ import { postAdminData } from "../utils/POSTAdminData";
 import logo from "../assets/logo.svg.png";
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, UserPlus, Hash, Lock, User, Mail, Building2, Shield } from "lucide-react";
+import { ArrowLeft, UserPlus, Hash, Lock, User, Mail, Building2, Shield, Loader2 } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import gsap from "gsap";
 
 const AddAdmin = () => {
@@ -15,15 +18,41 @@ const AddAdmin = () => {
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [requester, setRequester] = useState(null);
   const navRef = useRef(null);
   const cardRef = useRef(null);
 
   useEffect(() => {
     gsap.fromTo(navRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" });
     gsap.fromTo(cardRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, delay: 0.2, ease: "power3.out" });
-  }, []);
+
+    // ── 1. Fetch current admin role/dept ──────────────────────────────────
+    async function fetchCurrentAdmin() {
+      try {
+        const data = await getAdminDashboard();
+        if (data) {
+          setRequester(data);
+          if (data.role === "Departmental Admin") {
+            setRole("Faculty");
+            setAdminDepartment(data.department);
+          } else if (data.role === "Super Admin") {
+            setRole("Departmental Admin");
+          }
+        }
+      } catch (err) {
+        toast.error("Failed to authenticate session. Please login again.");
+        setTimeout(() => navigate("/"), 2000);
+      }
+    }
+    fetchCurrentAdmin();
+  }, [navigate]);
 
   async function handleRegister() {
+    if (!adminID || !password || !adminName || !email || !adminDepartment || !role) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     setLoading(true);
     const newAdmin = {
       adminID,
@@ -35,7 +64,13 @@ const AddAdmin = () => {
     };
     const result = await postAdminData(newAdmin);
     setLoading(false);
-    if (result) navigate("/admindashboard");
+    
+    if (result && result.message === "Admin registered succesfully") {
+      toast.success(`${role} registered successfully!`);
+      setTimeout(() => navigate("/admindashboard"), 2000);
+    } else {
+      toast.error(result?.message || "Registration failed. Check permissions.");
+    }
   }
 
   const inputCls = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all";
@@ -147,9 +182,10 @@ const AddAdmin = () => {
                 <div className="relative">
                   <Building2 size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none z-10" />
                   <select
-                    className={`${selectCls} pl-10`}
+                    className={`${selectCls} pl-10 ${requester?.role === "Departmental Admin" ? "opacity-60 cursor-not-allowed" : ""}`}
                     style={{ background: "rgba(255,255,255,0.04)" }}
                     value={adminDepartment}
+                    disabled={requester?.role === "Departmental Admin"}
                     onChange={(e) => setAdminDepartment(e.target.value)}
                   >
                     <option value="" className="bg-[#111827]">-- Select Department --</option>
@@ -162,14 +198,14 @@ const AddAdmin = () => {
 
               {/* Role */}
               <div>
-                <label className="block text-white/45 text-xs uppercase tracking-wider mb-2">Role</label>
+                <label className="block text-white/45 text-xs uppercase tracking-wider mb-2">Role To Add</label>
                 <div className="relative">
                   <Shield size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none z-10" />
                   <select
-                    className={`${selectCls} pl-10`}
+                    className={`${selectCls} pl-10 opacity-60 cursor-not-allowed`}
                     style={{ background: "rgba(255,255,255,0.04)" }}
                     value={role}
-                    onChange={(e) => setRole(e.target.value)}
+                    disabled={true}
                   >
                     <option value="" className="bg-[#111827]">-- Select Role --</option>
                     <option value="Super Admin" className="bg-[#111827]">Super Admin</option>
@@ -177,20 +213,27 @@ const AddAdmin = () => {
                     <option value="Faculty" className="bg-[#111827]">Faculty</option>
                   </select>
                 </div>
+                {requester && (
+                  <p className="text-indigo-400/50 text-[10px] mt-1.5 font-mooxy italic">
+                    As a {requester.role}, you are authorized to add: {requester.role === "Super Admin" ? "Departmental Admin" : "Faculty members"}.
+                  </p>
+                )}
               </div>
 
               {/* Submit */}
-              <button
+                <button
                 onClick={handleRegister}
-                disabled={loading}
-                className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-mooxy shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.01] active:scale-[0.98] mt-1"
+                disabled={loading || !requester}
+                className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-mooxy shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2 mt-1"
               >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                 {loading ? "Creating Admin…" : "Create Admin Account"}
               </button>
             </div>
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
     </div>
   );
 };
