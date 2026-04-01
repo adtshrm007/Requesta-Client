@@ -15,6 +15,7 @@ import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import { getAnalyticsSummary } from "../utils/GETAnalytics";
+import { getDecisionIntelligence } from "../utils/GETDecisionIntelligence";
 import Loader from "./Loader";
 import gsap from "gsap";
 import {
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
   const [forwardedLeaves, setForwardedLeaves] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [analytics, setAnalytics] = useState(null);
+  const [decisionStats, setDecisionStats] = useState(null);
 
   const navRef = useRef(null);
   const contentRef = useRef(null);
@@ -87,9 +89,11 @@ export default function AdminDashboard() {
       if (admin?.name) setAdminName(admin.name);
       if (admin?.role) {
         setRole(admin.role);
-        if (admin.role === "Super Admin" || admin.role === "Departmental Admin") {
+        if (admin.role === "Super Admin" || admin.role === "Departmental Admin" || admin.role === "Faculty") {
           const stats = await getAnalyticsSummary(localStorage.getItem("adminaccessToken"));
+          const dStats = await getDecisionIntelligence(localStorage.getItem("adminaccessToken"));
           setAnalytics(stats);
+          setDecisionStats(dStats?.data || null);
         }
       }
     };
@@ -501,9 +505,13 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* AI System Insights (Super/Dept Admin only) */}
-            {(role === "Departmental Admin" || role === "Super Admin") && (
-              <SystemInsightsPanel token={localStorage.getItem("adminaccessToken")} />
+            {/* AI System Insights (Super/Dept Admin and Faculty) */}
+            {(role === "Departmental Admin" || role === "Super Admin" || role === "Faculty") && (
+              <SystemInsightsPanel 
+                token={localStorage.getItem("adminaccessToken")} 
+                analyticsData={decisionStats}
+                role={role}
+              />
             )}
 
           </div>
