@@ -12,7 +12,11 @@ import {
   Calendar,
   Users,
   Search,
-  Zap
+  Zap,
+  ShieldCheck,
+  ShieldAlert,
+  Activity,
+  Target
 } from "lucide-react";
 import { getSystemInsights } from "../utils/GETSystemInsights";
 
@@ -97,8 +101,59 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
              <button onClick={fetchInsights} className="mt-4 text-indigo-400 text-xs font-bold font-mooxy hover:underline">Retry Connection</button>
           </div>
         ) : data ? (
-          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Primary Analysis Grid */}
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            
+            {/* 🛡️ Executive Command Center */}
+            <div className="bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+               
+               <div className="flex flex-col lg:flex-row gap-10 relative z-10">
+                  {/* Health Status & Pulse */}
+                  <div className="lg:w-1/3 flex flex-col justify-center items-center lg:items-start border-b lg:border-b-0 lg:border-r border-white/5 pb-8 lg:pb-0 lg:pr-10">
+                     <div className="flex items-center gap-4 mb-4">
+                        <div className={`w-4 h-4 rounded-full animate-ping ${
+                          data.executiveSummary.systemHealth === 'GOOD' ? 'bg-emerald-500' : 
+                          data.executiveSummary.systemHealth === 'MODERATE' ? 'bg-amber-500' : 'bg-rose-500'
+                        }`} />
+                        <span className={`font-mooxy font-bold text-sm tracking-widest uppercase ${
+                          data.executiveSummary.systemHealth === 'GOOD' ? 'text-emerald-400' : 
+                          data.executiveSummary.systemHealth === 'MODERATE' ? 'text-amber-400' : 'text-rose-400'
+                        }`}>
+                           Status: {data.executiveSummary.systemHealth}
+                        </span>
+                     </div>
+                     <h3 className="text-white font-growmajour text-4xl mb-2">Executive Summary</h3>
+                     <p className="text-white/40 font-mooxy text-sm text-center lg:text-left leading-relaxed">
+                        Data-driven interpretation of institutional workflow health.
+                     </p>
+                  </div>
+
+                  {/* Summary Details */}
+                  <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="col-span-1 md:col-span-2">
+                        <p className="text-white/80 font-mooxy text-lg leading-relaxed italic">
+                           "{data.executiveSummary.summary}"
+                        </p>
+                     </div>
+                     
+                     <div className="space-y-2">
+                        <p className="text-rose-400/50 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                           <ShieldAlert size={12} /> Primary Strategic Risk
+                        </p>
+                        <p className="text-rose-100/80 font-mooxy text-sm font-semibold">{data.executiveSummary.keyRisk}</p>
+                     </div>
+
+                     <div className="space-y-2">
+                        <p className="text-emerald-400/50 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                           <ShieldCheck size={12} /> Immediate Action
+                        </p>
+                        <p className="text-emerald-100/80 font-mooxy text-sm font-semibold">{data.executiveSummary.immediateAction}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            {/* Core Intelligence Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Trends */}
               <div className="bg-white/[0.01] border border-white/5 rounded-[1.5rem] p-6 hover:bg-white/[0.03] transition-all">
@@ -157,15 +212,31 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
 
             {/* Advanced Analytics Interpretation Panel */}
             {data.advancedAnalytics && (
-              <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                 <div className="flex items-center gap-3 mb-8">
-                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                     <Search size={18} className="text-indigo-400" />
-                   </div>
-                   <h3 className="text-white font-growmajour text-lg tracking-wide">Advanced Interpretive Analytics</h3>
-                 </div>
+              <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 overflow-hidden relative">
+                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-[120px] -mr-48 -mb-48" />
 
-                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                 <div className="flex items-center justify-between mb-10 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                        <Search size={18} className="text-indigo-400" />
+                      </div>
+                      <h3 className="text-white font-growmajour text-xl tracking-wide">Interpretive Decision Layer</h3>
+                    </div>
+                    
+                    <div className="flex items-center gap-6">
+                       <div className="text-right">
+                          <p className="text-white/20 font-bold text-[9px] uppercase tracking-widest">Global Approval</p>
+                          <p className="text-emerald-400 font-growmajour text-xl">{data.advancedAnalytics.approvalRate || "0%"}</p>
+                       </div>
+                       <div className="w-px h-10 bg-white/5" />
+                       <div className="text-right">
+                          <p className="text-white/20 font-bold text-[9px] uppercase tracking-widest">Global Rejection</p>
+                          <p className="text-rose-400 font-growmajour text-xl">{data.advancedAnalytics.rejectionRate || "0%"}</p>
+                       </div>
+                    </div>
+                 </div>
+ 
+                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 relative z-10">
                     {/* Top Reasons */}
                     <div className="space-y-5">
                        <p className="text-white/20 font-bold text-[10px] uppercase tracking-widest border-b border-white/5 pb-2">Top Drivers</p>
@@ -205,21 +276,25 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                        </div>
                     </div>
 
-                    {/* Admin Performance */}
-                    <div className="space-y-5">
-                       <p className="text-white/20 font-bold text-[10px] uppercase tracking-widest border-b border-white/5 pb-2">Leaderboard Audit</p>
-                       <div className="space-y-3">
-                          {data.advancedAnalytics.adminPerformance?.map((p, i) => (
-                            <div key={i} className="flex flex-col gap-1">
-                               <div className="flex items-center justify-between">
-                                  <span className="text-white/80 text-xs font-mooxy font-semibold">{p.admin}</span>
-                                  <span className="text-indigo-400 text-[10px] font-bold">{p.avgTime}</span>
-                               </div>
-                               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-indigo-500/40 w-[60%]" />
-                               </div>
+                    {/* Anomaly Detection */}
+                    <div className="space-y-5 lg:col-span-1">
+                       <p className="text-amber-400/50 font-bold text-[10px] uppercase tracking-widest border-b border-white/5 pb-2 flex items-center gap-2">
+                          <Activity size={12} /> Outlier detection
+                       </p>
+                       <div className="space-y-4">
+                          {data.advancedAnalytics.anomalies?.map((anom, i) => (
+                            <div key={i} className="p-3 rounded-xl bg-amber-500/[0.03] border border-amber-500/10 group hover:border-amber-500/30 transition-all">
+                               <p className="text-amber-200/60 font-mooxy text-[11px] leading-relaxed italic line-clamp-2">
+                                  "{anom}"
+                               </p>
                             </div>
                           ))}
+                          {(!data.advancedAnalytics.anomalies || data.advancedAnalytics.anomalies.length === 0) && (
+                            <div className="flex flex-col items-center py-4 gap-2 opacity-30">
+                               <Target size={16} className="text-white" />
+                               <span className="text-[10px] text-white font-mooxy">No anomalies detected</span>
+                            </div>
+                          )}
                        </div>
                     </div>
                  </div>
