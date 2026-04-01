@@ -33,6 +33,8 @@ const StudentDashboard = () => {
   const [expandedLeave, setExpandedLeave] = useState(null);
   const [notifications, setNotifications] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const navRef = useRef(null);
   const contentRef = useRef(null);
@@ -127,6 +129,17 @@ const StudentDashboard = () => {
     };
     notification();
   }, []);
+
+  const calculateUserHistory = () => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const allRequests = [...leave, ...certificates];
+    return {
+      pastLeaves: allRequests.length,
+      recentLeaves: allRequests.filter(r => new Date(r.createdAt) > thirtyDaysAgo).length,
+      rejections: allRequests.filter(r => r.status === "rejected").length
+    };
+  };
 
   const statusClasses = (status) => ({
     approved: "text-green-400 bg-green-400/10 border-green-400/20",
@@ -382,6 +395,9 @@ const StudentDashboard = () => {
                   type="LEAVE"
                   subject={subject}
                   reason={reason}
+                  startDate={startDate}
+                  endDate={endDate}
+                  userHistory={calculateUserHistory()}
                   hasDocument={!!supportingDocument}
                   onApply={(improved) => {
                     setSubject(improved.subject);
@@ -390,6 +406,28 @@ const StudentDashboard = () => {
                 />
 
                 <form className="flex flex-col gap-4 font-mooxy" onSubmit={handleClickOnLeaveSubmit} encType="multipart/form-data">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">From Date</label>
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">To Date</label>
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Subject / Leave Days</label>
                     <input
@@ -452,6 +490,7 @@ const StudentDashboard = () => {
                   type="CERTIFICATE"
                   subject={purpose}
                   reason={certificateType} // Now validating the formal request
+                  userHistory={calculateUserHistory()}
                   hasDocument={!!supportingDocument}
                   onApply={(improved) => {
                     setPurpose(improved.subject);
