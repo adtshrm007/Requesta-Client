@@ -111,10 +111,16 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                   {/* Health Status & Pulse */}
                   <div className="lg:w-1/3 flex flex-col justify-center items-center lg:items-start border-b lg:border-b-0 lg:border-r border-white/5 pb-8 lg:pb-0 lg:pr-10">
                      <div className="flex items-center gap-4 mb-4">
-                        <div className={`w-4 h-4 rounded-full animate-ping ${
-                          data.executiveSummary.systemHealth === 'GOOD' ? 'bg-emerald-500' : 
-                          data.executiveSummary.systemHealth === 'MODERATE' ? 'bg-amber-500' : 'bg-rose-500'
-                        }`} />
+                        <div className="relative flex items-center justify-center">
+                           <div className={`absolute w-4 h-4 rounded-full animate-ping opacity-75 ${
+                             data.executiveSummary.systemHealth === 'GOOD' ? 'bg-emerald-500' : 
+                             data.executiveSummary.systemHealth === 'MODERATE' ? 'bg-amber-500' : 'bg-rose-500'
+                           }`} />
+                           <div className={`relative w-2.5 h-2.5 rounded-full shadow-lg ${
+                             data.executiveSummary.systemHealth === 'GOOD' ? 'bg-emerald-400' : 
+                             data.executiveSummary.systemHealth === 'MODERATE' ? 'bg-amber-400' : 'bg-rose-400'
+                           }`} />
+                        </div>
                         <span className={`font-mooxy font-bold text-sm tracking-widest uppercase ${
                           data.executiveSummary.systemHealth === 'GOOD' ? 'text-emerald-400' : 
                           data.executiveSummary.systemHealth === 'MODERATE' ? 'text-amber-400' : 'text-rose-400'
@@ -208,9 +214,7 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Advanced Analytics Interpretation Panel */}
+                        {/* Advanced Analytics Interpretation Panel */}
             {data.advancedAnalytics && (
               <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 overflow-hidden relative">
                  <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-[120px] -mr-48 -mb-48" />
@@ -250,14 +254,22 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                        </div>
                     </div>
 
-                    {/* Peak Dates */}
+                    {/* Admin Performance (NEW) */}
                     <div className="space-y-5">
-                       <p className="text-white/20 font-bold text-[10px] uppercase tracking-widest border-b border-white/5 pb-2">Load Spikes</p>
+                       <p className="text-white/20 font-bold text-[10px] uppercase tracking-widest border-b border-white/5 pb-2">Admin Benchmarks</p>
                        <div className="space-y-3">
-                          {data.advancedAnalytics.peakDates?.map((d, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                               <Calendar size={12} className="text-white/20" />
-                               <span className="text-white/60 text-xs font-mooxy">{d.date}: <span className="text-white font-bold">{d.requests}</span> req</span>
+                          {data.advancedAnalytics.adminPerformance?.map((adm, i) => (
+                            <div key={i} className="flex flex-col gap-1">
+                               <div className="flex items-center justify-between">
+                                  <span className="text-white/80 text-xs font-mooxy truncate">{adm.admin}</span>
+                                  <span className="text-indigo-400 font-bold text-[10px] uppercase">{adm.approvalRate}</span>
+                               </div>
+                               <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                                     <div className="h-full bg-indigo-500/40 rounded-full" style={{ width: adm.approvalRate }} />
+                                  </div>
+                                  <span className="text-white/30 text-[9px] font-mooxy">{adm.avgTime}</span>
+                               </div>
                             </div>
                           ))}
                        </div>
@@ -269,10 +281,6 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                        <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl text-center">
                           <p className="text-white font-growmajour text-2xl">{data.advancedAnalytics.averageDecisionTime}</p>
                           <p className="text-indigo-400/60 font-mooxy text-[10px] uppercase tracking-widest mt-1">Average S.L.A.</p>
-                       </div>
-                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5">
-                          <Clock size={12} className="text-white/20" />
-                          <span className="text-white/40 text-[10px] font-mooxy leading-snug">Processing speed interpretated from log variance.</span>
                        </div>
                     </div>
 
@@ -286,7 +294,7 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
                             <div key={i} className="p-3 rounded-xl bg-amber-500/[0.03] border border-amber-500/10 group hover:border-amber-500/30 transition-all">
                                <p className="text-amber-200/60 font-mooxy text-[11px] leading-relaxed italic line-clamp-2">
                                   "{anom}"
-                               </p>
+                                </p>
                             </div>
                           ))}
                           {(!data.advancedAnalytics.anomalies || data.advancedAnalytics.anomalies.length === 0) && (
@@ -304,10 +312,11 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
             {/* Meta Footer */}
             <div className="pt-6 border-t border-white/5 flex items-center justify-center">
                <p className="text-white/10 font-mooxy text-[10px] uppercase tracking-widest">
-                  Secure Intelligence Cluster · Institutional Decision Engine v4.0
+                  Secure Intelligence Cluster · Institutional Decision Engine v5.0
                </p>
             </div>
           </div>
+  </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 opacity-20">
              <Zap size={48} className="text-indigo-500 mb-4" />
