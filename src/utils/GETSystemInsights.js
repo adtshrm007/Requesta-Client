@@ -16,10 +16,13 @@ export const getSystemInsights = async (analyticsData, token) => {
       },
       body: JSON.stringify({ analyticsData }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || `HTTP ${res.status}`);
+    }
     return await res.json();
   } catch (err) {
     console.error("[AI:insights] Request failed:", err.message);
-    return null;
+    return { error: err.message };
   }
 };

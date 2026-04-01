@@ -25,11 +25,14 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
   const [error, setError] = useState(null);
 
   const fetchInsights = async () => {
-    if (!analyticsData) return;
+    if (!analyticsData || Object.keys(analyticsData).length === 0) return;
     setLoading(true);
     setError(null);
     const res = await getSystemInsights(analyticsData, token);
-    if (!res) {
+    
+    if (res?.error) {
+      setError(res.error);
+    } else if (!res) {
       setError("Failed to interpret analytics data. Please retry.");
     } else {
       setData(res);
@@ -38,8 +41,8 @@ const SystemInsightsPanel = ({ token, analyticsData, role }) => {
   };
 
   useEffect(() => {
-    if (analyticsData) fetchInsights();
-  }, [token]);
+    if (analyticsData && token) fetchInsights();
+  }, [token, analyticsData]);
 
   return (
     <div className="mt-12 bg-[#0D1117] border border-white/5 rounded-[2rem] overflow-hidden relative shadow-2xl">
