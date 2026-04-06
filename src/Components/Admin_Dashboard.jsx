@@ -510,7 +510,6 @@ export default function AdminDashboard() {
             {(role === "Departmental Admin" || role === "Super Admin" || role === "Faculty") && (
               <SystemInsightsPanel 
                 token={localStorage.getItem("adminaccessToken")} 
-                analyticsData={decisionStats}
                 role={role}
               />
             )}
