@@ -54,7 +54,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
 
   const handleApply = () => {
     if (result && onApply) {
-      onApply({ title: result.subject || result.title, description: result.body || result.description });
+      onApply({ subject: result.subject || result.title, body: result.body || result.description });
       setOpen(false);
     }
   };
