@@ -12,10 +12,14 @@ export const getLeaveInsights = async (token) => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      console.error("[Analytics:LeaveInsights] Server error:", res.status, errBody);
+      return { error: errBody.message || errBody.error || `Server error (${res.status})` };
+    }
     return await res.json();
   } catch (err) {
     console.error("[Analytics:LeaveInsights] Request failed:", err.message);
-    return null;
+    return { error: `Network error: ${err.message}` };
   }
 };
