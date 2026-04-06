@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import SystemInsightsPanel from "./SystemInsightsPanel";
+import AIAssistantPanel from "./AIAssistantPanel";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -529,6 +530,15 @@ export default function AdminDashboard() {
               <p className="text-white/40 font-mooxy text-sm mt-1.5">Submit your leave application below</p>
             </div>
 
+            {/* AI Leave Assistant */}
+            <AIAssistantPanel
+              token={localStorage.getItem("adminaccessToken")}
+              type="LEAVE"
+              onApply={({ title, description }) => {
+                setReason(description || title || "");
+              }}
+            />
+
             <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
               <form className="flex flex-col gap-5 font-mooxy" encType="multipart/form-data">
                 <div>
@@ -542,7 +552,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="block text-white/50 text-xs uppercase tracking-wider mb-2">Reason for Leave</label>
-                  <textarea className={`${inputClass} h-28 resize-none`} placeholder="Explain your reason..." required onChange={(e) => setReason(e.target.value)} />
+                  <textarea className={`${inputClass} h-28 resize-none`} placeholder="Explain your reason..." required value={reason} onChange={(e) => setReason(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

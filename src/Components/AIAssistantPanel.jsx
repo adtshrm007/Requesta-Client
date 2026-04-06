@@ -10,7 +10,7 @@ const inputCls =
  * Props:
  *   token     {string}   - auth token
  *   type      {string}   - "LEAVE" | "CERTIFICATE"
- *   onApply   {function} - called with { subject, body } when user accepts AI output
+ *   onApply   {function} - called with { title, description } when user accepts AI output
  */
 const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
   const [open, setOpen] = useState(false);
@@ -54,7 +54,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
 
   const handleApply = () => {
     if (result && onApply) {
-      onApply({ subject: result.subject, body: result.body });
+      onApply({ title: result.subject || result.title, description: result.body || result.description });
       setOpen(false);
     }
   };
@@ -126,27 +126,39 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
           {/* Result */}
           {result && (
             <div className="mt-3 bg-white/[0.03] border border-white/8 rounded-xl p-4">
-              <div className="mb-4">
-                <p className="text-purple-300/50 font-mooxy text-[10px] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
-                  Formal Subject Line
+              <div className="mb-3">
+                <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-1">
+                  Generated Title
                 </p>
-                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                  <p className="text-white font-mooxy text-sm leading-snug">{result.subject}</p>
-                </div>
+                <p className="text-white font-mooxy text-sm font-semibold">{result.subject || result.title}</p>
               </div>
 
-              <div className="mb-4">
-                <p className="text-purple-300/50 font-mooxy text-[10px] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
-                  Professional Application Body
+              <div className="mb-3">
+                <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-1">
+                  Formal Description
                 </p>
-                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                  <p className="text-white/80 font-mooxy text-xs leading-relaxed whitespace-pre-wrap">
-                    {result.body}
-                  </p>
-                </div>
+                <p className="text-white/70 font-mooxy text-sm leading-relaxed">
+                  {result.body || result.description}
+                </p>
               </div>
+
+              {result.suggestions && result.suggestions.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-white/35 font-mooxy text-[11px] uppercase tracking-wider mb-2">
+                    Suggestions
+                  </p>
+                  <ul className="flex flex-col gap-1.5">
+                    {result.suggestions.map((s, i) => (
+                      <li key={i} className="flex items-start gap-1.5">
+                        <div className="w-3.5 h-3.5 rounded-full bg-amber-400/15 border border-amber-400/25 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-amber-300 text-[8px] font-bold">{i + 1}</span>
+                        </div>
+                        <p className="text-amber-200/60 font-mooxy text-xs">{s}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {result.error && (
                 <p className="text-amber-300/60 font-mooxy text-xs mb-3 italic">{result.error}</p>
