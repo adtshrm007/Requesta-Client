@@ -102,7 +102,9 @@ const SystemInsightsPanel = ({ token, role }) => {
   const studentReasons = rawData?.studentLeaves?.reasonBreakdown || [];
   const studentMonthly = rawData?.studentLeaves?.monthlyStats || [];
   const studentStatus = rawData?.studentLeaves?.statusStats || {};
-  const facultyData = rawData?.facultyAdminLeaves || null;
+  const facultyData = rawData?.facultyLeaves || null;
+  const deptAdminData = rawData?.deptAdminLeaves || null;
+  const certData = rawData?.certificates || null;
   const maxReasonCount = studentReasons[0]?.count || 1;
   const maxMonthTotal = studentMonthly.length > 0 ? Math.max(...studentMonthly.map(m => m.total), 1) : 1;
 
@@ -357,17 +359,69 @@ const SystemInsightsPanel = ({ token, role }) => {
                   "{data.facultyComparison}"
                 </p>
 
-                {/* Faculty data bars if available */}
-                {facultyData?.leaveTypes?.length > 0 && (
-                  <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {facultyData.leaveTypes.map((ft, i) => (
-                      <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-                        <p className="text-purple-400 font-growmajour text-2xl mb-1">{ft.count}</p>
-                        <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">{ft.type || "Other"}</p>
+                {/* Faculty & Admin data distributions if available */}
+                {(facultyData?.leaveTypes?.length > 0 || deptAdminData?.leaveTypes?.length > 0) && (
+                  <div className="mt-8 space-y-6">
+                    {facultyData?.leaveTypes?.length > 0 && (
+                      <div>
+                        <p className="text-white/40 font-mooxy text-xs uppercase tracking-widest mb-3">Faculty Leaves</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {facultyData.leaveTypes.map((ft, i) => (
+                            <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
+                              <p className="text-purple-400 font-growmajour text-2xl mb-1">{ft.count}</p>
+                              <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">{ft.type || "Other"}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    )}
+
+                    {deptAdminData?.leaveTypes?.length > 0 && (
+                      <div className="pt-4 border-t border-white/[0.05]">
+                        <p className="text-white/40 font-mooxy text-xs uppercase tracking-widest mb-3">Admin Leaves</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {deptAdminData.leaveTypes.map((dt, i) => (
+                            <div key={i} className="bg-amber-500/[0.03] border border-amber-500/[0.1] rounded-xl p-4 text-center">
+                              <p className="text-amber-400 font-growmajour text-2xl mb-1">{dt.count}</p>
+                              <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">{dt.type || "Other"}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* ── Certificates (SuperAdmin) ────────────── */}
+            {certData && (
+              <div className="bg-gradient-to-br from-emerald-500/[0.03] to-transparent border border-emerald-500/[0.1] rounded-[2rem] p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                    <ShieldCheck size={20} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-[13px] uppercase tracking-[0.15em]">Institutional Certificates</h3>
+                    <p className="text-white/25 font-mooxy text-[10px]">Processing pipelines and categorical volume</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {certData.typesBreakdown?.map((ct, i) => (
+                    <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
+                      <p className="text-emerald-400 font-growmajour text-2xl mb-1">{ct.count}</p>
+                      <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">{ct.type}</p>
+                    </div>
+                  ))}
+                  
+                  {certData.statusStats && (
+                    <div className="bg-amber-500/[0.03] border border-amber-500/20 rounded-xl p-4 text-center flex flex-col justify-center">
+                      <p className="text-amber-400 font-growmajour text-xl mb-1">{certData.statusStats.pending}</p>
+                      <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">Total Pending</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
