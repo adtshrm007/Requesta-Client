@@ -170,39 +170,48 @@ export default function AdminDashboard() {
 
   const buildStats = () => {
     if (role === "Faculty") {
-      return [
-        { value: totalStudents, label: "Total Students", link: "/students", to: "", color: "indigo" },
-        { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" }
-      ];
+      return {
+        "Student Overview": [
+          { value: totalStudents, label: "Total Students", link: "/students", to: "", color: "indigo" },
+          { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" }
+        ]
+      };
     }
     
     if (role === "Departmental Admin") {
-      return [
-        { value: totalLeaves, label: "Total Leave Requests", link: "/notificationsAndrequests", to: "", color: "sky" },
-        { value: totalPendingLeaves, label: "Pending Leave Requests", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
-        { value: forwardedLeaves, label: "Forwarded Leaves", link: "/notificationsAndrequests", to: "forwarded-leaves", color: "purple" },
-        { value: totalApprovedLeaves, label: "Approved Leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
-        { value: totalRejectedLeaves, label: "Rejected Leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" },
-        { value: facultyLeaves, label: "Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
-        { value: approvedFacultyLeaves, label: "Approved Faculty Leaves", link: "/notificationsAndrequests", to: "approved-faculty-leaves", color: "green" },
-        { value: rejectedFacultyLeaves, label: "Rejected Faculty Leaves", link: "/notificationsAndrequests", to: "rejected-faculty-leaves", color: "red" }
-      ];
+      return {
+        "Student Requests": [
+          { value: totalLeaves, label: "Total Leave", link: "/notificationsAndrequests", to: "", color: "sky" },
+          { value: totalPendingLeaves, label: "Pending Leaves", link: "/notificationsAndrequests", to: "pending-leaves", color: "amber" },
+          { value: forwardedLeaves, label: "Forwarded", link: "/notificationsAndrequests", to: "forwarded-leaves", color: "purple" },
+          { value: totalApprovedLeaves, label: "Approved leaves", link: "/notificationsAndrequests", to: "accepted-leaves", color: "green" },
+          { value: totalRejectedLeaves, label: "Rejected leaves", link: "/notificationsAndrequests", to: "rejected-leaves", color: "red" },
+        ],
+        "Faculty Workflows": [
+          { value: facultyLeaves, label: "Total Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
+          { value: approvedFacultyLeaves, label: "Approved", link: "/notificationsAndrequests", to: "approved-faculty-leaves", color: "green" },
+          { value: rejectedFacultyLeaves, label: "Rejected", link: "/notificationsAndrequests", to: "rejected-faculty-leaves", color: "red" }
+        ]
+      };
     }
     
     if (role === "Super Admin") {
-      return [
-        { value: totalCertificates, label: "Total Certificates & Admin Leaves", link: "/notificationsAndrequests", to: "pending-certificates", color: "purple" },
-        { value: totalPendingCertificates, label: "Pending Requests", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
-        { value: totalApprovedCertificates, label: "Approved Requests", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
-        { value: totalRejectedCertificates, label: "Rejected Requests", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" },
-        { value: studentLeavesCount, label: "Student Leaves", link: "/notificationsAndrequests", to: "student-leaves", color: "sky" },
-        { value: facultyLeavesCount, label: "Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
-        { value: deptAdminLeavesCount, label: "Dept Admin Leaves", link: "/notificationsAndrequests", to: "dept-admin-leaves", color: "amber" },
-        { value: certificateRequestsCount, label: "Certificate Requests", link: "/notificationsAndrequests", to: "certificate-requests", color: "purple" }
-      ];
+      return {
+        "System Backlog": [
+          { value: totalPendingCertificates, label: "Pending Certs & Leaves", link: "/notificationsAndrequests", to: "pending-certificates", color: "amber" },
+          { value: totalApprovedCertificates, label: "Approved Overall", link: "/notificationsAndrequests", to: "approved-certificates", color: "green" },
+          { value: totalRejectedCertificates, label: "Rejected Overall", link: "/notificationsAndrequests", to: "rejected-certificates", color: "red" },
+        ],
+        "Request Volumetrics": [
+          { value: studentLeavesCount, label: "Student Leaves", link: "/notificationsAndrequests", to: "student-leaves", color: "sky" },
+          { value: facultyLeavesCount, label: "Faculty Leaves", link: "/notificationsAndrequests", to: "faculty-leaves", color: "indigo" },
+          { value: deptAdminLeavesCount, label: "Admin Leaves", link: "/notificationsAndrequests", to: "dept-admin-leaves", color: "amber" },
+          { value: certificateRequestsCount, label: "Certificate Requests", link: "/notificationsAndrequests", to: "certificate-requests", color: "purple" }
+        ]
+      };
     }
     
-    return [];
+    return {};
   };
 
   const colorMap = {
@@ -384,22 +393,32 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {buildStats().map((stat, i) => {
-                const c = colorMap[stat.color] || colorMap.indigo;
-                return (
-                  <div
-                    key={i}
-                    onClick={() => navigate(stat.link, { state: { target: stat.to } })}
-                    className={`group relative overflow-hidden bg-white/[0.03] hover:bg-white/[0.05] border border-white/8 hover:border-white/15 rounded-2xl p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg`}
-                  >
-                    <div className={`absolute top-0 right-0 w-16 h-16 ${c.bg} rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity`} />
-                    <p className={`font-growmajour text-4xl ${c.num} tabular-nums mb-2`}>{stat.value}</p>
-                    <div className={`w-8 h-[2px] ${c.bg} mb-3`} />
-                    <p className="text-white/40 font-mooxy text-xs leading-tight">{stat.label}</p>
+            <div className="space-y-10">
+              {Object.entries(buildStats()).map(([categoryTitle, stats]) => (
+                <div key={categoryTitle}>
+                  <div className="flex items-center gap-3 mb-5 border-b border-white/5 pb-3">
+                     <p className="text-white font-growmajour text-xl">{categoryTitle}</p>
+                     <div className="flex-1 h-px bg-white/5"></div>
                   </div>
-                );
-              })}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {stats.map((stat, i) => {
+                      const c = colorMap[stat.color] || colorMap.indigo;
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => navigate(stat.link, { state: { target: stat.to } })}
+                          className={`group relative overflow-hidden bg-white/[0.03] hover:bg-white/[0.05] border border-white/8 hover:border-white/15 rounded-2xl p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg`}
+                        >
+                          <div className={`absolute top-0 right-0 w-16 h-16 ${c.bg} rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity`} />
+                          <p className={`font-growmajour text-4xl ${c.num} tabular-nums mb-2`}>{stat.value}</p>
+                          <div className={`w-8 h-[2px] ${c.bg} mb-3`} />
+                          <p className="text-white/40 font-mooxy text-xs leading-tight">{stat.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Analytics Section (Super/Dept Admin only) */}
