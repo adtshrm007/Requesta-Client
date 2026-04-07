@@ -5,10 +5,7 @@ import { fetchAdmin } from "../utils/GETAdminData";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
-import { sendOTP } from "../utils/SENDOTPforAdmin";
-import { loginAdminUsingEmail } from "../utils/GETAdminDataUsingEmail";
-import gsap from "gsap";
-import { Eye, EyeOff, ArrowRight, Mail, KeyRound, ShieldCheck, Users, BarChart3, Settings } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, KeyRound, ShieldCheck, Users, BarChart3, Settings } from "lucide-react";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -18,10 +15,6 @@ export default function AdminLogin() {
   const [loginPage, setLoginPage] = useState(true);
   const [loader, setLoader] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loginWithEmail, setLoginWithEmail] = useState(false);
-  const [loginWithPassword, setLoginWithPassword] = useState(true);
-  const [otpBox, setOTPBox] = useState(false);
-  const [otp, setOTP] = useState("");
 
   const panelRef = useRef(null);
   const formRef = useRef(null);
@@ -34,36 +27,12 @@ export default function AdminLogin() {
 
   const handleAdminLogin = async () => {
     if (!adminID.trim()) { toast.error("Please enter admin ID"); return; }
+    if (!password.trim()) { toast.error("Enter the password"); return; }
     setLoginPage(false); setLoader(true);
-    if (loginWithPassword) {
-      if (!password.trim()) { toast.error("Enter the password"); setLoginPage(true); setLoader(false); return; }
-      const res = await fetchAdmin(adminID, password);
-      if (res) { toast.success("Admin Logged In Successfully"); navigate("/admindashboard"); }
-      else { setLoginPage(true); setLoader(false); toast.error(res?.message || "Admin not found"); }
-    }
-    if (loginWithEmail) {
-      if (!email) { toast.error("Enter the email"); setLoginPage(true); setLoader(false); return; }
-      if (!otp) { toast.error("Enter the OTP"); setLoginPage(true); setLoader(false); return; }
-      const res = await loginAdminUsingEmail(adminID, email, otp);
-      if (res) { toast.success("Admin Logged In Successfully"); navigate("/admindashboard"); }
-      else if (!res) { setLoader(false); setLoginPage(true); setOTPBox(false); }
-      else { toast.error(res?.message || "Admin not found"); setLoginPage(true); setLoader(false); }
-    }
+    const res = await fetchAdmin(adminID, password);
+    if (res) { toast.success("Admin Logged In Successfully"); navigate("/admindashboard"); }
+    else { setLoginPage(true); setLoader(false); toast.error(res?.message || "Admin not found"); }
   };
-
-  async function handleClickOnGetOTP() {
-    if (!adminID) { toast.error("Enter the AdminID"); return; }
-    if (!email) { toast.error("Enter the registered email"); return; }
-    try {
-      const res = await sendOTP(adminID, email);
-      if (res) setOTPBox(true);
-    } catch (err) { console.error(err); }
-  }
-
-  function handleClickOnLoginWithEmail() {
-    setLoginWithEmail(!loginWithEmail);
-    setLoginWithPassword(!loginWithPassword);
-  }
 
   const inputClass =
     "w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-indigo-500/60 focus:bg-indigo-500/5 focus:ring-1 focus:ring-indigo-500/20 transition-all";
@@ -149,22 +118,6 @@ export default function AdminLogin() {
 
           {loginPage && (
             <div className="flex flex-col gap-4">
-              {/* Method toggle */}
-              <div className="flex bg-white/5 border border-white/8 rounded-xl p-1">
-                <button
-                  onClick={() => !loginWithPassword && handleClickOnLoginWithEmail()}
-                  className={`flex-1 py-2 rounded-lg text-sm font-mooxy transition-all ${loginWithPassword ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20" : "text-white/40 hover:text-white"}`}
-                >
-                  Password
-                </button>
-                <button
-                  onClick={() => !loginWithEmail && handleClickOnLoginWithEmail()}
-                  className={`flex-1 py-2 rounded-lg text-sm font-mooxy transition-all ${loginWithEmail ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20" : "text-white/40 hover:text-white"}`}
-                >
-                  Email OTP
-                </button>
-              </div>
-
               {/* Admin ID */}
               <div className="relative">
                 <ShieldCheck size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
@@ -177,55 +130,21 @@ export default function AdminLogin() {
               </div>
 
               {/* Password mode */}
-              {loginWithPassword && (
-                <div className="relative">
-                  <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    className={`${inputClass} pl-10 pr-11`}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              )}
-
-              {/* Email OTP mode */}
-              {loginWithEmail && (
-                <>
-                  <div className="relative">
-                    <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                    <input
-                      type="text"
-                      placeholder="Registered Email"
-                      className={`${inputClass} pl-10`}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  {otpBox && (
-                    <div className="relative">
-                      <ShieldCheck size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                      <input
-                        type="text"
-                        placeholder="Enter OTP"
-                        className={`${inputClass} pl-10`}
-                        onChange={(e) => setOTP(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  <button
-                    onClick={handleClickOnGetOTP}
-                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-purple-500/25 text-purple-300 text-sm font-mooxy transition-all"
-                  >
-                    {otpBox ? "Resend OTP" : "Get OTP"}
-                  </button>
-                </>
-              )}
+              <div className="relative">
+                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className={`${inputClass} pl-10 pr-11`}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
 
               {/* Login button */}
               <button

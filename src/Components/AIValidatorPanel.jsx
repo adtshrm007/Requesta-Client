@@ -80,28 +80,59 @@ const AIValidatorPanel = ({ token, type = "LEAVE", subject, reason, hasDocument 
   const docCfg = result?.documentAnalysis ? docStatusConfig[result.documentAnalysis.status] : null;
   const riskCfg = result?.riskAnalysis ? riskLevelConfig[result.riskAnalysis.level] : null;
 
+  const themes = {
+    CERTIFICATE: {
+      primary: "purple",
+      textMain: "text-purple-400",
+      textSub: "text-purple-300",
+      bgSolid: "bg-purple-600 hover:bg-purple-500",
+      bgSoft: "bg-purple-500/10",
+      bgSofter: "bg-purple-500/5",
+      borderMain: "border-purple-500/20",
+      borderSub: "border-purple-500/10",
+      borderHover: "group-hover:border-purple-500/40",
+      glow: "shadow-purple-600/20",
+    },
+    LEAVE: {
+      primary: "indigo",
+      textMain: "text-indigo-400",
+      textSub: "text-indigo-300",
+      bgSolid: "bg-indigo-600 hover:bg-indigo-500",
+      bgSoft: "bg-indigo-500/10",
+      bgSofter: "bg-indigo-500/5",
+      borderMain: "border-indigo-500/20",
+      borderSub: "border-indigo-500/10",
+      borderHover: "group-hover:border-indigo-500/40",
+      glow: "shadow-indigo-600/20",
+    }
+  };
+  const th = themes[type] || themes.LEAVE;
+
   return (
-    <div className="mb-5 bg-[#0D1117] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+    <div className={`mb-5 bg-[#0D1117]/80 backdrop-blur-xl border ${th.borderMain} rounded-[2rem] overflow-hidden shadow-2xl relative`}>
+      {/* Mesh Glow */}
+      {open && <div className={`absolute top-0 right-0 w-[300px] h-[300px] bg-${th.primary}-500/5 rounded-full blur-[80px] pointer-events-none -mt-32 -mr-32`} />}
+      
       {/* Header toggle */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition-all group"
+        className="w-full flex items-center gap-4 px-6 py-5 text-left hover:bg-white/[0.02] transition-colors rounded-t-[2rem] group relative z-10"
       >
-        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:border-indigo-500/40 transition-colors">
-          <ShieldCheck size={18} className="text-indigo-400" />
+        <div className={`w-12 h-12 rounded-2xl ${th.bgSoft} border ${th.borderMain} flex items-center justify-center ${th.borderHover} transition-colors shadow-inner`}>
+          <ShieldCheck size={20} className={th.textMain} />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-white font-mooxy text-sm font-semibold tracking-tight uppercase tracking-wider">AI Decision Engine</p>
+            <p className="text-white font-growmajour text-lg tracking-tight">AI Decision Engine</p>
             {result && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
-                 <Sparkles size={8} className="text-indigo-400" />
-                 <span className="text-[9px] font-bold font-mooxy text-indigo-300 uppercase">Policy Audit Active</span>
+              <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${th.bgSoft} border ${th.borderMain}`}>
+                 <Sparkles size={10} className={th.textMain} />
+                 <span className={`text-[9px] font-bold font-mooxy ${th.textSub} uppercase tracking-widest`}>Policy Audit Active</span>
               </div>
             )}
           </div>
-          <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-widest mt-0.5">
+          <p className="text-white/40 font-mooxy text-[10px] uppercase tracking-[0.2em] mt-1">
             Institutional Standards & Risk Intelligence
           </p>
         </div>
@@ -131,22 +162,22 @@ const AIValidatorPanel = ({ token, type = "LEAVE", subject, reason, hasDocument 
             </div>
           )}
 
-          <div className="mt-5 flex items-center gap-3 flex-wrap">
+          <div className="mt-5 flex items-center gap-4 flex-wrap relative z-10">
             <button
-              type="button"
-              onClick={handleValidate}
-              disabled={loading}
-              className="flex items-center gap-2.5 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold font-mooxy transition-all shadow-xl shadow-indigo-600/20 group relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              <span className="relative flex items-center gap-2.5">
-                {loading ? (
-                  <><Loader2 size={15} className="animate-spin" /> Verifying Policy…</>
-                ) : (
-                  <><ShieldCheck size={15} /> Execute Audit</>
-                )}
-              </span>
-            </button>
+               type="button"
+               onClick={handleValidate}
+               disabled={loading}
+               className={`flex items-center gap-2.5 px-8 py-3.5 rounded-xl ${th.bgSolid} disabled:opacity-50 text-white text-xs font-bold font-mooxy uppercase tracking-widest transition-all shadow-xl ${th.glow} group relative overflow-hidden active:scale-95`}
+             >
+               <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+               <span className="relative flex items-center gap-2.5">
+                 {loading ? (
+                   <><Loader2 size={16} className="animate-spin" /> Verifying Policy…</>
+                 ) : (
+                   <><ShieldCheck size={16} /> Execute Audit</>
+                 )}
+               </span>
+             </button>
             {result && (
               <button
                 type="button"
@@ -269,17 +300,17 @@ const AIValidatorPanel = ({ token, type = "LEAVE", subject, reason, hasDocument 
                           <p className="text-white/30 font-bold text-[10px] uppercase tracking-[0.2em] mb-4">Path to Decision</p>
                           <div className="space-y-4">
                             {result.explainDecision?.map((step, i) => (
-                              <div key={i} className="flex gap-3">
-                                <span className="w-5 h-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] flex items-center justify-center font-bold flex-shrink-0">{i+1}</span>
-                                <p className="text-[11px] text-white/60 font-mooxy leading-relaxed mt-0.5">{step}</p>
+                              <div key={i} className="flex gap-4">
+                                <span className={`w-6 h-6 rounded-full ${th.bgSoft} border ${th.borderMain} ${th.textMain} text-[10px] flex items-center justify-center font-bold flex-shrink-0 shadow-inner`}>{i+1}</span>
+                                <p className="text-xs text-white/60 font-mooxy leading-relaxed mt-1">{step}</p>
                               </div>
                             ))}
                           </div>
                        </div>
 
                        {/* Key Factors */}
-                       <div className="bg-indigo-500/5 border border-indigo-500/10 p-6 rounded-3xl">
-                          <p className="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.2em] mb-4">Deterministic Factors</p>
+                       <div className={`${th.bgSoft} border ${th.borderMain} p-6 rounded-3xl`}>
+                          <p className={`${th.textMain} font-bold text-[10px] uppercase tracking-[0.2em] mb-4`}>Deterministic Factors</p>
                           <div className="space-y-3">
                             {result.keyFactors?.map((f, i) => (
                               <div key={i} className="flex items-center gap-3">
@@ -330,25 +361,25 @@ const AIValidatorPanel = ({ token, type = "LEAVE", subject, reason, hasDocument 
 
               {/* Professional Draft Preview */}
               {result.improvedVersion && (
-                <div className="bg-gradient-to-br from-indigo-500/[0.08] to-transparent border border-indigo-500/20 rounded-[2.5rem] overflow-hidden shadow-3xl">
-                   <div className="bg-indigo-500/10 px-8 py-4 border-b border-indigo-500/10 flex items-center justify-between">
+                <div className={`mt-10 mb-2 bg-gradient-to-br from-${th.primary}-500/[0.08] to-transparent border ${th.borderMain} rounded-[2.5rem] overflow-hidden ${th.glow}`}>
+                   <div className={`${th.bgSoft} px-8 py-5 border-b ${th.borderSub} flex items-center justify-between`}>
                       <div className="flex items-center gap-3">
-                         <Sparkles size={16} className="text-indigo-400" />
-                         <p className="text-indigo-200 font-growmajour text-xs uppercase tracking-[0.2em]">
+                         <Sparkles size={18} className={th.textMain} />
+                         <p className={`${th.textSub} font-growmajour text-sm uppercase tracking-[0.2em]`}>
                             Validated Formal Rewrite
                          </p>
                       </div>
                    </div>
                    <div className="p-8 space-y-6">
                       <div>
-                         <p className="text-indigo-300/30 text-[9px] uppercase font-bold tracking-[0.2em] mb-2 px-1">Subject Header</p>
+                         <p className={`${th.textSub} text-[9px] uppercase font-bold tracking-[0.2em] mb-2 px-1 opacity-50`}>Subject Header</p>
                          <p className="text-white/90 font-mooxy text-sm leading-relaxed font-semibold bg-white/[0.03] p-4 rounded-2xl border border-white/5">
                            {result.improvedVersion.subject}
                          </p>
                       </div>
                       <div>
-                         <p className="text-indigo-300/30 text-[9px] uppercase font-bold tracking-[0.2em] mb-2 px-1">Body Text / Justification</p>
-                         <p className="text-white/70 font-mooxy text-sm leading-relaxed whitespace-pre-wrap bg-white/[0.02] p-4 rounded-2xl border border-white/5 italic">
+                         <p className={`${th.textSub} text-[9px] uppercase font-bold tracking-[0.2em] mb-2 px-1 opacity-50`}>Body Text / Justification</p>
+                         <p className="text-white/70 font-mooxy text-sm leading-relaxed whitespace-pre-wrap bg-white/[0.02] p-5 rounded-2xl border border-white/5 italic">
                            "{result.improvedVersion.reason}"
                          </p>
                       </div>
@@ -357,7 +388,7 @@ const AIValidatorPanel = ({ token, type = "LEAVE", subject, reason, hasDocument 
                         <button
                           type="button"
                           onClick={() => onApply(result.improvedVersion)}
-                          className="w-full mt-4 flex items-center justify-center gap-3 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-widest font-mooxy transition-all shadow-2xl shadow-indigo-600/30 active:scale-95"
+                          className={`w-full mt-6 flex items-center justify-center gap-3 py-4 rounded-2xl ${th.bgSolid} text-white text-xs font-bold uppercase tracking-widest font-mooxy transition-all shadow-2xl ${th.glow} active:scale-[0.98]`}
                         >
                           <CheckCircle size={18} /> Deploy Policy Draft
                         </button>

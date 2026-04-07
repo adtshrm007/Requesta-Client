@@ -11,7 +11,7 @@ import { ShieldCheck, KeyRound, ArrowRight, Eye, EyeOff, Lock } from "lucide-rea
 
 export default function ChangeAdminPassword() {
   const navigate = useNavigate();
-  const [otp, setOTP] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -28,12 +28,12 @@ export default function ChangeAdminPassword() {
   }, []);
 
   async function handleClickOnChangePassword() {
-    if (!otp.trim()) { toast.error("Enter the OTP"); return; }
-    if (!password.trim()) { toast.error("Enter the Password"); return; }
+    if (!oldPassword.trim()) { toast.error("Enter your Current Password"); return; }
+    if (!password.trim()) { toast.error("Enter the New Password"); return; }
     setLoader(true);
     setPage(false);
     try {
-      const res = await changeAdminPassword(otp, password);
+      const res = await changeAdminPassword(oldPassword, password);
       if (res) {
         toast.success(res);
         navigate("/admindashboard");
@@ -87,23 +87,23 @@ export default function ChangeAdminPassword() {
               </div>
               <h1 className="font-growmajour text-[28px] text-white leading-tight">Change Admin Password</h1>
               <p className="text-white/40 font-mooxy text-sm mt-2 max-w-[280px]">
-                Enter the OTP sent to your registered email, then set your new admin password.
+                Enter your current password to set a new admin password.
               </p>
             </div>
 
             {/* Form Card */}
             <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 flex flex-col gap-4">
-              {/* OTP */}
+              {/* Old Password */}
               <div>
                 <label className="block text-white/50 font-mooxy text-xs mb-2 uppercase tracking-wider">
-                  One-Time Password (OTP)
+                  Current Password
                 </label>
                 <div className="relative">
-                  <ShieldCheck size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                  <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                   <input
-                    type="text"
-                    placeholder="Enter your OTP"
-                    onChange={(e) => setOTP(e.target.value)}
+                    type="password"
+                    placeholder="Enter current password"
+                    onChange={(e) => setOldPassword(e.target.value)}
                     className="w-full h-12 pl-10 pr-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:bg-purple-500/5 focus:ring-1 focus:ring-purple-500/20 transition-all"
                   />
                 </div>

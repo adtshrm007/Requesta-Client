@@ -4,11 +4,9 @@ import { fetchStudentData } from "../utils/GETstudentData";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { loginStudentUsingEmail } from "../utils/GETStudentDataUsingEmail";
-import { sendOTP } from "../utils/SENDOTP";
 import Loader from "./Loader";
 import gsap from "gsap";
-import { Eye, EyeOff, ArrowRight, Mail, KeyRound, Hash, ShieldCheck, CheckCircle, Clock, Download } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, KeyRound, Hash, CheckCircle, Clock, Download } from "lucide-react";
 
 export default function StudentLoginRegister() {
   const navigate = useNavigate();
@@ -16,11 +14,6 @@ export default function StudentLoginRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [loginWithPassword, setLoginWithPassword] = useState(true);
-  const [loginWithEmail, setLoginWithEmail] = useState(false);
-  const [getOTP, setGetOTP] = useState(false);
-  const [otpBox, setOTPBox] = useState(false);
-  const [otp, setOTP] = useState("");
   const [loader, setLoader] = useState(false);
   const [login, setLogin] = useState(true);
 
@@ -35,44 +28,15 @@ export default function StudentLoginRegister() {
 
   async function handleLogin() {
     if (!RegistrationNumber.trim()) { toast.error("Please enter registration number"); return; }
-    if (loginWithPassword) {
-      if (!password.trim()) { toast.error("Please enter password"); return; }
-      setLogin(false); setLoader(true);
-      try {
-        const res = await fetchStudentData(RegistrationNumber, password);
-        if (!res) { setLogin(true); setLoader(false); }
-        if (res) navigate("/studentdashboard");
-      } catch (err) { console.log(err); }
-    }
-    if (loginWithEmail) {
-      if (!email.trim()) { toast.error("Please enter email"); return; }
-      if (!otp.trim()) { toast.error("Enter the OTP"); return; }
-      setLogin(false); setLoader(true);
-      try {
-        if (otp) {
-          const res = await loginStudentUsingEmail(RegistrationNumber, email, otp);
-          if (!res) { setLoader(false); setLogin(true); setOTPBox(false); }
-          if (res) navigate("/studentdashboard");
-        }
-      } catch (err) { console.error(err); }
-    }
-  }
-
-  function handleClickOnLoginWithEmail() {
-    setLoginWithPassword(!loginWithPassword);
-    setLoginWithEmail(!loginWithEmail);
-    setGetOTP(!getOTP);
-  }
-
-  async function handleClickOnGetOTP() {
-    if (!RegistrationNumber) { toast.error("Enter the registration number"); return; }
-    if (!email) { toast.error("Enter the email"); return; }
-    if (email && RegistrationNumber) setOTPBox(true);
+    if (!password.trim()) { toast.error("Please enter password"); return; }
+    setLogin(false); setLoader(true);
     try {
-      const res1 = await sendOTP(RegistrationNumber, email);
-      toast.success("OTP sent successfully");
-    } catch (err) { console.error(err); }
+      const res = await fetchStudentData(RegistrationNumber, password);
+      if (!res) { setLogin(true); setLoader(false); }
+      if (res) navigate("/studentdashboard");
+    } catch (err) { console.log(err); }
   }
+
 
   const inputClass =
     "w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-indigo-500/60 focus:bg-indigo-500/5 focus:ring-1 focus:ring-indigo-500/20 transition-all";
@@ -156,22 +120,6 @@ export default function StudentLoginRegister() {
 
           {login && (
             <div className="flex flex-col gap-4">
-              {/* Method toggle */}
-              <div className="flex bg-white/5 border border-white/8 rounded-xl p-1">
-                <button
-                  onClick={() => !loginWithPassword && handleClickOnLoginWithEmail()}
-                  className={`flex-1 py-2 rounded-lg text-sm font-mooxy transition-all ${loginWithPassword ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-white/40 hover:text-white"}`}
-                >
-                  Password
-                </button>
-                <button
-                  onClick={() => !loginWithEmail && handleClickOnLoginWithEmail()}
-                  className={`flex-1 py-2 rounded-lg text-sm font-mooxy transition-all ${loginWithEmail ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-white/40 hover:text-white"}`}
-                >
-                  Email OTP
-                </button>
-              </div>
-
               {/* Reg Number */}
               <div className="relative">
                 <Hash size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
@@ -184,55 +132,21 @@ export default function StudentLoginRegister() {
               </div>
 
               {/* Password mode */}
-              {loginWithPassword && (
-                <div className="relative">
-                  <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    className={`${inputClass} pl-10 pr-11`}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              )}
-
-              {/* Email OTP mode */}
-              {loginWithEmail && (
-                <>
-                  <div className="relative">
-                    <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                    <input
-                      type="text"
-                      placeholder="Registered Email"
-                      className={`${inputClass} pl-10`}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  {otpBox && (
-                    <div className="relative">
-                      <ShieldCheck size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
-                      <input
-                        type="text"
-                        placeholder="Enter OTP"
-                        className={`${inputClass} pl-10`}
-                        onChange={(e) => setOTP(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  <button
-                    onClick={handleClickOnGetOTP}
-                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-indigo-500/25 text-indigo-300 text-sm font-mooxy transition-all"
-                  >
-                    {otpBox ? "Resend OTP" : "Get OTP"}
-                  </button>
-                </>
-              )}
+              <div className="relative">
+                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className={`${inputClass} pl-10 pr-11`}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
 
               {/* Login button */}
               <button

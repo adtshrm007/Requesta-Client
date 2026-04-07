@@ -1,10 +1,10 @@
 import axios from "axios";
-export const updatePassword = async (otp, password) => {
+export const updatePassword = async (oldPassword, newPassword) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
     const response = await axios.put(
       "https://requesta-server-3.onrender.com/api/studentregister/changepassword",
-      { otp, password },{
+      { oldPassword, newPassword },{
         headers:{
             Authorization:`Bearer ${accessToken}`
         }
