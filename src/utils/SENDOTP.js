@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 export const sendOTP = async (regNo, email) => {
   try {
     const response = await axios.post(
-      "https://requesta-server-3.onrender.com/api/studentregister/otp",
+      "http://localhost:5000/api/studentregister/otp",
       {
         registrationNumber: regNo,
         email: email,
