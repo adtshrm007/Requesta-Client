@@ -15,11 +15,14 @@ export const sendOTP = async (adminID, email) => {
 
     return response.data;
   } catch (err) {
-    if (err.status === 404) {
+    const status = err.response?.status;
+    if (status === 404) {
       toast.error("Wrong email or registration number");
-      return err.message;
+    } else if (err.response?.data?.message) {
+      toast.error(err.response.data.message);
     } else {
-      return err.message;
+      toast.error("Network error or server timeout");
     }
+    throw err;
   }
 };
