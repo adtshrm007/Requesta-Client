@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { changeAdminPassword } from "../utils/ChangeAdminPassword";
-import { sendOTP } from "../utils/SENDOTPforAdmin";
 import Loader from "./Loader";
 import gsap from "gsap";
 import { ShieldCheck, KeyRound, ArrowRight, Eye, EyeOff, Lock } from "lucide-react";

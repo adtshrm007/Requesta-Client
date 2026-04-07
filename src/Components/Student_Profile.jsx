@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { fetchCurrentStudent } from "../utils/GETStudentDashBoard";
 import { updateStudent } from "../utils/UPDATEstudents";
 import { useNavigate } from "react-router-dom";
-import { sendOTP } from "../utils/SENDOTP";
 import Loader from "./Loader";
 import { toast, ToastContainer } from "react-toastify";
 import gsap from "gsap";
@@ -66,13 +65,6 @@ const StudentProfile = () => {
     navigate("/studentdashboard");
   }
 
-  async function handleClickOnChangePassword() {
-    try {
-      await sendOTP(regnNo, email);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const inputClass =
     "w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-indigo-500/60 focus:bg-indigo-500/5 focus:ring-1 focus:ring-indigo-500/20 transition-all";
@@ -117,7 +109,6 @@ const StudentProfile = () => {
             </button>
             <Link to="/changepassword">
               <button
-                onClick={handleClickOnChangePassword}
                 className="px-4 py-2 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-mooxy transition-all shadow-lg shadow-indigo-500/20"
               >
                 Change Password
@@ -145,7 +136,6 @@ const StudentProfile = () => {
             </button>
             <Link to="/changepassword" onClick={() => setMobileMenu(false)}>
               <button
-                onClick={handleClickOnChangePassword}
                 className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-indigo-400 hover:text-indigo-300 hover:bg-white/5 transition-all font-mooxy"
               >
                 Change Password
@@ -208,7 +198,6 @@ const StudentProfile = () => {
               </button>
               <Link to="/changepassword">
                 <button
-                  onClick={handleClickOnChangePassword}
                   className="flex items-center gap-2 text-white/50 hover:text-white font-mooxy text-sm transition-colors"
                 >
                   <Lock size={13} /> Change Password

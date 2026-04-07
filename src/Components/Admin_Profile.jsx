@@ -5,7 +5,6 @@ import { getAdminDashboard } from "../utils/GETAdminDashBoard";
 import { updateAdmin } from "../utils/UPDATEAdmin";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { sendOTP } from "../utils/SENDOTPforAdmin";
 import gsap from "gsap";
 import {
   User, ShieldCheck, Mail, Building2, Edit3, Lock, ArrowRight,
@@ -62,13 +61,6 @@ const AdminProfile = () => {
     navigate("/admindashboard");
   }
 
-  async function handleClickOnChangePassword() {
-    try {
-      await sendOTP(adminID, adminEmail);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const inputClass =
     "w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 font-mooxy text-sm outline-none focus:border-purple-500/60 focus:bg-purple-500/5 focus:ring-1 focus:ring-purple-500/20 transition-all";
@@ -113,7 +105,6 @@ const AdminProfile = () => {
             </button>
             <Link to="/changeadminpassword">
               <button
-                onClick={handleClickOnChangePassword}
                 className="px-4 py-2 rounded-xl text-sm bg-purple-600 hover:bg-purple-500 text-white font-mooxy transition-all shadow-lg shadow-purple-500/20"
               >
                 Change Password
@@ -138,7 +129,7 @@ const AdminProfile = () => {
               {editProfile ? "View Profile" : "Edit Profile"}
             </button>
             <Link to="/changeadminpassword" onClick={() => setMobileMenu(false)}>
-              <button onClick={handleClickOnChangePassword} className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all font-mooxy">
+              <button className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all font-mooxy">
                 Change Password
               </button>
             </Link>
@@ -199,7 +190,6 @@ const AdminProfile = () => {
                 </button>
                 <Link to="/changeadminpassword">
                   <button
-                    onClick={handleClickOnChangePassword}
                     className="flex items-center gap-2 text-white/50 hover:text-white font-mooxy text-sm transition-colors"
                   >
                     <Lock size={13} /> Change Password
