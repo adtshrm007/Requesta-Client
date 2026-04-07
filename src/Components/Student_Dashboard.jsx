@@ -73,6 +73,8 @@ const StudentDashboard = () => {
     const formData = new FormData();
     formData.append("subject", subject);
     formData.append("Reason", reason);
+    if (startDate) formData.append("fromDate", startDate);
+    if (endDate) formData.append("toDate", endDate);
     if (supportingDocument) formData.append("supportingDocument", supportingDocument);
     try {
       const res = await submitLeaves(formData);
@@ -387,6 +389,8 @@ const StudentDashboard = () => {
                   onApply={(result) => {
                     setSubject(result.subject);
                     setReason(result.body);
+                    if (result.startDate) setStartDate(result.startDate);
+                    if (result.endDate) setEndDate(result.endDate);
                   }}
                 />
                 

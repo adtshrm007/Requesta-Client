@@ -54,37 +54,70 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
 
   const handleApply = () => {
     if (result && onApply) {
-      onApply({ subject: result.subject || result.title, body: result.body || result.description });
+      onApply({ 
+        subject: result.subject || result.title, 
+        body: result.body || result.description,
+        startDate: result.extractedStartDate,
+        endDate: result.extractedEndDate
+      });
       setOpen(false);
     }
   };
 
+  const themes = {
+    CERTIFICATE: {
+      textMain: "text-purple-300",
+      textSub: "text-purple-200",
+      textFaded: "text-purple-400/60",
+      bgSolid: "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20",
+      bgSoft: "bg-purple-500/5",
+      bgSofter: "bg-purple-500/5 hover:bg-purple-500/5",
+      bgLogo: "bg-purple-500/20",
+      borderMain: "border-purple-500/15",
+      borderSub: "border-purple-500/30",
+      borderFaded: "border-purple-500/10",
+    },
+    LEAVE: {
+      textMain: "text-indigo-300",
+      textSub: "text-indigo-200",
+      textFaded: "text-indigo-400/60",
+      bgSolid: "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20",
+      bgSoft: "bg-indigo-500/5",
+      bgSofter: "bg-indigo-500/5 hover:bg-indigo-500/5",
+      bgLogo: "bg-indigo-500/20",
+      borderMain: "border-indigo-500/15",
+      borderSub: "border-indigo-500/30",
+      borderFaded: "border-indigo-500/10",
+    }
+  };
+  const theme = themes[type] || themes.LEAVE;
+
   return (
-    <div className="mb-5 bg-purple-500/5 border border-purple-500/15 rounded-2xl overflow-hidden">
+    <div className={`mb-5 ${theme.bgSoft} border ${theme.borderMain} rounded-2xl overflow-hidden`}>
       {/* Header toggle */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-purple-500/5 transition-all"
+        className={`w-full flex items-center gap-2.5 px-4 py-3 text-left ${theme.bgSofter} transition-all`}
       >
-        <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-          <Sparkles size={13} className="text-purple-300" />
+        <div className={`w-7 h-7 rounded-lg ${theme.bgLogo} border ${theme.borderSub} flex items-center justify-center`}>
+          <Sparkles size={13} className={theme.textMain} />
         </div>
         <div className="flex-1">
-          <p className="text-purple-200 font-mooxy text-sm font-medium">AI Request Assistant</p>
-          <p className="text-purple-400/60 font-mooxy text-xs">
+          <p className={`${theme.textSub} font-mooxy text-sm font-medium`}>AI Request Assistant</p>
+          <p className={`${theme.textFaded} font-mooxy text-xs`}>
             Describe your request in plain language — AI will formalize it
           </p>
         </div>
         {open ? (
-          <ChevronUp size={14} className="text-purple-400/60" />
+          <ChevronUp size={14} className={theme.textFaded} />
         ) : (
-          <ChevronDown size={14} className="text-purple-400/60" />
+          <ChevronDown size={14} className={theme.textFaded} />
         )}
       </button>
 
       {open && (
-        <div className="px-4 pb-4 border-t border-purple-500/10">
+        <div className={`px-4 pb-4 border-t ${theme.borderFaded}`}>
           <div className="mt-3">
             <label className="text-white/50 font-mooxy text-xs mb-1.5 block">
               Describe your request in plain language
@@ -106,7 +139,7 @@ const AIAssistantPanel = ({ token, type = "LEAVE", onApply }) => {
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="mt-2.5 flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-mooxy transition-all shadow-lg shadow-purple-500/20"
+            className={`mt-2.5 flex items-center gap-2 px-4 py-2 rounded-xl ${theme.bgSolid} disabled:opacity-50 text-white text-sm font-mooxy transition-all shadow-lg`}
           >
             {loading ? (
               <><Loader2 size={13} className="animate-spin" /> Generating…</>
