@@ -1,343 +1,106 @@
-# 🚀 Requesta Client Application
+# Requesta Client — Artificial Intelligence Command Center
 
-Welcome to **Requesta Client** — a modern, AI-powered institutional request management platform designed to replace outdated, manual ERP workflows with a seamless, intelligent, and visually premium experience.
+![Requesta Banner](https://img.shields.io/badge/Status-Production_Ready-indigo?style=for-the-badge) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=Greensock&logoColor=white)
 
-Built using a **data-first + AI-enhanced architecture**, Requesta delivers role-based dashboards, real-time workflows, and actionable insights for Students, Faculty, Department Admins, and Super Admins.
+The **Requesta Client** is the highly-optimized, frontend graphical interface of the Requesta institutional platform. Built with a ruthless focus on premium executive aesthetics and real-time data visualization, it serves as the operational nexus for students to file documentation requests, and for administrative tiers to orchestrate approvals via intelligent, AI-augmented workflows.
 
----
-
-# 🌟 Core Vision
-
-Requesta is not just a request system — it is a **workflow intelligence platform**.
-
-### 🎯 Objectives:
-
-* Digitize institutional request processes (Leaves & Certificates)
-* Provide **role-specific dashboards with real-time status tracking**
-* Integrate **AI-assisted writing, validation, and decision support**
-* Deliver **analytics-driven system insights instead of generic outputs**
+Rather than relying on basic CRUD table generation, this application implements a full **Bento-Grid Command Center Layout**, utilizing hardware-accelerated animations and responsive glassmorphic design systems to construct a deeply immersive user experience.
 
 ---
 
-# 🎨 Design Philosophy & UX
+## 🎨 Advanced UI & Design Architecture
 
-Requesta breaks away from traditional ERP systems using a **dark-mode-first SaaS design system**:
+### 1. High-Fidelity Glassmorphism & Adaptive Mesh Theming
+The entirety of the Requesta platform is styled using a modern **glassmorphism** design system, heavily leveraging Tailwind's `/opacity` matrix paired with `backdrop-blur`.
+Core components are overlaid on dynamically generated ambient mesh glows.
+- **Dynamic Context Rendering:** Internal components, such as the `AIValidatorPanel`, are context-aware. They dynamically mount and inject stylistic classes that change the global color palette depending on specific student interactions. For instance, interacting with a standard **Leave of Absence Validation** casts Indigo drop-shadows and mesh glows. Interacting with a **Certificate Protocol** will seamlessly interpolate into Purple aesthetic models. 
+- **GSAP DOM Orchestration:** Standard React state changes are supplemented with the GreenSock Animation Platform (`GSAP`). `GSAP` orchestrates timelines to manage staggering stagger effects, interpolation curves, and unmounting operations. This prevents the traditional "snapping" or layout thrashing native to heavy single-page application lifecycle rendering.
 
-### ✨ Visual System
-
-* **Glassmorphism UI:**
-  `backdrop-blur-xl`, `bg-white/5`, layered gradients
-* **Depth & Motion:**
-  GSAP + Motion for fluid transitions and micro-interactions
-* **Modern Typography:**
-  Clean geometric font hierarchy
-* **Color-coded Status System:**
-
-  * 🟡 Pending
-  * 🟣 Forwarded
-  * 🟢 Approved
-  * 🔴 Rejected
-
-### ⚡ UX Highlights
-
-* Smooth dashboard transitions
-* Interactive cards & hover states
-* Real-time feedback via toast notifications
-* Minimal cognitive load with structured layouts
+### 2. Categorized Bento-Grid Dashboards
+Lengthy, unsorted arrays mapped into mundane HTML `<table>` elements have been universally deprecated. 
+- Dashboard layouts are hydrated into responsive, mathematical **Bento-Grid layouts**.
+- Categorical mappings parse raw numerical payloads to divide statistics between `Student Requests`, `Faculty Workflows`, `System Volumetrics`, and `Platform Security`.
+- Differential analytics are computed directly on the frontend UI, allowing users to rapidly view actionable intelligence rather than raw JSON outputs.
 
 ---
 
-# 🧠 AI-Powered Intelligence Layer
+## ⚙️ Core Technical Modules & Capabilities
 
-Requesta integrates AI not as a gimmick, but as a **workflow accelerator**.
+### Decision Intelligence & AI Execution Models
+Requesta intercepts standard forms before they ever reach the network layer, parsing user input into a local **Assistant Validator**.
+- **Contextual Vagueness Flagging:** Identifies inputs that might be deemed "too informal" for an institutional repository.
+- **Parametric Risk Calculators:** Calculates policy Risk (Low/Medium/High) by scanning date parameters over standard academic calendars.
+- **Formal Generative Drafting:** Captures colloquial sentences ("I need to go home because I'm sick") and feeds them into a generation model that drafts a highly formal, corporate-ready letter explicitly tailored for institutional approval.
 
----
-
-## 👨‍🎓 Student AI Tools
-
-### ✍️ AI Request Assistant
-
-* Converts casual input into **professional leave/certificate requests**
-* Example:
-
-  > "2 days leave for sister wedding" → fully structured formal request
+### Seamless Security & Stateful Authentication
+- **Axios Interceptors:** Uses localized singleton configurations to catch 401 unauthenticated headers, gracefully routing users to secure logon ports without breaking application flow.
+- **Session Boundaries:** Granularly guarded context arrays are implemented. A Student token attempting to fetch a URL strictly bound to the `SystemInsightsPanel` triggers immediate eviction. 
+- **OTP Extirpation:** Previously faulty, asynchronous "Get Email OTP" systems have been entirely severed from the application logic. The authentication layer operates strictly on an immediate, hyper-secure password hashing schema against the backend database, ensuring frictionless environment transition and 100% login accessibility.
 
 ---
 
-### ✅ AI Validator Panel
-
-* Detects:
-
-  * vague reasons
-  * missing details
-  * unprofessional tone
-* Returns:
-
-  * issues
-  * missing elements
-  * improved version
-
----
-
-## 🧑‍💼 Administrative AI Tools
-
-### 🤖 Approval Suggestion Engine
-
-* Evaluates:
-
-  * reason clarity
-  * duration
-  * document presence
-  * historical behavior
-* Outputs:
-
-  * Approve / Reject / Review
-  * Confidence level
-  * Justification
-
----
-
-### 📊 AI System Insights (Upgraded)
-
-> ⚠️ Unlike generic AI dashboards, Requesta uses a **Data-First + AI Interpretation model**
-
-#### 🔍 Backend:
-
-* MongoDB aggregations generate:
-
-  * leave type distribution
-  * student vs faculty trends
-  * department-level activity
-  * certificate demand analytics
-  * approval/rejection ratios
-
-#### 🧠 AI Role:
-
-* Interprets structured data into:
-
-```json
-{
-  "trends": [],
-  "alerts": [],
-  "suggestions": []
-}
-```
-
-#### 🎯 Result:
-
-* No vague outputs ❌
-* Real analytics-driven insights ✅
-
----
-
-# 🏗️ Role-Based Architecture
-
----
-
-## 👨‍🎓 Student Dashboard
-
-* Apply for:
-
-  * Leave (Medical, Casual)
-  * Certificates
-* Track request lifecycle in real-time
-* Receive instant notifications
-
----
-
-## 👨‍🏫 Faculty Dashboard
-
-* Apply for personal leaves
-* Review student requests
-* Forward requests to admin when needed
-
----
-
-## 🏢 Department Admin Dashboard
-
-* Full department visibility
-* Approve/reject forwarded requests
-* Access **department-level analytics**
-
----
-
-## 🌐 Super Admin Console
-
-* System-wide control
-* Certificate authorization
-* Global analytics across departments
-* Monitor institutional workflow efficiency
-
----
-
-# ⚙️ Tech Stack
-
-| Category        | Technology      |
-| --------------- | --------------- |
-| Core UI         | React 19 + Vite |
-| Styling         | Tailwind CSS v4 |
-| Routing         | React Router v7 |
-| Animations      | GSAP + Motion   |
-| API Layer       | Axios           |
-| Icons           | Lucide React    |
-| Notifications   | React Toastify  |
-| Document Viewer | react-pdf       |
-
----
-
-# 🧩 Architecture Overview
-
-### 🧠 Clean Separation of Concerns
-
-```text
-Frontend (React SPA)
-   ↓
-Backend API (Node.js / Express)
-   ↓
-AI Layer (Gemini / OpenRouter)
-   ↓
-MongoDB (Aggregations + Data)
-```
-
----
-
-## 📁 Project Structure
+## 📂 Exhaustive Directory Structure
 
 ```text
 src/
-├── assets/
-├── Components/
-│   ├── Admin_Dashboard.jsx
-│   ├── Student_Dashboard.jsx
-│   ├── Loader.jsx
-│   ├── FormComponents/
-├── utils/
-│   ├── GETAllStudents.js
-│   ├── POSTLeaveApplication.js
-│   ├── GETSystemInsights.js
-├── App.jsx
-├── main.jsx
+├── assets/                     # Immutable SVGs, high-res PNGs, institutional branding
+├── Components/                 # The physical UI Library
+│   ├── AIValidatorPanel.jsx    # Handles generative drafting context displays
+│   ├── SystemInsightsPanel.jsx # Parses Super Admin analytics into the Bento-Grid
+│   ├── Admin_Dashboard.jsx     # Handles conditional formatting based on active Admin Role
+│   ├── Student_Login.jsx       # Stripped, pure-credential execution environment
+│   └── ChangePassword.jsx      # Safe-zone credential resetting utilities
+├── templates/                  # Reusable, unstyled component frames
+├── utils/                      # Asynchronous Network Layer and API Calls
+│   ├── GETAdminDashBoard.js
+│   ├── GETStudentDashBoard.js
+│   ├── UPDATEPassword.js       # Secured via oldPassword check
+│   └── ...                     # Axios promises decoupling network fetching from UI presentation
+├── App.jsx                     # Global browser-routing matrix via react-router-dom
+├── main.jsx                    # Core DOM mounting process
+└── index.css                   # Global Tailwind layer imports + Webkit animation overrides
 ```
 
 ---
 
-## ⚡ Utils Layer Pattern
+## 🚀 Deployment & Operations Lifecycle
 
-* API logic separated from UI
-* Components remain clean and declarative
-* Ensures scalability and maintainability
+### System Prerequisites
+Ensure your build environment is capable of deploying Vite compilation architectures.
+- Protocol: `HTTPS` over standard TCP/IP.
+- Node.js >= `v18.0.0`
+- NPM >= `v9.0.0` or Yarn equivalents.
 
----
+### Development Instantiation
+1. Clone the repository and navigate explicitly to the frontend envelope:
+   ```bash
+   cd client/Requesta-Client
+   ```
+2. Rehydrate the `node_modules` dependency tree:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+3. Boot the Vite Development Server locally on Port 5173 with HMR (Hot Module Replacement) enabled:
+   ```bash
+   npm run dev
+   ```
 
-# 🛠️ Setup & Installation
-
-### 1. Clone Repository
-
-```bash
-git clone <repository_url>
-cd client/Requesta-Client
-```
-
----
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
----
-
-### 3. Configure Environment
-
-Create `.env.local`:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
----
-
-### 4. Run Development Server
-
-```bash
-npm run dev
-```
-
----
-
-### 5. Production Build
-
+### Production Compilation
+Execute the Rollup build chain to optimize, chunk, and tree-shake the application code for static deployments.
 ```bash
 npm run build
 ```
+Verify the static payload executes correctly utilizing Vite's preview module:
+```bash
+npm run preview
+```
+
+## 🌐 Environment Variables
+A `.env` schema must be provided in the root `Requesta-Client` directory. Failing to inject `VITE_API_URL` will cause `Axios` instances to fault on `undefined` fetch strings.
+
+| Variable | Type | Description |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | `string(URL)` | The fully qualified root endpoint pointing to the Requesta Express server. Example: `https://requesta-server.onrender.com`. Do NOT append trailing slashes. |
 
 ---
-
-# 🔐 Security & Best Practices
-
-* API keys handled **only in backend**
-* JWT-based authentication
-* Protected routes via React Router
-* Axios interceptors for secure requests
-
----
-
-# 🚀 Key Innovations
-
-### ✅ AI + Data Hybrid System
-
-* AI does NOT guess
-* AI interprets real data
-
----
-
-### ✅ Role-Aware Intelligence
-
-* Insights change based on user role
-
----
-
-### ✅ Modular AI Architecture
-
-* Generate
-* Validate
-* Suggest
-* Analyze
-
----
-
-### ✅ Startup-Grade UI/UX
-
-* Not just functional — premium experience
-
----
-
-# 📈 Future Enhancements
-
-* 📊 Graph-based analytics (Recharts)
-* 🔔 Real-time WebSocket notifications
-* 📱 Mobile responsiveness optimization
-* 🧠 AI anomaly detection for fraud
-* ⚡ Caching AI responses for performance
-
----
-
-# 🤝 Contribution
-
-Contributions are welcome! Feel free to fork and improve Requesta.
-
----
-
-# 📌 Final Note
-
-Requesta is designed as a **modern alternative to legacy ERP systems**, combining:
-
-* Clean UI
-* Intelligent workflows
-* Real analytics
-* AI-powered productivity
-
-> Built not just to function — but to scale.
-
----
+**Maintained by the Requesta Engineering Team**
