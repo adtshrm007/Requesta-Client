@@ -5,6 +5,7 @@ import { fetchAdmin } from "../utils/GETAdminData";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
+import gsap from "gsap";
 import { Eye, EyeOff, ArrowRight, KeyRound, ShieldCheck, Users, BarChart3, Settings } from "lucide-react";
 
 export default function AdminLogin() {
