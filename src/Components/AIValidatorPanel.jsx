@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   ShieldCheck, ShieldAlert, ShieldOff, Loader2, AlertCircle,
-  CheckCircle, XCircle, ChevronDown, ChevronUp, Sparkles, RefreshCw, ArrowRight
+  CheckCircle, XCircle, ChevronDown, ChevronUp, Sparkles, RefreshCw, ArrowRight, MessageSquare
 } from "lucide-react";
 import { validateAIRequest } from "../utils/POSTAIValidate";
 
