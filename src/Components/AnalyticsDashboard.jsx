@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAdvancedAnalytics } from "../utils/GETAdvancedAnalytics";
-import { TrendingUp, FileText, ArrowLeft, Loader2, Users, Calendar, Activity, Database } from "lucide-react";
+import { TrendingUp, FileText, ArrowLeft, Loader2, Users, Calendar, Activity, Database, PieChart as PieChartIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
 import Footer from "./Footer";
 import logo from "../assets/logo.svg.png";
@@ -46,12 +46,15 @@ export default function AnalyticsDashboard() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#1a1f2e] border border-white/10 p-3 rounded-lg shadow-xl outline-none z-50">
-          <p className="text-white/60 font-mooxy text-xs mb-1">{label}</p>
+        <div className="bg-[#0D1117]/90 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl shadow-indigo-500/10 outline-none z-50">
+          <p className="text-white/60 font-mooxy text-xs mb-2 pb-2 border-b border-white/10">{label}</p>
           {payload.map((p, i) => (
-            <p key={i} className="text-white font-growmajour text-lg" style={{ color: p.color }}>
-              {p.name}: {p.value}
-            </p>
+            <div key={i} className="flex items-center gap-3 mt-1.5" style={{ color: p.color }}>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }}></div>
+              <p className="font-growmajour text-lg mb-0 leading-none">
+                {p.name}: <span className="text-white ml-1">{p.value}</span>
+              </p>
+            </div>
           ))}
         </div>
       );
@@ -132,8 +135,8 @@ export default function AnalyticsDashboard() {
                           <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} />
-                      <YAxis stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} />
+                      <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} tickLine={false} axisLine={false} />
+                      <YAxis stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'inherit'}} tickLine={false} axisLine={false} />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend wrapperStyle={{ fontSize: '12px', opacity: 0.8 }} />
                       <Area type="monotone" dataKey="approved" name="Approved" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorApproved)" />
@@ -159,8 +162,8 @@ export default function AnalyticsDashboard() {
                 <div className="flex-1 min-h-[300px] w-full mt-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart layout="vertical" data={data.leaveReasons} margin={{ top: 10, right: 20, left: 40, bottom: 0 }}>
-                      <XAxis type="number" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} />
-                      <YAxis type="category" dataKey="reason" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.8)', fontSize: 11}} width={100} />
+                      <XAxis type="number" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} tickLine={false} axisLine={false} />
+                      <YAxis type="category" dataKey="reason" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.8)', fontSize: 11}} width={100} tickLine={false} axisLine={false} />
                       <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
                       <Bar dataKey="count" name="Count" fill="#f97316" radius={[0, 4, 4, 0]} barSize={24} />
                     </BarChart>
@@ -174,50 +177,45 @@ export default function AnalyticsDashboard() {
               
               {/* Department Distribution (If applicable) */}
               {data.deptDistribution && data.deptDistribution.length > 0 && (
-                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl flex flex-col">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
-                      <PieChart size={18} className="text-sky-400" />
+                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl flex flex-col group hover:bg-white/[0.03] transition-colors">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <PieChartIcon size={18} className="text-sky-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-white font-growmajour text-lg">By Department</h2>
+                        <p className="text-white/40 font-mooxy text-xs">Overall leave volume</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-white font-growmajour text-lg">By Department</h2>
-                      <p className="text-white/40 font-mooxy text-xs">Overall leave volume</p>
+                    <div className="text-right hidden sm:block">
+                      <p className="text-sky-400 font-growmajour text-2xl">{data.deptDistribution.reduce((acc, curr) => acc + curr.count, 0)}</p>
+                      <p className="text-white/30 font-mooxy text-[10px] uppercase tracking-wider">Total</p>
                     </div>
                   </div>
 
-                  <div className="flex-1 min-h-[220px] w-full relative">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={data.deptDistribution}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={80}
-                          paddingAngle={2}
-                          dataKey="count"
-                          nameKey="department"
-                          stroke="none"
-                        >
-                          {data.deptDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  
-                  <div className="mt-4 flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                    {data.deptDistribution.map((d, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs font-mooxy">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
-                          <span className="text-white/70 truncate max-w-[120px]">{d.department || "Unknown"}</span>
+                  <div className="flex-1 mt-2 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar max-h-[300px]">
+                    {data.deptDistribution.map((d, i) => {
+                      const total = data.deptDistribution.reduce((acc, curr) => acc + curr.count, 0);
+                      const percentage = Math.round((d.count / (total || 1)) * 100);
+                      return (
+                        <div key={i} className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between text-xs font-mooxy">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
+                              <span className="text-white/80">{d.department || "Unknown"}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white/40">{percentage}%</span>
+                              <span className="text-white font-medium bg-white/5 px-2 py-0.5 rounded-md">{d.count}</span>
+                            </div>
+                          </div>
+                          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${percentage}%`, backgroundColor: COLORS[i % COLORS.length] }}></div>
+                          </div>
                         </div>
-                        <span className="text-white font-medium">{d.count}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -238,8 +236,8 @@ export default function AnalyticsDashboard() {
                   <div className="flex-1 min-h-[220px] w-full mt-2">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.certByType} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <XAxis dataKey="type" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 11}} />
-                        <YAxis stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 11}} />
+                        <XAxis dataKey="type" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 11}} tickLine={false} axisLine={false} />
+                        <YAxis stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 11}} tickLine={false} axisLine={false} />
                         <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
                         <Bar dataKey="count" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={40} />
                       </BarChart>

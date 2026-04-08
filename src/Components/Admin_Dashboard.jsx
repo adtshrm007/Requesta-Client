@@ -15,6 +15,7 @@ import { getDepartmentalAdminLeave } from "../utils/GETDepartmentalAdminLeaves";
 import { getDepartmentalAdmin } from "../utils/GETDepartmentalAdmin";
 import { getLeavesForDepartmentalAdmin } from "../utils/GETLeavesForDepartmentalAdmin";
 import { getAnalyticsSummary } from "../utils/GETAnalytics";
+import { getAdvancedAnalytics } from "../utils/GETAdvancedAnalytics";
 import { getDecisionIntelligence } from "../utils/GETDecisionIntelligence";
 import Loader from "./Loader";
 import gsap from "gsap";
@@ -65,6 +66,7 @@ export default function AdminDashboard() {
   const [forwardedLeaves, setForwardedLeaves] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [analytics, setAnalytics] = useState(null);
+  const [advancedAnalytics, setAdvancedAnalytics] = useState(null);
   const [decisionStats, setDecisionStats] = useState(null);
 
   const navRef = useRef(null);
@@ -95,6 +97,10 @@ export default function AdminDashboard() {
           const dStats = await getDecisionIntelligence(localStorage.getItem("adminaccessToken"));
           setAnalytics(stats);
           setDecisionStats(dStats?.data || null);
+          if (admin.role === "Super Admin" || admin.role === "Departmental Admin") {
+            const adv = await getAdvancedAnalytics(localStorage.getItem("adminaccessToken"));
+            setAdvancedAnalytics(adv);
+          }
         }
       }
     };
@@ -522,6 +528,39 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+
+                {/* Department-wise Distribution (Super Admin Only) */}
+                {role === "Super Admin" && advancedAnalytics?.deptDistribution && advancedAnalytics.deptDistribution.length > 0 && (
+                  <div className="mt-5 bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-white font-growmajour text-lg">Department Breakdown</h3>
+                        <p className="text-white/40 font-mooxy text-xs">Total request volume mapped by branches</p>
+                      </div>
+                      <button onClick={() => navigate('/analytics')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white flex items-center gap-2 text-xs font-mooxy transition-all">
+                        View Deep Analytics <ArrowRight size={12} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {advancedAnalytics.deptDistribution.map((dept, i) => {
+                        const colors = Object.values(colorMap);
+                        const c = colors[i % colors.length];
+                        return (
+                          <div key={i} className="bg-white/[0.03] border border-white/8 rounded-xl p-5 hover:bg-white/[0.08] hover:border-white/20 hover:scale-[1.02] transition-all duration-300 relative overflow-hidden group shadow-lg">
+                            <div className={`absolute -top-4 -right-4 w-20 h-20 ${c.bg} rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                            <div className="relative z-10">
+                              <p className="text-white/60 font-mooxy text-[11px] mb-1.5 truncate uppercase tracking-wider">{dept.department || "Unknown"}</p>
+                              <div className="flex items-baseline gap-2">
+                                <p className={`font-growmajour text-3xl ${c.text}`}>{dept.count}</p>
+                                <p className="text-white/30 font-mooxy text-[10px] uppercase">Requests</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
