@@ -24,13 +24,12 @@
 - ?? **Dual Authentication** — Separate login flows for Students and Admins
 - ?? **Leave Management** — Students submit, admins approve/reject/forward through a multi-stage pipeline
 - ?? **Certificate Requests** — Students request academic certificates; Super Admin issues them
-- ?? **AI Assistant Panel** — AI-powered request drafting and quality validation for all users
-- ?? **AI Validator Panel** — Real-time content scoring and feedback before submission
+- ?? **AI Assistant Panel** — AI-powered request drafting via OpenRouter API (GPT-4o mini)
+- ?? **AI Validator Panel** — Content quality scoring (0-100) with improvement suggestions via OpenRouter API
 - ? **AI Approval Suggestions** — Admins receive intelligent approve/reject/forward recommendations
 - ?? **Analytics Dashboard** — Rich charts showing approval rates, trends, department breakdowns, and decision intelligence
 - ?? **System Insights Panel** — AI-generated narrative analysis of system health and trends
 - ??? **Fraud Badge** — Visual indicator for suspicious or duplicate leave patterns
-- ?? **Notifications** — Real-time status updates for students and admins
 - ?? **Admin Hierarchy Views** — Browse Faculty, Departmental Admins, and manage admin accounts
 - ??? **File Upload** — Attach supporting documents (PDFs, images) to leave/certificate requests
 - ?? **Responsive Design** — Optimized for desktop and mobile screens
@@ -50,7 +49,7 @@
 | Charts | Recharts |
 | Animations | GSAP, Framer Motion (@react-spring/web) |
 | Icons | Lucide React |
-| Notifications | React Toastify |
+| Toast Alerts | React Toastify (UI feedback only) |
 | PDF Viewer | react-pdf, pdfjs-dist |
 | Scroll | react-scroll |
 | Linting | ESLint 9 |
