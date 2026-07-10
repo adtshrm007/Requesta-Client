@@ -1,6 +1,6 @@
 # ?? Requesta — Client
 
-> **Requesta** is an AI-powered academic request management system. This is the **frontend application** built with React 19 + Vite and styled with Tailwind CSS v4. It provides a rich, role-aware interface for students and admins to manage leave requests, certificate applications, and system analytics.
+> **Requesta** is an AI-powered academic request management system. This is the **frontend application** built with React 19 + Vite and styled with Tailwind CSS v4. It provides a rich, role-aware interface for students and admins across **19 pages**, **31 components**, and **40 API utility modules**.
 
 ---
 
@@ -21,16 +21,16 @@
 
 ## ? Features
 
-- ?? **Dual Authentication** — Separate login flows for Students and Admins
-- ?? **Leave Management** — Students submit, admins approve/reject/forward through a multi-stage pipeline
+- ?? **Dual Authentication** — Separate login flows for Students and Admins with JWT stored in localStorage
+- ?? **Leave Management** — Students submit, admins approve/reject/forward through a **4-status multi-stage pipeline**
 - ?? **Certificate Requests** — Students request academic certificates; Super Admin issues them
-- ?? **AI Assistant Panel** — AI-powered request drafting via OpenRouter API (GPT-4o mini)
+- ?? **AI Assistant Panel** — AI-powered request drafting via OpenRouter API (GPT-4o mini), backed by **3 server-side AI endpoints**
 - ?? **AI Validator Panel** — Content quality scoring (0-100) with improvement suggestions via OpenRouter API
 - ? **AI Approval Suggestions** — Admins receive intelligent approve/reject/forward recommendations
-- ?? **Analytics Dashboard** — Rich charts showing approval rates, trends, department breakdowns, and decision intelligence
+- ?? **Analytics Dashboard** — Rich charts powered by **4 analytics endpoints**: approval rates, trends, department breakdowns, and decision intelligence
 - ?? **System Insights Panel** — AI-generated narrative analysis of system health and trends
 - ??? **Fraud Badge** — Visual indicator for suspicious or duplicate leave patterns
-- ?? **Admin Hierarchy Views** — Browse Faculty, Departmental Admins, and manage admin accounts
+- ?? **Admin Hierarchy Views** — Browse **3 admin roles** (Faculty, Departmental Admin, Super Admin) and manage accounts
 - ??? **File Upload** — Attach supporting documents (PDFs, images) to leave/certificate requests
 - ?? **Responsive Design** — Optimized for desktop and mobile screens
 - ?? **Dark Mode UI** — Premium dark-themed interface with glassmorphism and smooth animations
